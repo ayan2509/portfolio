@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -3152,7 +3152,7 @@
     /* ── Theme ── */
     const html        = document.documentElement;
     const themeToggle = document.getElementById('themeToggle');
-    html.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    html.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
     themeToggle.addEventListener('click', () => {
       const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       html.setAttribute('data-theme', next);
