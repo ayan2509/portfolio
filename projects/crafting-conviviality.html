@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Crafting Conviviality — Transforming schools into vibrant learning centres through community-led participatory design." />
+  <title>Crafting Conviviality — Ayan</title>
+
+  <!-- ─── Google Fonts ─────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       DESIGN TOKENS
+       ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg:      #111;
+      --text:    #F5F3F5;
+      --accent:  #F3701E;
+      --muted:   #888;
+      --border:  rgba(255, 255, 255, 0.1);
+      --surface: rgba(255, 255, 255, 0.05);
+      --font-h:  'Space Grotesk', sans-serif;
+      --font-b:  'Inter', sans-serif;
+      --spring:  cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="light"] {
+      --bg:      #F5F3F5;
+      --text:    #191919;
+      --accent:  #F3701E;
+      --muted:   rgba(75, 96, 127, 0.55);
+      --border:  rgba(75, 96, 127, 0.12);
+      --surface: rgba(255, 255, 255, 0.55);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      transition: background 0.45s ease, color 0.45s ease;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    ::selection { background: var(--accent); color: #fff; }
+
+    ::-webkit-scrollbar       { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       COMBINED FIXED HEADER WRAPPER
+       ═══════════════════════════════════════════════════════════════ */
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      transform: translateY(0);
+      transition: transform 0.4s ease;
+    }
+
+    /* Main nav slides away upward once user has scrolled */
+    .page-header.nav-scrolled {
+      transform: translateY(-68px);
+    }
+
+    /* ── Main nav row ── */
+    .main-nav {
+      height: 68px;
+      background: rgba(17, 17, 17, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .main-nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 100%;
+    }
+
+    .nav-logo {
+      font-family: var(--font-h);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .nav-links a {
+      font-family: var(--font-b);
+      font-size: 0.9375rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .theme-toggle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: color 0.18s, border-color 0.18s, transform 0.35s var(--spring);
+    }
+
+    .theme-toggle:hover {
+      color: var(--text);
+      border-color: var(--text);
+      transform: rotate(30deg) scale(1.06);
+    }
+
+    .theme-toggle svg { width: 16px; height: 16px; }
+
+    .ico-sun  { display: none; }
+    .ico-moon { display: block; }
+    [data-theme="dark"] .ico-sun  { display: block; }
+    [data-theme="dark"] .ico-moon { display: none; }
+
+    /* ── Project header row ── */
+    .project-header {
+      background: rgba(17, 17, 17, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .project-header-inner {
+      display: grid;
+      grid-template-columns: 120px 1fr 120px;
+      align-items: center;
+      padding: 14px 24px;
+    }
+
+    .project-header-title {
+      grid-column: 2;
+      text-align: center;
+      font-family: var(--font-h);
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #E8D8C9;
+      text-transform: uppercase;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-b);
+      font-size: 0.875rem;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      padding: 0;
+    }
+
+    .project-nav-btn:hover { color: var(--text); }
+
+    .project-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .prev-btn { justify-self: start; }
+    .next-btn { justify-self: end; grid-column: 3; }
+
+    /* Progress bar */
+    .project-progress-track {
+      height: 2px;
+      width: 100%;
+      background: transparent;
+    }
+
+    .project-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.1s linear;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HERO SECTION
+       ═══════════════════════════════════════════════════════════════ */
+    .project-hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .project-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      z-index: 0;
+    }
+
+    /* ── Bottom meta strip ── */
+    .project-hero-meta {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      padding: 16px 24px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      opacity: 1;
+      transition: opacity 0.35s ease;
+      pointer-events: auto;
+    }
+
+    .project-hero-meta.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .project-hero-meta span {
+      font-family: var(--font-b);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: rgba(245, 243, 245, 0.75);
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SPLIT PANE CONTENT
+       ═══════════════════════════════════════════════════════════════ */
+    .project-content {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    .content-left {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+    }
+
+    .content-right {
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       COMBINED PAGE HEADER (fixed)
+       Row 1: Main nav — slides away after 80px scroll
+       Row 2: Project header — always visible
+       ══════════════════════════════════════════════════════════ -->
+  <div class="page-header" id="pageHeader">
+
+    <!-- Row 1: Main nav -->
+    <div class="main-nav" id="mainNav">
+      <div class="main-nav-inner">
+        <a href="../index.html" class="nav-logo">A.</a>
+        <nav class="nav-links">
+          <a href="../index.html#work">Work</a>
+          <a href="../index.html#about">About</a>
+          <a href="../index.html#contact">Get in Touch</a>
+        </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1"  x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1"  y1="12" x2="3"  y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+            <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 2: Project header -->
+    <div class="project-header" id="projectHeader">
+      <div class="project-header-inner">
+        <a href="indic-keyboard.html"
+           class="project-nav-btn prev-btn"
+           aria-label="Previous project">
+          <svg width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          <span>Prev</span>
+        </a>
+        <h1 class="project-header-title">Crafting Conviviality</h1>
+        <button class="project-nav-btn next-btn"
+                disabled aria-label="Next project">
+          <span>Next</span>
+          <svg width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="project-progress-track">
+        <div class="project-progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO — full viewport
+       ══════════════════════════════════════════════════════════ -->
+  <section class="project-hero" id="projectHero">
+
+    <img
+      class="project-hero-img"
+      src="../images/projects/crafting-conviviality/hero.jpg"
+      alt="Crafting Conviviality"
+      draggable="false"
+      onerror="this.src='../images/projects/crafting-conviviality/hero.jpeg'; this.onerror=null;"
+    />
+
+    <div class="project-hero-meta" id="heroMeta">
+      <span>2019</span>
+      <span>Group Project</span>
+      <span>Academic</span>
+    </div>
+
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       SPLIT PANE — populated later
+       ══════════════════════════════════════════════════════════ -->
+  <section class="project-content" id="projectContent">
+    <div class="content-left" id="contentLeft">
+      <!-- Visual pane — populated later -->
+    </div>
+    <div class="content-right" id="contentRight">
+      <!-- Content pane — populated later -->
+    </div>
+  </section>
+
+
+  <script>
+    'use strict';
+
+    /* ── Theme ── */
+    const html        = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    html.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    themeToggle.addEventListener('click', () => {
+      const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    /* ── Skip loader when navigating back to index ── */
+    const navLinks = document.querySelectorAll('.main-nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        sessionStorage.setItem('skipLoader', 'true');
+      });
+    });
+
+    /* ── Elements ── */
+    const pageHeader   = document.getElementById('pageHeader');
+    const progressFill = document.getElementById('progressFill');
+    const heroSection  = document.getElementById('projectHero');
+    const heroMeta     = document.getElementById('heroMeta');
+
+    /* ── Constants ── */
+    const NAV_HEIGHT       = 68;
+    const SCROLL_THRESHOLD = 80; /* px before main nav slides away */
+
+    /* ── Single scroll handler ── */
+    function onScroll() {
+      const scrollY   = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      /* 1. Progress bar */
+      if (progressFill) {
+        progressFill.style.width = Math.min((scrollY / docHeight) * 100, 100) + '%';
+      }
+
+      /* 2. Slide main nav away */
+      if (pageHeader) {
+        if (scrollY > SCROLL_THRESHOLD) {
+          pageHeader.classList.add('nav-scrolled');
+        } else {
+          pageHeader.classList.remove('nav-scrolled');
+        }
+      }
+
+      /* 3. Hide bottom strip when hero scrolls out of view */
+      if (heroMeta && heroSection) {
+        const heroBottom = heroSection.getBoundingClientRect().bottom;
+        if (heroBottom <= 0) {
+          heroMeta.classList.add('hidden');
+        } else {
+          heroMeta.classList.remove('hidden');
+        }
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); /* initialise on load */
+
+    /* ── Snap scroll: hero → split pane ── */
+    let hasSnapped = false;
+    let isSnapping = false;
+
+    function handleHeroSnap() {
+      if (isSnapping || !heroSection) return;
+      const heroRect   = heroSection.getBoundingClientRect();
+      const heroMid    = heroRect.height * 0.5;
+      const scrolledIn = -heroRect.top;
+
+      if (scrolledIn > heroMid && !hasSnapped) {
+        isSnapping = true;
+        hasSnapped = true;
+        document.getElementById('projectContent')
+          ?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => { isSnapping = false; }, 800);
+      }
+
+      if (heroRect.top >= 0) hasSnapped = false;
+    }
+
+    window.addEventListener('scroll', handleHeroSnap, { passive: true });
+
+  </script>
+
+</body>
+</html>

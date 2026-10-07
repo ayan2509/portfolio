@@ -1,0 +1,20 @@
+# Working files — not part of the live site
+design-reference/
+*.backup.html
+*.before-*.html
+
+# AI / editor tooling
+.agents/
+.claude/
+.codex/
+.impeccable/
+skills-lock.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Internal notes / unused source docs
+PRODUCT.md
+*.pdf

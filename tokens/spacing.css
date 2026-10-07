@@ -1,0 +1,28 @@
+/* ── Spacing, layout, radii ──────────────────────────────── */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 22px;
+  --space-6: 30px;
+  --space-7: 36px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 120px;
+
+  --page-margin: 64px;
+  --page-margin-mobile: 24px;
+  --page-max: 1440px;
+  --nav-pad-y: 32px;
+  --grid-columns: 12;
+  --hero-text-width: 560px;
+
+  --radius-none: 0;
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-pill: 999px;
+
+  --border-width: 1.5px;
+  --hairline: 1px;
+}

@@ -1,0 +1,55 @@
+/* ── Type tokens ─────────────────────────────────────────── */
+:root {
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* Name only — the one deliberate deviation. Big Shoulders Display 900 with a pink offset copy. */
+  --font-name: 'Big Shoulders Display', 'Instrument Sans', sans-serif;
+  --type-name: 236px;
+  --leading-name: 0.78;
+  --name-offset: 7px;
+
+  --stretch-condensed: 75%;
+
+  /* Display — Instrument Sans 700, condensed */
+  --type-display-xl: 210px;   /* hero name */
+  --type-display-l: 128px;    /* section titles */
+  --type-display-m: 72px;
+  --leading-display: 0.8;
+  --tracking-display: -0.02em;
+
+  /* Statement — Instrument Serif italic, one line per section.
+     Reserved for the case-study pages; the landing page uses --type-note. */
+  --type-statement: 52px;
+  --type-statement-s: 36px;
+  --leading-statement: 1.05;
+  --tracking-statement: -0.01em;
+
+  /* Note — Instrument Serif italic, the sticky section-label aside */
+  --type-note: 22px;
+  --leading-note: 1.25;
+
+  /* Lead — the 26px voice shared by hero body, about copy and contact rows */
+  --type-lead: 26px;
+  --type-lead-s: 22px;
+  --type-lead-xs: 20px;
+  --leading-lead: 1.3;
+  --tracking-lead: -0.01em;
+
+  /* UI & body — Instrument Sans */
+  --type-logo: 24px;
+  --type-body-l: 17px;
+  --type-body: 15px;
+  --type-label: 16px;   /* role line, 600 */
+  --type-button: 14px;  /* 600 */
+  --leading-body: 1.6;
+
+  /* Mono — captions and metadata */
+  --type-caption: 11px;
+  --tracking-caption: 0.12em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+}

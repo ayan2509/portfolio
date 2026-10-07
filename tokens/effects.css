@@ -1,0 +1,25 @@
+/* ── Texture & depth ─────────────────────────────────────── */
+:root {
+  --grid-size: 36px;
+  --grid-pattern:
+    repeating-linear-gradient(30deg, var(--grid-line) 0 1px, transparent 1px var(--grid-size)),
+    repeating-linear-gradient(150deg, var(--grid-line) 0 1px, transparent 1px var(--grid-size));
+  /* strongest behind the illustration, fading to ~10% behind text */
+  --grid-mask: radial-gradient(ellipse 78% 100% at 70% 50%, #000 22%, rgba(0,0,0,0.32) 58%, rgba(0,0,0,0.1) 85%, transparent 100%);
+
+  /* Lego stud grid — outline studs on a square pitch.
+     Mirrors buildBg() in components/brand/mosaic.js: radius 0.3p, stroke 0.09p.
+     Needs background-size: var(--stud-size) var(--stud-size) at the use site. */
+  --stud-size: 8px;
+  --stud-pattern: radial-gradient(circle at center,
+    transparent calc(var(--stud-size) * 0.255),
+    var(--stud-line) calc(var(--stud-size) * 0.255),
+    var(--stud-line) calc(var(--stud-size) * 0.345),
+    transparent calc(var(--stud-size) * 0.345));
+  /* Studs spread from the centre of their section and fade out at every edge */
+  --stud-mask: radial-gradient(ellipse 62% 62% at 50% 50%,
+    #000 18%, rgba(0,0,0,0.34) 54%, rgba(0,0,0,0.1) 82%, transparent 100%);
+  --crop-mark-size: 16px;
+  --crop-mark-inset: 24px;
+  --shadow-none: none; /* UI never uses drop shadows */
+}

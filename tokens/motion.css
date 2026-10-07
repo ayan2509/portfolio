@@ -1,0 +1,15 @@
+/* ── Motion ──────────────────────────────────────────────── */
+:root {
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);  /* entrances, hovers */
+  --ease-snap: cubic-bezier(0.76, 0, 0.24, 1);   /* loader, page transitions */
+  --ease-scene: cubic-bezier(0.65, 0, 0.35, 1);  /* brick assemble/explode */
+
+  --dur-fast: 0.2s;
+  --dur-base: 0.4s;
+  --dur-slow: 0.9s;
+  --dur-scene: 1.4s;
+  --brick-cycle: 6.5s; /* fade 0.35 · assemble 1.4 · hold 3 · explode 1.4 · fade 0.35 */
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0s; --dur-base: 0s; --dur-slow: 0s; --dur-scene: 0s; }
+}
