@@ -1379,8 +1379,8 @@
       grid-template-columns: var(--cols);
       align-items: start;   /* equal drawing heights keep one ground line */
       /* capped so the drawings, captions and footnote fit one screen */
-      max-width: min(100%, calc((100svh - 440px) * var(--ratio)));
-      margin: 10px auto 0;
+      max-width: clamp(720px, calc((100svh - 480px) * var(--ratio)), 100%);
+      margin: 10px auto clamp(40px, 5vw, 60px);
     }
 
     /* the hero's stud field, fainter still, behind the batteries */
@@ -1424,15 +1424,15 @@
 
     /* dimension lines: extension lines, a line with an arrowhead at each end,
        and the measurement set along it */
-    .dm-line { stroke: var(--pr-dim); stroke-width: 1; }
-    .dm-ext  { stroke: var(--pr-dim); stroke-width: 1; opacity: 0.6; }
-    .dm-head { fill: none; stroke: var(--pr-dim); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+    .dm-line { stroke: var(--pr-dim); stroke-width: 1; opacity: 0.45; }
+    .dm-ext  { stroke: var(--pr-dim); stroke-width: 1; opacity: 0.3; }
+    .dm-head { fill: none; stroke: var(--pr-dim); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; }
 
     .dm-text {
       font-family: var(--font-mono);
       font-size: 12.5px;
       letter-spacing: 0.04em;
-      fill: var(--pr-head);
+      fill: var(--pr-dim);
     }
 
     .pr-unit-cap {
@@ -1464,20 +1464,42 @@
       color: var(--text);
     }
 
-    /* how the costs were worked out: one centred note under the units */
-    .pr-units-note {
-      max-width: 68ch;
-      margin: clamp(18px, 2.4vw, 28px) auto 0;
-      text-align: center;
-      font-size: 0.9375rem;
-      line-height: 1.65;
+    /* backup time under each unit */
+    .pr-unit-h {
+      margin-top: 2px;
+      font-size: 0.8125rem;
       color: var(--pr-dim);
-      text-wrap: pretty;
     }
 
-    .pr-units-note strong { font-weight: 700; color: var(--pr-head); }
+    .pr-unit-h b { display: block; font-weight: 700; color: var(--pr-head); }
 
-    .pr-units-ref { margin: 10px 0 36px; text-align: center; }
+    /* the cost line above the drawings, and what the numbers assume */
+    .pr-units-lead { max-width: 52ch; margin-top: 14px; }
+
+    .pr-units-basis { max-width: 64ch; margin-top: 10px; }
+
+    /* the drawings arrive one after another: each outline draws itself,
+       then its modules and dimensions fade in */
+    .pr-units .bx-face {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      fill-opacity: 0;
+      transition:
+        stroke-dashoffset 1.1s var(--ease-scene) var(--d, 0s),
+        fill-opacity 0.6s ease calc(var(--d, 0s) + 0.7s);
+    }
+
+    .pr-units .bx-detail,
+    .pr-units .bx-dims {
+      opacity: 0;
+      transition: opacity 0.6s ease calc(var(--d, 0s) + 0.9s);
+    }
+
+    .pr-units.is-in .bx-face   { stroke-dashoffset: 0; fill-opacity: 1; }
+    .pr-units.is-in .bx-detail,
+    .pr-units.is-in .bx-dims   { opacity: 1; }
+
+    .pr-units-ref { margin-top: 6px; }
 
     .pr-nowrap { white-space: nowrap; }
 
@@ -1835,6 +1857,10 @@
       .pr-step:hover .pr-ph { transform: none; }
 
       .pr-c-draw { stroke-dashoffset: 0; transition: none; }
+
+      .pr-units .bx-face   { stroke-dashoffset: 0; fill-opacity: 1; transition: none; }
+      .pr-units .bx-detail,
+      .pr-units .bx-dims   { opacity: 1; transition: none; }
       .pr-c-late { opacity: 1; transition: none; }
 
       .pr-batt-fill,
@@ -2906,7 +2932,11 @@
     <div class="pr-body" style="padding-bottom: 0;">
       <span class="pr-eyebrow pr-eyebrow--wide">Putting numbers to the idea</span>
 
-      <div class="pr-units pr-reveal" style="--cols: minmax(0, 248fr) minmax(0, 363fr) minmax(0, 496fr); --ratio: 2.5507;">
+      <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong>a 40–60% reduction</strong>.</p>
+      <p class="pr-p pr-units-basis">Costs exclude installation. The hours shown under each battery depicts how long it could power critical infrastructure such as 50 fridges, 200 lights and 10 home ventilators.</p>
+      <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a> · <a href="https://english.nctv.nl/topics/c/critical-infrastructure-protection" target="_blank" rel="noopener">NCTV, critical infrastructure ↗</a></p>
+
+      <div class="pr-units pr-reveal" style="--cols: minmax(0, 300fr) minmax(0, 415fr) minmax(0, 548fr); --ratio: 2.9101;">
         <!-- one shared arrowhead for every dimension line -->
         <svg class="pr-units-defs" width="0" height="0" aria-hidden="true">
           <defs>
@@ -2915,152 +2945,163 @@
             </marker>
           </defs>
         </svg>
-        <figure class="pr-unit" style="--vbw: 248;">
-          <svg viewBox="0 0 248 434" role="img" aria-label="Isometric outdoor battery cabinet, 5.5 ft wide, 3.6 ft deep and 7.9 ft tall">
-            <polygon class="bx-top" points="58,197 130.7,239 178.4,211.5 105.6,169.5"/>
-            <polygon class="bx-side" points="130.7,360 178.4,332.5 178.4,211.5 130.7,239"/>
-            <polygon class="bx-end" points="58,318 130.7,360 130.7,239 58,197"/>
-            <polygon class="bx-rack" points="65.3,310.1 92.9,326.1 92.9,229.3 65.3,213.3"/>
-            <line class="bx-cell" x1="65.3" y1="290.7" x2="92.9" y2="306.7"/>
-            <line class="bx-cell" x1="65.3" y1="271.4" x2="92.9" y2="287.3"/>
-            <line class="bx-cell" x1="65.3" y1="252" x2="92.9" y2="268"/>
-            <line class="bx-cell" x1="65.3" y1="232.7" x2="92.9" y2="248.6"/>
-            <polygon class="bx-rack" points="95.8,327.7 123.5,343.7 123.5,246.9 95.8,230.9"/>
-            <line class="bx-cell" x1="95.8" y1="308.4" x2="123.5" y2="324.3"/>
-            <line class="bx-cell" x1="95.8" y1="289" x2="123.5" y2="305"/>
-            <line class="bx-cell" x1="95.8" y1="269.7" x2="123.5" y2="285.6"/>
-            <line class="bx-cell" x1="95.8" y1="250.3" x2="123.5" y2="266.3"/>
-            <polygon class="bx-vent" points="140.3,267.4 168.9,250.9 168.9,236.4 140.3,252.9"/>
-            <line class="dm-ext" x1="55" y1="323.2" x2="45" y2="340.5"/>
-            <line class="dm-ext" x1="127.7" y1="365.2" x2="117.7" y2="382.5"/>
-            <line class="dm-line" x1="48" y1="335.3" x2="120.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="76.9" y="369.3" transform="rotate(30 76.9 369.3)" text-anchor="middle" dominant-baseline="middle">5.5 ft</text>
-            <line class="dm-ext" x1="133.7" y1="365.2" x2="143.7" y2="382.5"/>
-            <line class="dm-ext" x1="181.4" y1="337.7" x2="191.4" y2="355"/>
-            <line class="dm-line" x1="140.7" y1="377.3" x2="188.4" y2="349.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="172.1" y="376.6" transform="rotate(-30 172.1 376.6)" text-anchor="middle" dominant-baseline="middle">3.6 ft</text>
-            <line class="dm-ext" x1="184.4" y1="332.5" x2="204.4" y2="332.5"/>
-            <line class="dm-ext" x1="184.4" y1="211.5" x2="204.4" y2="211.5"/>
-            <line class="dm-line" x1="198.4" y1="332.5" x2="198.4" y2="211.5" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="213.4" y="272" transform="rotate(-90 213.4 272)" text-anchor="middle" dominant-baseline="middle">7.9 ft</text>
+        <figure class="pr-unit" style="--vbw: 300; --d: 0.00s;">
+          <svg viewBox="0 0 300 434" role="img" aria-label="Isometric outdoor battery cabinet, 5.5 ft wide, 3.6 ft deep and 7.9 ft tall">
+            <polygon class="bx-face bx-top" pathLength="1" points="84,197 156.7,239 204.4,211.5 131.6,169.5"/>
+            <polygon class="bx-face bx-side" pathLength="1" points="156.7,360 204.4,332.5 204.4,211.5 156.7,239"/>
+            <polygon class="bx-face bx-end" pathLength="1" points="84,318 156.7,360 156.7,239 84,197"/>
+            <g class="bx-detail">
+            <polygon class="bx-rack" points="91.3,310.1 118.9,326.1 118.9,229.3 91.3,213.3"/>
+            <line class="bx-cell" x1="91.3" y1="290.7" x2="118.9" y2="306.7"/>
+            <line class="bx-cell" x1="91.3" y1="271.4" x2="118.9" y2="287.3"/>
+            <line class="bx-cell" x1="91.3" y1="252" x2="118.9" y2="268"/>
+            <line class="bx-cell" x1="91.3" y1="232.7" x2="118.9" y2="248.6"/>
+            <polygon class="bx-rack" points="121.8,327.7 149.5,343.7 149.5,246.9 121.8,230.9"/>
+            <line class="bx-cell" x1="121.8" y1="308.4" x2="149.5" y2="324.3"/>
+            <line class="bx-cell" x1="121.8" y1="289" x2="149.5" y2="305"/>
+            <line class="bx-cell" x1="121.8" y1="269.7" x2="149.5" y2="285.6"/>
+            <line class="bx-cell" x1="121.8" y1="250.3" x2="149.5" y2="266.3"/>
+            <polygon class="bx-vent" points="166.3,267.4 194.9,250.9 194.9,236.4 166.3,252.9"/>
+            </g>
+            <g class="bx-dims">
+            <line class="dm-ext" x1="81" y1="323.2" x2="71" y2="340.5"/>
+            <line class="dm-ext" x1="153.7" y1="365.2" x2="143.7" y2="382.5"/>
+            <line class="dm-line" x1="74" y1="335.3" x2="146.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="102.9" y="369.3" transform="rotate(30 102.9 369.3)" text-anchor="middle" dominant-baseline="middle">5.5 ft</text>
+            <line class="dm-ext" x1="159.7" y1="365.2" x2="169.7" y2="382.5"/>
+            <line class="dm-ext" x1="207.4" y1="337.7" x2="217.4" y2="355"/>
+            <line class="dm-line" x1="166.7" y1="377.3" x2="214.4" y2="349.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="198.1" y="376.6" transform="rotate(-30 198.1 376.6)" text-anchor="middle" dominant-baseline="middle">3.6 ft</text>
+            <line class="dm-ext" x1="210.4" y1="332.5" x2="230.4" y2="332.5"/>
+            <line class="dm-ext" x1="210.4" y1="211.5" x2="230.4" y2="211.5"/>
+            <line class="dm-line" x1="224.4" y1="332.5" x2="224.4" y2="211.5" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="239.4" y="272" transform="rotate(-90 239.4 272)" text-anchor="middle" dominant-baseline="middle">7.9 ft</text>
+            </g>
           </svg>
           <figcaption class="pr-unit-cap">
             <span class="pr-unit-k">Outdoor cabinet</span>
             <span class="pr-unit-n">100–261 kWh</span>
             <span class="pr-unit-c">€43–112k battery cost</span>
+            <span class="pr-unit-h">Keeps essentials running for <b>20–52 hours</b></span>
           </figcaption>
         </figure>
-        <figure class="pr-unit" style="--vbw: 363;">
-          <svg viewBox="0 0 363 434" role="img" aria-label="Isometric 10 ft battery container, 8 ft wide, 10 ft long and 8.5 ft tall">
-            <polygon class="bx-top" points="58,169.5 163.7,230.5 293.1,155.8 187.5,94.8"/>
-            <polygon class="bx-side" points="163.7,360 293.1,285.3 293.1,155.8 163.7,230.5"/>
-            <polygon class="bx-end" points="58,299 163.7,360 163.7,230.5 58,169.5"/>
-            <polygon class="bx-rack" points="68.6,292.2 93.9,306.8 93.9,203.2 68.6,188.6"/>
-            <line class="bx-cell" x1="68.6" y1="271.4" x2="93.9" y2="286.1"/>
-            <line class="bx-cell" x1="68.6" y1="250.7" x2="93.9" y2="265.4"/>
-            <line class="bx-cell" x1="68.6" y1="230" x2="93.9" y2="244.6"/>
-            <line class="bx-cell" x1="68.6" y1="209.3" x2="93.9" y2="223.9"/>
-            <polygon class="bx-rack" points="98.1,309.2 123.5,323.9 123.5,220.3 98.1,205.6"/>
-            <line class="bx-cell" x1="98.1" y1="288.5" x2="123.5" y2="303.2"/>
-            <line class="bx-cell" x1="98.1" y1="267.8" x2="123.5" y2="282.4"/>
-            <line class="bx-cell" x1="98.1" y1="247.1" x2="123.5" y2="261.7"/>
-            <line class="bx-cell" x1="98.1" y1="226.4" x2="123.5" y2="241"/>
-            <polygon class="bx-rack" points="127.7,326.3 153.1,341 153.1,237.3 127.7,222.7"/>
-            <line class="bx-cell" x1="127.7" y1="305.6" x2="153.1" y2="320.2"/>
-            <line class="bx-cell" x1="127.7" y1="284.9" x2="153.1" y2="299.5"/>
-            <line class="bx-cell" x1="127.7" y1="264.2" x2="153.1" y2="278.8"/>
-            <line class="bx-cell" x1="127.7" y1="243.4" x2="153.1" y2="258.1"/>
-            <line class="bx-rib" x1="176.6" y1="337" x2="176.6" y2="238.6"/>
-            <line class="bx-rib" x1="189.5" y1="329.5" x2="189.5" y2="231.1"/>
-            <line class="bx-rib" x1="202.5" y1="322" x2="202.5" y2="223.6"/>
-            <line class="bx-rib" x1="215.4" y1="314.6" x2="215.4" y2="216.1"/>
-            <line class="bx-rib" x1="228.4" y1="307.1" x2="228.4" y2="208.7"/>
-            <line class="bx-rib" x1="241.3" y1="299.6" x2="241.3" y2="201.2"/>
-            <line class="bx-rib" x1="254.3" y1="292.1" x2="254.3" y2="193.7"/>
-            <line class="bx-rib" x1="267.2" y1="284.7" x2="267.2" y2="186.2"/>
-            <line class="bx-rib" x1="280.2" y1="277.2" x2="280.2" y2="178.8"/>
-            <line class="dm-ext" x1="55" y1="304.2" x2="45" y2="321.5"/>
-            <line class="dm-ext" x1="160.7" y1="365.2" x2="150.7" y2="382.5"/>
-            <line class="dm-line" x1="48" y1="316.3" x2="153.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="93.3" y="359.8" transform="rotate(30 93.3 359.8)" text-anchor="middle" dominant-baseline="middle">8 ft</text>
-            <line class="dm-ext" x1="166.7" y1="365.2" x2="176.7" y2="382.5"/>
-            <line class="dm-ext" x1="296.1" y1="290.4" x2="306.1" y2="307.8"/>
-            <line class="dm-line" x1="173.7" y1="377.3" x2="303.1" y2="302.6" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="245.9" y="352.9" transform="rotate(-30 245.9 352.9)" text-anchor="middle" dominant-baseline="middle">10 ft</text>
-            <line class="dm-ext" x1="299.1" y1="285.3" x2="319.1" y2="285.3"/>
-            <line class="dm-ext" x1="299.1" y1="155.8" x2="319.1" y2="155.8"/>
-            <line class="dm-line" x1="313.1" y1="285.3" x2="313.1" y2="155.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="328.1" y="220.5" transform="rotate(-90 328.1 220.5)" text-anchor="middle" dominant-baseline="middle">8.5 ft</text>
+        <figure class="pr-unit" style="--vbw: 415; --d: 0.25s;">
+          <svg viewBox="0 0 415 434" role="img" aria-label="Isometric 10 ft battery container, 8 ft wide, 10 ft long and 8.5 ft tall">
+            <polygon class="bx-face bx-top" pathLength="1" points="84,169.5 189.7,230.5 319.1,155.8 213.5,94.8"/>
+            <polygon class="bx-face bx-side" pathLength="1" points="189.7,360 319.1,285.3 319.1,155.8 189.7,230.5"/>
+            <polygon class="bx-face bx-end" pathLength="1" points="84,299 189.7,360 189.7,230.5 84,169.5"/>
+            <g class="bx-detail">
+            <polygon class="bx-rack" points="94.6,292.2 119.9,306.8 119.9,203.2 94.6,188.6"/>
+            <line class="bx-cell" x1="94.6" y1="271.4" x2="119.9" y2="286.1"/>
+            <line class="bx-cell" x1="94.6" y1="250.7" x2="119.9" y2="265.4"/>
+            <line class="bx-cell" x1="94.6" y1="230" x2="119.9" y2="244.6"/>
+            <line class="bx-cell" x1="94.6" y1="209.3" x2="119.9" y2="223.9"/>
+            <polygon class="bx-rack" points="124.1,309.2 149.5,323.9 149.5,220.3 124.1,205.6"/>
+            <line class="bx-cell" x1="124.1" y1="288.5" x2="149.5" y2="303.2"/>
+            <line class="bx-cell" x1="124.1" y1="267.8" x2="149.5" y2="282.4"/>
+            <line class="bx-cell" x1="124.1" y1="247.1" x2="149.5" y2="261.7"/>
+            <line class="bx-cell" x1="124.1" y1="226.4" x2="149.5" y2="241"/>
+            <polygon class="bx-rack" points="153.7,326.3 179.1,341 179.1,237.3 153.7,222.7"/>
+            <line class="bx-cell" x1="153.7" y1="305.6" x2="179.1" y2="320.2"/>
+            <line class="bx-cell" x1="153.7" y1="284.9" x2="179.1" y2="299.5"/>
+            <line class="bx-cell" x1="153.7" y1="264.2" x2="179.1" y2="278.8"/>
+            <line class="bx-cell" x1="153.7" y1="243.4" x2="179.1" y2="258.1"/>
+            <line class="bx-rib" x1="202.6" y1="337" x2="202.6" y2="238.6"/>
+            <line class="bx-rib" x1="215.5" y1="329.5" x2="215.5" y2="231.1"/>
+            <line class="bx-rib" x1="228.5" y1="322" x2="228.5" y2="223.6"/>
+            <line class="bx-rib" x1="241.4" y1="314.6" x2="241.4" y2="216.1"/>
+            <line class="bx-rib" x1="254.4" y1="307.1" x2="254.4" y2="208.7"/>
+            <line class="bx-rib" x1="267.3" y1="299.6" x2="267.3" y2="201.2"/>
+            <line class="bx-rib" x1="280.3" y1="292.1" x2="280.3" y2="193.7"/>
+            <line class="bx-rib" x1="293.2" y1="284.7" x2="293.2" y2="186.2"/>
+            <line class="bx-rib" x1="306.2" y1="277.2" x2="306.2" y2="178.8"/>
+            </g>
+            <g class="bx-dims">
+            <line class="dm-ext" x1="81" y1="304.2" x2="71" y2="321.5"/>
+            <line class="dm-ext" x1="186.7" y1="365.2" x2="176.7" y2="382.5"/>
+            <line class="dm-line" x1="74" y1="316.3" x2="179.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="119.3" y="359.8" transform="rotate(30 119.3 359.8)" text-anchor="middle" dominant-baseline="middle">8 ft</text>
+            <line class="dm-ext" x1="192.7" y1="365.2" x2="202.7" y2="382.5"/>
+            <line class="dm-ext" x1="322.1" y1="290.4" x2="332.1" y2="307.8"/>
+            <line class="dm-line" x1="199.7" y1="377.3" x2="329.1" y2="302.6" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="271.9" y="352.9" transform="rotate(-30 271.9 352.9)" text-anchor="middle" dominant-baseline="middle">10 ft</text>
+            <line class="dm-ext" x1="325.1" y1="285.3" x2="345.1" y2="285.3"/>
+            <line class="dm-ext" x1="325.1" y1="155.8" x2="345.1" y2="155.8"/>
+            <line class="dm-line" x1="339.1" y1="285.3" x2="339.1" y2="155.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="354.1" y="220.5" transform="rotate(-90 354.1 220.5)" text-anchor="middle" dominant-baseline="middle">8.5 ft</text>
+            </g>
           </svg>
           <figcaption class="pr-unit-cap">
             <span class="pr-unit-k">10 ft container</span>
             <span class="pr-unit-n">200–400 kWh</span>
             <span class="pr-unit-c">€86–172k battery cost</span>
+            <span class="pr-unit-h">Keeps essentials running for <b>40–80 hours</b></span>
           </figcaption>
         </figure>
-        <figure class="pr-unit" style="--vbw: 496;">
-          <svg viewBox="0 0 496 434" role="img" aria-label="Isometric 20 ft battery container, 8 ft wide, 20 ft long and 8.5 ft tall">
-            <polygon class="bx-top" points="58,169.5 163.7,230.5 426.1,79 320.4,18"/>
-            <polygon class="bx-side" points="163.7,360 426.1,208.5 426.1,79 163.7,230.5"/>
-            <polygon class="bx-end" points="58,299 163.7,360 163.7,230.5 58,169.5"/>
-            <polygon class="bx-rack" points="68.6,292.2 93.9,306.8 93.9,203.2 68.6,188.6"/>
-            <line class="bx-cell" x1="68.6" y1="271.4" x2="93.9" y2="286.1"/>
-            <line class="bx-cell" x1="68.6" y1="250.7" x2="93.9" y2="265.4"/>
-            <line class="bx-cell" x1="68.6" y1="230" x2="93.9" y2="244.6"/>
-            <line class="bx-cell" x1="68.6" y1="209.3" x2="93.9" y2="223.9"/>
-            <polygon class="bx-rack" points="98.1,309.2 123.5,323.9 123.5,220.3 98.1,205.6"/>
-            <line class="bx-cell" x1="98.1" y1="288.5" x2="123.5" y2="303.2"/>
-            <line class="bx-cell" x1="98.1" y1="267.8" x2="123.5" y2="282.4"/>
-            <line class="bx-cell" x1="98.1" y1="247.1" x2="123.5" y2="261.7"/>
-            <line class="bx-cell" x1="98.1" y1="226.4" x2="123.5" y2="241"/>
-            <polygon class="bx-rack" points="127.7,326.3 153.1,341 153.1,237.3 127.7,222.7"/>
-            <line class="bx-cell" x1="127.7" y1="305.6" x2="153.1" y2="320.2"/>
-            <line class="bx-cell" x1="127.7" y1="284.9" x2="153.1" y2="299.5"/>
-            <line class="bx-cell" x1="127.7" y1="264.2" x2="153.1" y2="278.8"/>
-            <line class="bx-cell" x1="127.7" y1="243.4" x2="153.1" y2="258.1"/>
-            <line class="bx-rib" x1="176.8" y1="336.9" x2="176.8" y2="238.5"/>
-            <line class="bx-rib" x1="189.9" y1="329.3" x2="189.9" y2="230.9"/>
-            <line class="bx-rib" x1="203" y1="321.7" x2="203" y2="223.3"/>
-            <line class="bx-rib" x1="216.1" y1="314.2" x2="216.1" y2="215.7"/>
-            <line class="bx-rib" x1="229.3" y1="306.6" x2="229.3" y2="208.2"/>
-            <line class="bx-rib" x1="242.4" y1="299" x2="242.4" y2="200.6"/>
-            <line class="bx-rib" x1="255.5" y1="291.4" x2="255.5" y2="193"/>
-            <line class="bx-rib" x1="268.6" y1="283.9" x2="268.6" y2="185.4"/>
-            <line class="bx-rib" x1="281.7" y1="276.3" x2="281.7" y2="177.9"/>
-            <line class="bx-rib" x1="294.9" y1="268.7" x2="294.9" y2="170.3"/>
-            <line class="bx-rib" x1="308" y1="261.1" x2="308" y2="162.7"/>
-            <line class="bx-rib" x1="321.1" y1="253.6" x2="321.1" y2="155.1"/>
-            <line class="bx-rib" x1="334.2" y1="246" x2="334.2" y2="147.6"/>
-            <line class="bx-rib" x1="347.3" y1="238.4" x2="347.3" y2="140"/>
-            <line class="bx-rib" x1="360.5" y1="230.8" x2="360.5" y2="132.4"/>
-            <line class="bx-rib" x1="373.6" y1="223.3" x2="373.6" y2="124.8"/>
-            <line class="bx-rib" x1="386.7" y1="215.7" x2="386.7" y2="117.3"/>
-            <line class="bx-rib" x1="399.8" y1="208.1" x2="399.8" y2="109.7"/>
-            <line class="bx-rib" x1="412.9" y1="200.5" x2="412.9" y2="102.1"/>
-            <line class="dm-ext" x1="55" y1="304.2" x2="45" y2="321.5"/>
-            <line class="dm-ext" x1="160.7" y1="365.2" x2="150.7" y2="382.5"/>
-            <line class="dm-line" x1="48" y1="316.3" x2="153.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="93.3" y="359.8" transform="rotate(30 93.3 359.8)" text-anchor="middle" dominant-baseline="middle">8 ft</text>
-            <line class="dm-ext" x1="166.7" y1="365.2" x2="176.7" y2="382.5"/>
-            <line class="dm-ext" x1="429.1" y1="213.7" x2="439.1" y2="231"/>
-            <line class="dm-line" x1="173.7" y1="377.3" x2="436.1" y2="225.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="312.4" y="314.6" transform="rotate(-30 312.4 314.6)" text-anchor="middle" dominant-baseline="middle">20 ft</text>
-            <line class="dm-ext" x1="432.1" y1="208.5" x2="452.1" y2="208.5"/>
-            <line class="dm-ext" x1="432.1" y1="79" x2="452.1" y2="79"/>
-            <line class="dm-line" x1="446.1" y1="208.5" x2="446.1" y2="79" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
-            <text class="dm-text" x="461.1" y="143.8" transform="rotate(-90 461.1 143.8)" text-anchor="middle" dominant-baseline="middle">8.5 ft</text>
+        <figure class="pr-unit" style="--vbw: 548; --d: 0.50s;">
+          <svg viewBox="0 0 548 434" role="img" aria-label="Isometric 20 ft battery container, 8 ft wide, 20 ft long and 8.5 ft tall">
+            <polygon class="bx-face bx-top" pathLength="1" points="84,169.5 189.7,230.5 452.1,79 346.4,18"/>
+            <polygon class="bx-face bx-side" pathLength="1" points="189.7,360 452.1,208.5 452.1,79 189.7,230.5"/>
+            <polygon class="bx-face bx-end" pathLength="1" points="84,299 189.7,360 189.7,230.5 84,169.5"/>
+            <g class="bx-detail">
+            <polygon class="bx-rack" points="94.6,292.2 119.9,306.8 119.9,203.2 94.6,188.6"/>
+            <line class="bx-cell" x1="94.6" y1="271.4" x2="119.9" y2="286.1"/>
+            <line class="bx-cell" x1="94.6" y1="250.7" x2="119.9" y2="265.4"/>
+            <line class="bx-cell" x1="94.6" y1="230" x2="119.9" y2="244.6"/>
+            <line class="bx-cell" x1="94.6" y1="209.3" x2="119.9" y2="223.9"/>
+            <polygon class="bx-rack" points="124.1,309.2 149.5,323.9 149.5,220.3 124.1,205.6"/>
+            <line class="bx-cell" x1="124.1" y1="288.5" x2="149.5" y2="303.2"/>
+            <line class="bx-cell" x1="124.1" y1="267.8" x2="149.5" y2="282.4"/>
+            <line class="bx-cell" x1="124.1" y1="247.1" x2="149.5" y2="261.7"/>
+            <line class="bx-cell" x1="124.1" y1="226.4" x2="149.5" y2="241"/>
+            <polygon class="bx-rack" points="153.7,326.3 179.1,341 179.1,237.3 153.7,222.7"/>
+            <line class="bx-cell" x1="153.7" y1="305.6" x2="179.1" y2="320.2"/>
+            <line class="bx-cell" x1="153.7" y1="284.9" x2="179.1" y2="299.5"/>
+            <line class="bx-cell" x1="153.7" y1="264.2" x2="179.1" y2="278.8"/>
+            <line class="bx-cell" x1="153.7" y1="243.4" x2="179.1" y2="258.1"/>
+            <line class="bx-rib" x1="202.8" y1="336.9" x2="202.8" y2="238.5"/>
+            <line class="bx-rib" x1="215.9" y1="329.3" x2="215.9" y2="230.9"/>
+            <line class="bx-rib" x1="229" y1="321.7" x2="229" y2="223.3"/>
+            <line class="bx-rib" x1="242.1" y1="314.2" x2="242.1" y2="215.7"/>
+            <line class="bx-rib" x1="255.3" y1="306.6" x2="255.3" y2="208.2"/>
+            <line class="bx-rib" x1="268.4" y1="299" x2="268.4" y2="200.6"/>
+            <line class="bx-rib" x1="281.5" y1="291.4" x2="281.5" y2="193"/>
+            <line class="bx-rib" x1="294.6" y1="283.9" x2="294.6" y2="185.4"/>
+            <line class="bx-rib" x1="307.7" y1="276.3" x2="307.7" y2="177.9"/>
+            <line class="bx-rib" x1="320.9" y1="268.7" x2="320.9" y2="170.3"/>
+            <line class="bx-rib" x1="334" y1="261.1" x2="334" y2="162.7"/>
+            <line class="bx-rib" x1="347.1" y1="253.6" x2="347.1" y2="155.1"/>
+            <line class="bx-rib" x1="360.2" y1="246" x2="360.2" y2="147.6"/>
+            <line class="bx-rib" x1="373.3" y1="238.4" x2="373.3" y2="140"/>
+            <line class="bx-rib" x1="386.5" y1="230.8" x2="386.5" y2="132.4"/>
+            <line class="bx-rib" x1="399.6" y1="223.3" x2="399.6" y2="124.8"/>
+            <line class="bx-rib" x1="412.7" y1="215.7" x2="412.7" y2="117.3"/>
+            <line class="bx-rib" x1="425.8" y1="208.1" x2="425.8" y2="109.7"/>
+            <line class="bx-rib" x1="438.9" y1="200.5" x2="438.9" y2="102.1"/>
+            </g>
+            <g class="bx-dims">
+            <line class="dm-ext" x1="81" y1="304.2" x2="71" y2="321.5"/>
+            <line class="dm-ext" x1="186.7" y1="365.2" x2="176.7" y2="382.5"/>
+            <line class="dm-line" x1="74" y1="316.3" x2="179.7" y2="377.3" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="119.3" y="359.8" transform="rotate(30 119.3 359.8)" text-anchor="middle" dominant-baseline="middle">8 ft</text>
+            <line class="dm-ext" x1="192.7" y1="365.2" x2="202.7" y2="382.5"/>
+            <line class="dm-ext" x1="455.1" y1="213.7" x2="465.1" y2="231"/>
+            <line class="dm-line" x1="199.7" y1="377.3" x2="462.1" y2="225.8" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="338.4" y="314.6" transform="rotate(-30 338.4 314.6)" text-anchor="middle" dominant-baseline="middle">20 ft</text>
+            <line class="dm-ext" x1="458.1" y1="208.5" x2="478.1" y2="208.5"/>
+            <line class="dm-ext" x1="458.1" y1="79" x2="478.1" y2="79"/>
+            <line class="dm-line" x1="472.1" y1="208.5" x2="472.1" y2="79" marker-start="url(#dmArr)" marker-end="url(#dmArr)"/>
+            <text class="dm-text" x="487.1" y="143.8" transform="rotate(-90 487.1 143.8)" text-anchor="middle" dominant-baseline="middle">8.5 ft</text>
+            </g>
           </svg>
           <figcaption class="pr-unit-cap">
             <span class="pr-unit-k">20 ft container</span>
             <span class="pr-unit-n">400–800 kWh</span>
             <span class="pr-unit-c">€172–344k battery cost</span>
+            <span class="pr-unit-h">Keeps essentials running for <b>80–160 hours</b></span>
           </figcaption>
         </figure>
       </div>
-
-      <p class="pr-units-note pr-reveal">Each battery cost is its capacity at <strong>€430 per kWh</strong> of storage, excluding installation. Prices are falling: CE Delft projects <span class="pr-nowrap">€182–253 per kWh</span>, which would cut these costs by 40–60%. The 10 ft capacity is estimated at half a 20 ft unit.</p>
-
-      <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a></p>
 
       <div class="pr-split pr-reveal">
         <div class="pr-col-l">
@@ -3081,6 +3122,7 @@
       <img src="../images/projects/powering-resilience/visualiser-screenshot.png" alt="Battery usage visualiser screenshot" />
       <span class="pr-ph-label">Visualiser screenshot: full bleed, edge to edge</span>
     </div>
+
   </section>
 
 
