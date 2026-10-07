@@ -82,7 +82,7 @@
 
     /* ═══════════════════════════════════════════════════════════════
        STAGE 1 — LOADER
-       Background: giant 0–100 counter (hugeinc style).
+       Background: faint Lego tower that builds itself brick by brick.
        Foreground: "Hello" → "I am" typing sequence.
        ═══════════════════════════════════════════════════════════════ */
     .loader {
@@ -100,20 +100,15 @@
       pointer-events: none;
     }
 
-    /* Giant background counter — dim dark gray, 20% smaller */
-    .loader-bg-num {
+    /* Background brick build — kept very faint so the typing stays the focus */
+    .loader-bricks {
       position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-h);
-      font-size: clamp(30vw, 34vw, 42vw);
-      font-weight: 700;
-      letter-spacing: -0.06em;
-      line-height: 0.85;
-      color: #222;
-      opacity: 0.45;
-      user-select: none;
+      width: 100%; height: 100%;
+      display: block;
+      opacity: 0.14;
       pointer-events: none;
     }
+    [data-theme="dark"] .loader-bricks { opacity: 0.09; }
 
     /* Progress bar — orange, fills left to right at screen bottom */
     .loader-bar {
@@ -282,7 +277,6 @@
 
     /* Loader — original behaviour, design-system colours and type */
     .loader { background: var(--bg); }
-    .loader-bg-num { font-family: var(--font-sans); font-stretch: var(--stretch-condensed); font-weight: var(--weight-bold); color: var(--watermark); opacity: 1; }
     .loader-bar { background: var(--accent); }
     .loader-typed, .loader-cursor { font-family: var(--font-serif); font-style: italic; font-weight: var(--weight-regular); letter-spacing: var(--tracking-statement); color: var(--text); }
 
@@ -503,8 +497,8 @@
        STAGE 1 — LOADER
        ══════════════════════════════════════════════════════════ -->
   <div id="loader" class="loader" role="status" aria-live="polite" aria-label="Loading">
-    <!-- Background: giant counter -->
-    <div class="loader-bg-num" aria-hidden="true"><span id="loaderNum">0</span>%</div>
+    <!-- Background: Lego tower building itself (drawn by the module script below) -->
+    <canvas class="loader-bricks" id="loaderBricks" aria-hidden="true"></canvas>
     <!-- Foreground: typing sequence -->
     <div class="loader-fg" id="loaderFg">
       <span class="loader-typed" id="loaderTyped"></span><span class="loader-cursor" id="loaderCursor" aria-hidden="true">|</span>
@@ -827,19 +821,16 @@
     const loaderEl = document.getElementById('loader');
     const wait = ms => new Promise(r => setTimeout(r, ms));
 
-    // Background: counts 0 → 100, drives both the number and the progress bar
+    // Progress bar — runs on the same clock as the background brick build
+    window.__loaderClock = { start: performance.now(), duration: 2200 };
     function runCounter() {
       return new Promise(resolve => {
-        const numEl = document.getElementById('loaderNum');
         const barEl = document.getElementById('loaderBar');
-        const duration = 2200;
-        const start    = performance.now();
+        const { start, duration } = window.__loaderClock;
         function tick(now) {
           const t     = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - t, 3);
-          const pct   = Math.round(eased * 100);
-          numEl.textContent = pct;
-          barEl.style.width = pct + '%';
+          barEl.style.width = (eased * 100) + '%';
           if (t < 1) requestAnimationFrame(tick);
           else resolve();
         }
@@ -1082,6 +1073,44 @@
 
   <script type="module">
     import { mountMosaic } from './components/brand/mosaic.js';
+    import { isoBrick, isoArch, SHAPES, BRICK_COLORS } from './components/brand/brickEngine.js';
+
+    // Loader — the Tower drops in one piece at a time, bottom to top, on the loader's clock
+    (() => {
+      const loader = document.getElementById('loader'), canvas = document.getElementById('loaderBricks');
+      if (!loader || !canvas || loader.style.display === 'none') return;
+      const ctx = canvas.getContext('2d'), pieces = SHAPES[0].b, N = pieces.length;
+      const clock = window.__loaderClock || { start: performance.now(), duration: 2200 };
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const C30 = 0.866, S30 = 0.5, DROP = 0.4, LIFT = 9;
+      const easeOut = x => 1 - Math.pow(1 - x, 3);
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      pieces.forEach(b => { for (const X of [b[0], b[0] + b[3]]) for (const Y of [b[1], b[1] + b[4]]) for (const Z of [b[2], b[2] + b[5] + 0.2]) {
+        const sx = (X - Y) * C30, sy = (X + Y) * S30 - Z; x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy); } });
+      const frame = now => {
+        if (loader.style.display === 'none') return;
+        requestAnimationFrame(frame);
+        const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.round(w * dpr), H = Math.round(h * dpr);
+        if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+        const S = Math.min(w * 0.5 / (x1 - x0), h * 0.78 / (y1 - y0));
+        const ox = w / 2 - S * (x0 + x1) / 2, oy = h / 2 - S * (y0 + y1) / 2;
+        const P = (X, Y, Z) => [ox + (X - Y) * C30 * S, oy + (X + Y) * S30 * S - Z * S];
+        // Pieces are staggered so the last one lands as the bar reaches 100%
+        const t = reduced ? 1 : Math.min((now - clock.start) / clock.duration, 1);
+        ctx.lineWidth = 1; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+        pieces.forEach((b, i) => {
+          const p = Math.min(Math.max((t - i / N * (1 - DROP)) / DROP, 0), 1);
+          if (p <= 0) return;
+          const [bx, by, bz, bw, bd, bh, c, st, kind] = b;
+          ctx.globalAlpha = Math.min(1, p * 3);
+          (kind === 'arch' ? isoArch : isoBrick)(ctx, P, S, bx, by, bz + (1 - easeOut(p)) * LIFT, bw, bd, bh, BRICK_COLORS[c], st);
+        });
+        ctx.globalAlpha = 1;
+      };
+      requestAnimationFrame(frame);
+    })();
 
     // Hero — name cube rolls AYAN → DESIGNER → STRATEGIST → INNOVATOR → AYAN on scroll; the mosaic follows
     (() => {
