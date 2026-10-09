@@ -75,10 +75,48 @@
     .header-inner {
       width: 100%; max-width: var(--page-max);
       padding: 0 var(--page-gutter);
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      justify-content: space-between;
     }
+
+    .header-inner .logo { justify-self: start; }
+    .header-right { justify-self: end; }
+
+    .nav { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+
+    .nav a {
+      font-family: var(--font-b);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--muted);
+      padding: 7px 18px;
+      border-radius: 100px;
+      letter-spacing: 0.01em;
+      transition: color 0.18s, background 0.18s;
+    }
+
+    .nav a:hover { color: var(--text); background: var(--border); }
+    .nav a.active { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .header-inner { grid-template-columns: auto 1fr; }
+      .header-inner .logo { display: none; }
+      .nav { justify-self: start; }
+    }
+
+    /* Same wordmark as the landing page */
+    .logo {
+      font-family: var(--font-h);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--heading);
+      transition: color 0.2s;
+    }
+
+    .logo em { font-style: normal; color: var(--accent); }
+    .logo:hover { color: var(--accent); }
 
     /* Shared circular control. The theme switch and the back button are the
        same object; only their hover motion differs. */
@@ -95,7 +133,6 @@
 
     /* The sun turns; the arrow goes back the way it points. */
     .theme-btn:hover { transform: rotate(30deg) scale(1.06); }
-    .back-btn:hover  { transform: translateX(-2px) scale(1.06); }
 
     .ico-sun  { display: none; }
     .ico-moon { display: block; }
@@ -421,6 +458,35 @@
 
     .pr-mode[aria-checked="true"] .pr-mode-knob { transform: translateX(32px); }
 
+    /* every 10 s a short pink stroke runs once around the switch, then fades */
+    .pr-mode-ring {
+      position: absolute;
+      inset: -1px;
+      width: calc(100% + 2px);
+      height: calc(100% + 2px);
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .pr-mode-ring rect {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 0.3 0.7;
+      stroke-dashoffset: 0;
+      opacity: 0;
+      animation: pr-mode-ring 10s linear 2s infinite;
+    }
+
+    @keyframes pr-mode-ring {
+      0%   { stroke-dashoffset: 0;  opacity: 0; }
+      2%   { opacity: 1; }
+      14%  { stroke-dashoffset: -1; opacity: 1; }
+      18%  { stroke-dashoffset: -1.15; opacity: 0; }
+      100% { stroke-dashoffset: -1.15; opacity: 0; }
+    }
+
     .pr-mode-ico {
       position: relative;
       width: 30px;
@@ -656,6 +722,36 @@
 
     .pr-step:last-child { border-right: 0; }
 
+    /* timeline look: a dot, the number, then a rule running to the next step */
+    .pr-steps .pr-step { border: 0; padding-block: 14px 26px; }
+
+    .pr-steps .pr-step-num {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: -16px;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .pr-steps .pr-step-num::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .pr-steps .pr-step-num::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      margin-left: 4px;
+      background: var(--pr-line);
+    }
+
     .pr-step-num {
       font-family: var(--font-h);
       font-size: 0.8125rem;
@@ -673,6 +769,18 @@
 
     /* extra room under the thumbnail, which also scales up on hover */
     .pr-step .pr-ph + .pr-step-c { margin-top: 10px; }
+
+    .pr-step-ref {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--pr-faint);
+    }
+
+    .pr-step-ref a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+    .pr-step-ref a:hover { color: var(--accent); }
+
+    .pr-step-c b { font-weight: 600; color: var(--pr-head); }
 
     .pr-step-c {
       font-size: 0.9375rem;
@@ -2287,8 +2395,6 @@
 
     /* text column stays compact so the render can lead */
     .pr-impact-split .pr-lead { font-size: clamp(1.125rem, 1.6vw, 1.3125rem); }
-    /* no divider: the render and the text sit side by side on their own */
-    .pr-impact-split .pr-col-r { border-left: 0; }
 
     /* the whole section, band to next-project link, fits one screen */
     #pr-impact .pr-body { padding-top: clamp(24px, 4svh, 48px); padding-bottom: clamp(20px, 3svh, 40px); }
@@ -2654,6 +2760,7 @@
 
       .pr-impact-i { opacity: 1; transform: none; transition: none; }
       .pr-impact-frame > img { transform: none; }
+      .pr-mode-ring { display: none; }
       .pr-fnav, .pr-fnav-list { transition: none; animation: none; }
     }
 
@@ -2668,15 +2775,15 @@
   <header class="header" id="header" role="banner">
     <div class="header-inner">
 
-      <!-- Falls back to the work archive when there is no history to return to -->
-      <a href="../work.html" class="icon-btn back-btn" id="backBtn" aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="19" y1="12" x2="5" y2="12"/>
-          <polyline points="12 19 5 12 12 5"/>
-        </svg>
-      </a>
+
+      <!-- Same header as the landing page: logo, navigation, theme switch -->
+      <a href="../index.html" class="logo" aria-label="Ayan — home">A<em>.</em></a>
+
+      <ul class="nav" role="list" aria-label="Main navigation">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#contact">Let's Talk</a></li>
+      </ul>
 
       <div class="header-right">
         <button class="icon-btn theme-btn" id="themeToggle" aria-label="Switch colour scheme">
@@ -2734,6 +2841,7 @@
         <span class="pr-mode-cap">Life as usual / crisis</span>
         <button class="pr-mode" type="button" role="switch" aria-checked="false"
                 aria-label="Crisis mode">
+          <svg class="pr-mode-ring" aria-hidden="true"><rect x="0" y="0" width="100%" height="100%" rx="19" pathLength="1"/></svg>
           <span class="pr-mode-knob" aria-hidden="true"></span>
           <span class="pr-mode-ico pr-mode-ico--day" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
           <span class="pr-mode-ico pr-mode-ico--night" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/></svg></span>
@@ -2793,7 +2901,7 @@
     </div>
 
     <div class="pr-body" id="procBand">
-      <p class="pr-lead pr-proc-intro">From understanding the crisis to designing for a resilient future.</p>
+      <p class="pr-lead pr-proc-intro">From <strong>understanding the crisis</strong> to designing for a <strong>resilient future</strong>.</p>
 
       <div class="pr-proc-rule">
       </div>
@@ -2807,7 +2915,8 @@
             <img src="../images/projects/powering-resilience/process-01-venn.png" alt="Venn diagram: safety versus crisis management" />
             <span class="pr-ph-label">Venn: safety vs crisis mgmt</span>
           </div>
-          <span class="pr-step-c">Crisis management literature</span>
+          <span class="pr-step-c">A power outage does not hit everyone equally: income, age and access to resources shape how people cope.
+          <span class="pr-step-ref">Source: <a href="https://www.sciencedirect.com/science/article/pii/S2212420922007208" target="_blank" rel="noopener">ScienceDirect, 2022 ↗</a></span></span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">02</span>
@@ -2817,42 +2926,42 @@
             <img src="../images/projects/powering-resilience/process-02-causal.png" alt="Causal effect diagram" />
             <span class="pr-ph-label">Causal effect diagram</span>
           </div>
-          <span class="pr-step-c">Effects on infrastructure and social fabric</span>
+          <span class="pr-step-c">Public systems are linked through the grid, so one outage cascades across water, health, transport and communication.
+          <span class="pr-step-ref">Source: <a href="https://doi.org/10.1109/37.960131" target="_blank" rel="noopener">Rinaldi et al., 2001 ↗</a></span></span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">03</span>
-          <span class="pr-step-t">Batteries &amp; BESS</span>
+          <span class="pr-step-t">Battery Energy Storage Systems</span>
           <!-- Placeholder: ../images/projects/powering-resilience/process-03-peak-demand.png -->
           <div class="pr-ph">
             <img src="../images/projects/powering-resilience/process-03-peak-demand.png" alt="Peak demand chart" />
             <span class="pr-ph-label">Peak demand chart</span>
           </div>
-          <span class="pr-step-c">Literature review of battery systems</span>
+          <span class="pr-step-c">How batteries can keep critical infrastructure running in a crisis, and what they add to the green energy transition.
+          <span class="pr-step-ref">Source: <a href="https://www.sciencedirect.com/science/article/pii/S2352152X2402111X" target="_blank" rel="noopener">ScienceDirect, 2024 ↗</a></span></span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">04</span>
-          <span class="pr-step-t">Impact of battery</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-04-renders.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-04-renders.png" alt="Day and night renders" />
-            <span class="pr-ph-label">Day / night renders</span>
-          </div>
-          <span class="pr-step-c">Social and crisis impact</span>
-        </div>
-      </div>
-
-      <hr class="pr-hr" />
-
-      <div class="pr-steps">
-        <div class="pr-step">
-          <span class="pr-step-num">05</span>
           <span class="pr-step-t">Strategic pathways</span>
           <!-- Placeholder: ../images/projects/powering-resilience/process-05-radar.png -->
           <div class="pr-ph">
             <img src="../images/projects/powering-resilience/process-05-radar.png" alt="Radar chart: crisis versus daily use" />
             <span class="pr-ph-label">Radar: crisis vs daily use</span>
           </div>
-          <span class="pr-step-c">Designing for two contexts</span>
+          <span class="pr-step-c">Designing for two contexts: Life as Usual (LaU) and Crisis, striking the right balance.</span>
+        </div>
+      </div>
+
+      <div class="pr-steps">
+        <div class="pr-step">
+          <span class="pr-step-num">05</span>
+          <span class="pr-step-t">Impact of battery</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-04-renders.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-04-renders.png" alt="Day and night renders" />
+            <span class="pr-ph-label">Day / night renders</span>
+          </div>
+          <span class="pr-step-c">Reimagining a community battery as a source of social cohesion, and a beacon of hope in a crisis.</span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">06</span>
@@ -2862,7 +2971,7 @@
             <img src="../images/projects/powering-resilience/process-06-site-map.png" alt="Amsterdam siting map" />
             <span class="pr-ph-label">Amsterdam siting map</span>
           </div>
-          <span class="pr-step-c">Identifying key sites</span>
+          <span class="pr-step-c">Cycling trips across Amsterdam’s neighbourhoods to find the key sites where community batteries could go.</span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">07</span>
@@ -2872,17 +2981,17 @@
             <img src="../images/projects/powering-resilience/process-07-tool.png" alt="Visualiser tool screenshot" />
             <span class="pr-ph-label">Tool screenshot</span>
           </div>
-          <span class="pr-step-c">Planning usage against community needs</span>
+          <span class="pr-step-c">A digital tool that lets stakeholders plan and simulate the battery’s use, so they are ready when a crisis strikes.</span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">08</span>
-          <span class="pr-step-t">5-year plan</span>
+          <span class="pr-step-t">Implementation plan</span>
           <!-- Placeholder: ../images/projects/powering-resilience/process-08-timeline.png -->
           <div class="pr-ph">
             <img src="../images/projects/powering-resilience/process-08-timeline.png" alt="Implementation timeline" />
             <span class="pr-ph-label">Implementation timeline</span>
           </div>
-          <span class="pr-step-c">Multi-stakeholder rollout</span>
+          <span class="pr-step-c">A five-year outline for scaling community batteries from an Amsterdam pilot to cities across the Netherlands.</span>
         </div>
       </div>
     </div>
@@ -3097,7 +3206,7 @@
                 </span>
                 <span class="pr-cat-n">Stores</span>
               </div>
-              <p class="pr-cat-d">Surplus rooftop solar, kept in the neighbourhood.</p>
+              <p class="pr-cat-d">Surplus rooftop solar, collected from the neighbourhood.</p>
             </div>
 
             <div class="pr-cat pr-cat--share">
@@ -3114,7 +3223,7 @@
                 </span>
                 <span class="pr-cat-n">Redistributes</span>
               </div>
-              <p class="pr-cat-d">Back to the street at peak demand.</p>
+              <p class="pr-cat-d">Back to the neighbourhood at peak demand.</p>
             </div>
 
             <div class="pr-cat pr-cat--backup">
@@ -4284,27 +4393,6 @@
         sessionStorage.setItem('skipLoader', 'true');
       });
     });
-
-    /* ── Back ──
-       Returns to whatever the visitor came from. The element is a real link to
-       the work archive, so a direct visit, a middle-click or a new-tab click
-       still lands somewhere sensible; only a plain click is intercepted, and
-       only when there is same-origin history behind us. */
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-      backBtn.addEventListener('click', e => {
-        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        let sameOrigin = false;
-        try {
-          sameOrigin = !!document.referrer &&
-            new URL(document.referrer).origin === location.origin;
-        } catch (err) { sameOrigin = false; }
-        if (sameOrigin && window.history.length > 1) {
-          e.preventDefault();
-          window.history.back();
-        }
-      });
-    }
 
     /* ── Elements ── */
     const headerEl = document.getElementById('header');

@@ -132,6 +132,23 @@ const patchA = (() => {
   return a;
 })();
 
+// one flat Lego stud tile, s px square; shared with the loader
+export function makeTile(s, base, dark) {
+  const c = document.createElement('canvas'); c.width = c.height = s; const x = c.getContext('2d');
+  x.fillStyle = base; x.fillRect(0, 0, s, s);
+  const e = Math.max(1, Math.round(s * 0.06));
+  x.fillStyle = dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.3)'; x.fillRect(0, 0, s, e); x.fillRect(0, 0, e, s);
+  x.fillStyle = dark ? 'rgba(0,0,0,0.4)' : 'rgba(36,38,42,0.12)'; x.fillRect(0, s - e, s, e); x.fillRect(s - e, 0, e, s);
+  const r = s * 0.32, cx = s / 2, cy = s / 2;
+  x.fillStyle = dark ? 'rgba(0,0,0,0.45)' : 'rgba(36,38,42,0.18)'; x.beginPath(); x.arc(cx + s * 0.05, cy + s * 0.07, r, 0, Math.PI * 2); x.fill();
+  x.fillStyle = base; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+  const g = x.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+  g.addColorStop(0, dark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.55)'); g.addColorStop(0.5, 'rgba(255,255,255,0)'); g.addColorStop(1, dark ? 'rgba(0,0,0,0.3)' : 'rgba(36,38,42,0.16)');
+  x.strokeStyle = g; x.lineWidth = Math.max(1, s * 0.08); x.beginPath(); x.arc(cx, cy, r - x.lineWidth / 2, 0, Math.PI * 2); x.stroke();
+  return c;
+}
+export { PAL };
+
 export function mountMosaic(canvas, getState, areaEl) {
   const ctx = canvas.getContext('2d');
   const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -139,18 +156,7 @@ export function mountMosaic(canvas, getState, areaEl) {
   let raf, prev = performance.now(), t = 0, from = -1, to = 0, swapAt = 0.3; const picStart = [0, 0, 0, 0];
   function tile(base, dark) {
     const key = base + dark; if (tileCache.has(key)) return tileCache.get(key);
-    const s = tileSize, c = document.createElement('canvas'); c.width = c.height = s; const x = c.getContext('2d');
-    x.fillStyle = base; x.fillRect(0, 0, s, s);
-    const e = Math.max(1, Math.round(s * 0.06));
-    x.fillStyle = dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.3)'; x.fillRect(0, 0, s, e); x.fillRect(0, 0, e, s);
-    x.fillStyle = dark ? 'rgba(0,0,0,0.4)' : 'rgba(36,38,42,0.12)'; x.fillRect(0, s - e, s, e); x.fillRect(s - e, 0, e, s);
-    const r = s * 0.32, cx = s / 2, cy = s / 2;
-    x.fillStyle = dark ? 'rgba(0,0,0,0.45)' : 'rgba(36,38,42,0.18)'; x.beginPath(); x.arc(cx + s * 0.05, cy + s * 0.07, r, 0, Math.PI * 2); x.fill();
-    x.fillStyle = base; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
-    const g = x.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-    g.addColorStop(0, dark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.55)'); g.addColorStop(0.5, 'rgba(255,255,255,0)'); g.addColorStop(1, dark ? 'rgba(0,0,0,0.3)' : 'rgba(36,38,42,0.16)');
-    x.strokeStyle = g; x.lineWidth = Math.max(1, s * 0.08); x.beginPath(); x.arc(cx, cy, r - x.lineWidth / 2, 0, Math.PI * 2); x.stroke();
-    tileCache.set(key, c); return c;
+    const c = makeTile(tileSize, base, dark); tileCache.set(key, c); return c;
   }
   // faint outline studs across the whole hero, on the same grid as the mosaic, fading toward the edges
   function buildBg(W, H, p, gx, gy, dark) {
