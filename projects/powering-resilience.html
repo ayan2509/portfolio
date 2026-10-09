@@ -403,26 +403,39 @@
       background: var(--pr-chip);
     }
 
-    .pr-mode-btn {
+    .pr-mode { cursor: pointer; }
+
+    .pr-mode:focus-visible { outline: 2px solid var(--focus-ring, var(--accent)); outline-offset: 3px; }
+
+    /* the knob slides under whichever icon is the current mode */
+    .pr-mode-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
       width: 30px;
       height: 30px;
       border-radius: 50%;
+      background: var(--pr-head);
+      transition: transform 0.35s var(--spring);
+    }
+
+    .pr-mode[aria-checked="true"] .pr-mode-knob { transform: translateX(32px); }
+
+    .pr-mode-ico {
+      position: relative;
+      width: 30px;
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8125rem;
-      line-height: 1;
       color: var(--pr-faint);
-      background: none;
-      transition: background 0.3s var(--spring), color 0.3s ease;
+      transition: color 0.3s ease;
     }
 
-    .pr-mode-btn svg { width: 14px; height: 14px; }
+    .pr-mode-ico svg { width: 14px; height: 14px; }
 
-    .pr-mode-btn[aria-pressed="true"] {
-      background: var(--pr-head);
-      color: var(--bg);
-    }
+    .pr-mode[aria-checked="false"] .pr-mode-ico--day,
+    .pr-mode[aria-checked="true"]  .pr-mode-ico--night { color: var(--bg); }
 
     .pr-mode-cap {
       font-family: var(--font-mono);
@@ -1503,145 +1516,823 @@
 
     .pr-nowrap { white-space: nowrap; }
 
-    .pr-tool-t {
-      display: block;
-      margin-bottom: 10px;
-      font-family: var(--font-h);
-      font-size: clamp(1.125rem, 2.1vw, 1.5625rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--pr-head);
-    }
-
-    .pr-tool-link {
-      font-size: 0.75rem;
-      color: var(--accent);
-      transition: opacity 0.2s ease;
-    }
-
-    .pr-tool-link:hover { opacity: 0.7; }
-
-    .pr-bleed {
-      height: min(42vh, 300px);
-      margin-top: 24px;
-      border-left: 0;
-      border-right: 0;
-    }
-
-    /* ── 09 Five years ─────────────────────────────── */
-    .pr-time {
-      position: relative;
-      margin: 38px 0 26px;
-    }
-
-    .pr-time-rule,
-    .pr-time-fill {
-      position: absolute;
-      top: 26px;
-      left: 0;
-      right: 0;
-      height: 1px;
-    }
-
-    .pr-time-rule { background: var(--pr-rule); }
-
-    .pr-time-fill {
-      background: var(--accent);
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 0.6s ease;
-    }
-
-    .pr-years {
+    /* ── Stakeholder dynamics ──────────────────────── */
+    /* AMS on the left, a gap for the fan of lines, then the stakeholder rows */
+    .pr-map {
+      --node: clamp(52px, 4.6vw, 66px);
+      --bulge-w: clamp(56px, 8vw, 128px);
+      --col-gap: clamp(14px, 1.6vw, 24px);
       position: relative;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 16px;
+      grid-template-columns: minmax(190px, 1fr) clamp(80px, 10vw, 170px) minmax(0, 3.6fr);
+      align-items: center;
+      margin-top: clamp(40px, 5vw, 64px);
     }
 
-    .pr-year {
+    .pr-map-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    /* every connection is dotted: grey from AMS, pink between stakeholders */
+    .pr-map-fan {
+      fill: none;
+      stroke: color-mix(in srgb, var(--pr-head) 40%, transparent);
+      stroke-width: 1.2;
+      stroke-dasharray: 1.5 4;
+      stroke-linecap: round;
+      transition: opacity 0.6s ease;
+    }
+
+    .pr-map-arc {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-dasharray: 0.1 6;
+      stroke-linecap: round;
+    }
+
+    /* the dotted arc is revealed through a solid mask that draws itself */
+    .pr-map-arc-mask { fill: none; stroke: #fff; stroke-width: 8; stroke-linecap: round; }
+
+    .pr-map-hub {
+      position: relative;
+      z-index: 1;
+      justify-self: start;
+      width: 9px;
+      height: 9px;
+      margin-left: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .pr-map-ams {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
     }
 
-    .pr-batt {
+    .pr-map-ams-mark {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: min(100%, 220px);
+      margin-bottom: 12px;
+      padding: 16px 12px 14px;
+      background: #E2001A;
+      color: #fff;
+      text-align: center;
+    }
+
+    .pr-map-ams-w {
+      font-family: var(--font-h);
+      font-size: 2.125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .pr-map-ams-d {
+      font-size: 0.5625rem;
+      line-height: 1.3;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .pr-map-ams .pr-map-k { color: var(--accent); }
+
+    .pr-map-rows {
       position: relative;
-      display: block;
-      width: 32px;
-      height: 52px;
-      border: 1.5px solid var(--accent);
-      border-radius: 7px;
-      background: var(--bg);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
     }
 
-    .pr-batt::before {
-      content: "";
-      position: absolute;
-      top: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 11px;
-      height: 3px;
-      border-radius: 2px;
-      background: var(--accent);
-    }
-
-    .pr-batt-fill {
-      position: absolute;
-      left: 3px;
-      right: 3px;
-      bottom: 3px;
-      height: calc(100% - 6px);
-      border-radius: 3px;
-      background: var(--accent);
-      transform: scaleY(0);
-      transform-origin: bottom center;
-      transition: transform 0.9s var(--spring);
-    }
-
-    .pr-year--soft .pr-batt          { border-color: color-mix(in oklch, var(--accent) 35%, transparent); }
-    .pr-year--soft .pr-batt::before  { background: color-mix(in oklch, var(--accent) 35%, transparent); }
-    .pr-year--soft .pr-batt-fill     { background: color-mix(in oklch, var(--accent) 22%, transparent); }
-
-    .pr-year-t {
-      font-family: var(--font-h);
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--pr-head);
-    }
-
-    .pr-year--soft .pr-year-t { opacity: 0.6; }
-
-    .pr-year-d {
-      font-size: 0.75rem;
-      line-height: 1.6;
-      color: var(--pr-dim);
-    }
-
-    .pr-year--soft .pr-year-d { color: var(--pr-faint); }
-
-    .pr-closing {
+    /* node, name, roles; then the link to the next stakeholder on its own line */
+    .pr-map-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      padding-top: 28px;
-      border-top: 1px solid var(--pr-line);
+      grid-template-columns: calc(var(--node) + var(--bulge-w)) minmax(0, 1fr) minmax(0, 1.5fr);
+      grid-template-areas: "node who roles" ". link link";
+      column-gap: var(--col-gap);
+      align-items: start;
     }
 
-    .pr-close-i {
-      font-size: 0.8125rem;
-      line-height: 1.7;
+    .pr-map-row + .pr-map-row { padding-top: clamp(30px, 3.4vw, 44px); }
+
+    .pr-map-row .pr-map-node { grid-area: node; }
+    .pr-map-row .pr-map-who  { grid-area: who; }
+    .pr-map-row .pr-map-l    { grid-area: roles; }
+
+    .pr-map-node {
+      position: relative;
+      width: var(--node);
+      height: var(--node);
+      margin-left: calc(var(--bulge) * var(--bulge-w));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1.5px solid var(--pr-head);
+      background: var(--bg);
+      color: var(--pr-head);
+      transition: background 0.25s ease, color 0.25s ease, transform 0.3s var(--spring);
+    }
+
+    .pr-map-node svg { width: 40%; height: 40%; }
+
+    /* a short line from each circle to its name */
+    .pr-map-node::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      width: calc((1 - var(--bulge)) * var(--bulge-w) + var(--col-gap) - 8px);
+      border-top: 1px solid color-mix(in srgb, var(--pr-head) 30%, transparent);
+    }
+
+    .pr-map-who { display: flex; flex-direction: column; gap: 3px; }
+
+    .pr-map-k {
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--pr-dim);
     }
 
-    .pr-close-i strong {
-      display: block;
-      margin-bottom: 6px;
+    .pr-map-t {
       font-family: var(--font-h);
+      font-size: 1.0625rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--pr-head);
+      text-wrap: balance;
+    }
+
+    /* what this stakeholder and the next one work on together, with a rule
+       running on to the edge to close the row */
+    /* the rule stops where the longest line of role text ends (measured) */
+    .pr-map-linkrow {
+      grid-area: link;
+      display: flex;
+      align-items: center;
+      width: var(--rule-w, 100%);
+      margin-top: 12px;
+    }
+
+    .pr-map-linkrow::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid color-mix(in srgb, var(--pr-head) 22%, transparent);
+    }
+
+    .pr-map-link {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.04em;
+      color: var(--pr-head);
+    }
+
+    .pr-map-link svg { width: 11px; height: 11px; color: var(--accent); }
+
+    .pr-map-l {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding-left: 1.1em;
+      list-style: disc;
+    }
+
+    .pr-map-l li {
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--text);
+      text-wrap: pretty;
+    }
+
+    .pr-map-l li::marker { color: var(--accent); }
+
+    /* arrival: the arc draws itself, the fan and the circles follow */
+    .pr-map .pr-map-arc-mask { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s var(--ease-scene); }
+    .pr-map .pr-map-fan { opacity: 0; }
+    .pr-map .pr-map-node { opacity: 0; }
+    .pr-map.is-in .pr-map-arc-mask { stroke-dashoffset: 0; }
+    .pr-map.is-in .pr-map-fan { opacity: 1; transition-delay: 0.9s; }
+    .pr-map.is-in .pr-map-node { opacity: 1; transition: opacity 0.5s ease 0.3s; }
+
+    /* the intro's small text starts level with the main line, not the label */
+    .pr-intro-r { padding-top: calc(0.6875rem * 1.5 + 16px); }
+
+    /* ── The co-development tool ───────────────────── */
+    /* text on the left, the iPad on the right without a divider */
+    .pr-tool { grid-template-columns: 30% 70%; align-items: start; }
+    .pr-tool .pr-col-r { border-left: 0; }
+    .pr-tool-ref { margin-top: 14px; }
+
+    /* a space-grey iPad in landscape, camera on the left bezel */
+    .pr-ipad {
+      position: relative;
+      width: 100%;
+      padding: 2.6%;
+      border-radius: 5% / 7.2%;
+      background: linear-gradient(145deg, #2c2c30, #1b1b1e);
+      box-shadow:
+        inset 0 0 0 1.5px #44444a,
+        0 30px 60px -20px rgba(0, 0, 0, 0.45),
+        0 12px 24px -12px rgba(0, 0, 0, 0.35);
+    }
+
+    .pr-ipad::before {
+      content: '';
+      position: absolute;
+      left: 1.2%;
+      top: 50%;
+      width: 0.8%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #0b0b0d;
+      box-shadow: inset 0 0 0 1px #3a3a40;
+      transform: translateY(-50%);
+    }
+
+    .pr-ipad-screen {
+      position: relative;
+      aspect-ratio: 1180 / 820;
+      overflow: hidden;
+      border-radius: 1.8%;
+      background: #F4F1EA;
+      container-type: inline-size;
+    }
+
+    /* ── the planner app (its own light UI, like a real app on the device) ── */
+    .bp {
+      --bp-ink: #1F2024;
+      --bp-dim: #6B675F;
+      --bp-line: #E6E1D6;
+      --bp-card: #FFFFFF;
+      --bp-soft: #F7F5F0;
+      --bp-green: #23955D;
+      --bp-green-bg: #E3F4E8;
+      --bp-amber: #C9861A;
+      --bp-pink: oklch(0.56 0.2 0);
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-sans);
+      font-size: clamp(8px, 1.18cqw, 13px);
+      color: var(--bp-ink);
+      background: #F4F1EA;
+    }
+
+    .bp-top {
+      display: flex;
+      align-items: center;
+      gap: 0.9em;
+      padding: 1em 1.6em;
+      background: var(--bp-card);
+      border-bottom: 1px solid var(--bp-line);
+    }
+
+    .bp-logo { width: 2.4em; height: 2.4em; border-radius: 0.6em; background: var(--bp-green); }
+    .bp-brand { flex: 1; }
+    .bp-title { display: block; font-family: var(--font-h); font-size: 1.3em; font-weight: 700; }
+    .bp-sub { display: block; font-size: 0.9em; color: var(--bp-dim); }
+
+    .bp-reset {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      padding: 0.6em 1.1em;
+      border: 1px solid var(--bp-line);
+      border-radius: 0.7em;
+      background: var(--bp-card);
+      font-size: 1em;
+      font-weight: 600;
+      color: var(--bp-ink);
+    }
+
+    .bp-reset svg { width: 1.1em; height: 1.1em; }
+    .bp-reset:hover { border-color: var(--bp-ink); }
+
+    /* battery + runtime on top; appliances beside breakdown + tip below */
+    .bp-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 1em;
+      padding: 1em 1.4em 1.2em;
+    }
+
+    .bp-card {
+      padding: 1em 1.2em;
+      background: var(--bp-card);
+      border: 1px solid var(--bp-line);
+      border-radius: 1em;
+    }
+
+    .bp-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8em; }
+    .bp-h { font-family: var(--font-h); font-size: 1.15em; font-weight: 700; }
+
+    .bp-k {
+      display: flex;
+      align-items: center;
+      gap: 0.45em;
+      font-size: 0.88em;
+      color: var(--bp-dim);
+    }
+
+    /* your battery */
+    .bp-batt { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.2em; }
+    .bp-batt-l { display: flex; flex-direction: column; gap: 0.6em; }
+    .bp-batt-r { display: flex; flex-direction: column; justify-content: center; gap: 0.9em; padding-left: 1.2em; border-left: 1px solid var(--bp-line); }
+
+    .bp-tag {
+      font-family: var(--font-mono);
+      font-size: 0.78em;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bp-dim);
+    }
+
+    /* the container seen side-on: fills from the left with what is left */
+    .bp-unit {
+      position: relative;
+      height: 5.6em;
+      border: 2px solid var(--bp-ink);
+      border-radius: 0.35em;
+      overflow: hidden;
+      background: var(--bp-soft);
+    }
+
+    .bp-unit-fill {
+      position: absolute;
+      inset: 0;
+      background: var(--bp-green);
+      transform: scaleX(var(--fill, 1));
+      transform-origin: left;
+      transition: transform 0.45s var(--ease-spring, ease), background 0.3s ease;
+    }
+
+    .bp-unit-fill.is-mid { background: var(--bp-amber); }
+    .bp-unit-fill.is-low { background: var(--bp-pink); }
+
+    .bp-unit-pct {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      padding: 0.25em 0.6em;
+      border-radius: 0.4em;
+      background: rgba(255, 255, 255, 0.92);
+      font-family: var(--font-mono);
+      font-size: 1em;
+      font-weight: 700;
+      transform: translate(-50%, -50%);
+    }
+
+    .bp-dims { font-family: var(--font-mono); font-size: 0.82em; color: var(--bp-dim); text-align: center; }
+
+    .bp-dot { width: 0.7em; height: 0.7em; border-radius: 0.15em; }
+    .bp-dot--left { background: var(--bp-green); }
+    .bp-dot--used { background: #F2B65A; }
+
+    .bp-big { display: block; margin-top: 0.15em; font-size: 0.95em; color: var(--bp-dim); }
+    .bp-big b { font-family: var(--font-h); font-size: 2.1em; font-weight: 700; color: var(--bp-ink); letter-spacing: -0.02em; }
+
+    /* runtime */
+    .bp-run { display: flex; flex-direction: column; gap: 0.35em; background: var(--bp-green-bg); border-color: transparent; }
+
+    .bp-status {
+      padding: 0.3em 0.8em;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.85em;
+      font-weight: 700;
+      color: var(--bp-green);
+    }
+
+    .bp-run.is-mid { background: #FBEFD9; }
+    .bp-run.is-mid .bp-status, .bp-run.is-mid .bp-hours { color: var(--bp-amber); }
+    .bp-run.is-low { background: color-mix(in srgb, var(--bp-pink) 10%, #fff); }
+    .bp-run.is-low .bp-status, .bp-run.is-low .bp-hours { color: var(--bp-pink); }
+
+    .bp-hours { font-size: 1.3em; font-weight: 700; color: var(--bp-green); }
+    .bp-hours b { font-family: var(--font-h); font-size: 3.2em; line-height: 1; letter-spacing: -0.03em; margin-right: 0.15em; }
+    .bp-run-t { font-size: 1em; line-height: 1.45; }
+    .bp-run-s { font-size: 0.82em; color: var(--bp-dim); }
+
+    /* appliances */
+    .bp-apps { display: flex; flex-direction: column; gap: 0.8em; min-height: 0; }
+    .bp-total { font-size: 0.95em; color: var(--bp-dim); }
+    .bp-total b { color: var(--bp-ink); }
+
+    .bp-app-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
+      gap: 0.7em;
+    }
+
+    .bp-app {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.45em;
+      padding: 0.8em 0.9em;
+      background: var(--bp-soft);
+      border: 1px solid var(--bp-line);
+      border-radius: 0.8em;
+    }
+
+    .bp-app-h { display: flex; align-items: baseline; gap: 0.45em; }
+    /* each appliance's icon, tinted with its breakdown colour */
+    .bp-app-h { align-items: center; }
+
+    .bp-app-ico {
+      flex: none;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5em;
+      color: var(--c);
+      background: color-mix(in srgb, var(--c) 16%, #fff);
+    }
+
+    .bp-app-ico svg { width: 58%; height: 58%; }
+    .bp-app-n { flex: 1; min-width: 0; font-weight: 700; }
+    .bp-app-v { font-weight: 700; white-space: nowrap; }
+    .bp-app-v small { font-weight: 400; color: var(--bp-dim); }
+    .bp-app-w { margin-top: -0.3em; font-size: 0.82em; color: var(--bp-dim); }
+
+    .bp-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35em;
+      border: 1px solid var(--bp-line);
+      border-radius: 0.6em;
+      background: var(--bp-card);
+    }
+
+    .bp-stepper button {
+      width: 1.9em;
+      height: 1.9em;
+      border-radius: 0.4em;
+      font-size: 1.15em;
+      line-height: 1;
+      color: var(--bp-ink);
+    }
+
+    .bp-stepper button:hover { background: var(--bp-soft); }
+    .bp-stepper output { font-weight: 700; }
+    .bp-stepper output small { font-weight: 400; color: var(--bp-dim); }
+
+    .bp-hrs { display: flex; justify-content: space-between; font-size: 0.82em; color: var(--bp-dim); }
+    .bp-hrs b { font-family: var(--font-mono); color: var(--bp-ink); }
+
+    .bp-range { width: 100%; margin: 0; accent-color: var(--bp-ink); }
+
+    /* breakdown and tip */
+    .bp-side { display: flex; flex-direction: column; gap: 1em; min-height: 0; }
+
+    .bp-stack {
+      display: flex;
+      gap: 2px;
+      height: 0.8em;
+      margin: 0.8em 0 0.7em;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--bp-soft);
+    }
+
+    .bp-stack span { background: var(--c); transition: flex-grow 0.4s ease; }
+
+    .bp-legend { display: flex; flex-direction: column; gap: 0.35em; list-style: none; }
+
+    .bp-legend li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto 3em;
+      align-items: center;
+      gap: 0.6em;
+      font-size: 0.9em;
+    }
+
+    .bp-legend .bp-dot { background: var(--c); }
+    .bp-legend span:nth-child(3) { color: var(--bp-dim); }
+    .bp-legend b { text-align: right; }
+
+    .bp-tip {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45em;
+      background: var(--bp-ink);
+      border-color: transparent;
+      color: #F4F1EA;
+    }
+
+    .bp-tip .bp-k { font-size: 0.78em; letter-spacing: 0.06em; text-transform: uppercase; color: #A9A397; }
+    .bp-tip-h { font-family: var(--font-h); font-size: 1.15em; font-weight: 700; line-height: 1.3; }
+    .bp-tip-t { font-size: 0.9em; line-height: 1.45; color: #CFC9BC; }
+    .bp-tip-f { margin-top: auto; }
+    .bp-gain { font-weight: 700; color: #7BD6A0; }
+
+    .bp-apply {
+      padding: 0.55em 1em;
+      border-radius: 0.6em;
+      background: #fff;
+      font-size: 0.95em;
+      font-weight: 600;
+      color: var(--bp-ink);
+    }
+
+    .bp-apply:hover { background: #E9E4D8; }
+    .bp-apply[hidden] { display: none; }
+
+    .bp button:focus-visible,
+    .bp input:focus-visible { outline: 2px solid var(--bp-pink); outline-offset: 2px; }
+
+    /* narrow screens: the app stacks inside a taller frame */
+    @container (max-width: 640px) {
+      .bp { position: relative; font-size: 12px; }
+      .bp-grid, .bp-batt { grid-template-columns: 1fr; }
+      .bp-batt-r { padding-left: 0; border-left: 0; flex-direction: row; justify-content: space-between; }
+      .bp-app-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── Implementation plan ───────────────────────── */
+    /* ten columns, two per year: each node sits at the start of its pair and
+       its text spans a year and a half, below or above the line */
+    .pr-plan {
+      --node: clamp(52px, 4.4vw, 64px);
+      --stem: 26px;
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      grid-template-rows: auto var(--node) auto;
+      margin: clamp(48px, 6vw, 80px) 0 clamp(48px, 6vw, 72px);
+    }
+
+    /* the line: dotted underneath, a solid pink line drawing over it */
+    .pr-plan-line {
+      grid-row: 2;
+      grid-column: 1 / 9;
+      align-self: center;
+      position: relative;
+      height: 0;
+      margin-left: calc(var(--node) / 2);
+      margin-right: calc(var(--node) / -2);
+      border-top: 1.5px dotted color-mix(in srgb, var(--pr-head) 35%, transparent);
+    }
+
+    .pr-plan-line::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -1.5px;
+      border-top: 1.5px solid var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 1.8s var(--ease-scene);
+    }
+
+    .pr-plan-node {
+      grid-row: 2;
+      position: relative;
+      z-index: 1;
+      width: var(--node);
+      height: var(--node);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1.5px solid var(--accent);
+      background: var(--bg);
+      color: var(--accent);
+      opacity: 0;
+      transform: scale(0.7);
+      transition: opacity 0.4s ease, transform 0.5s var(--spring);
+      transition-delay: calc(0.2s + var(--i) * 0.32s);
+    }
+
+    .pr-plan-node:nth-child(2)  { grid-column: 1; }
+    .pr-plan-node:nth-child(4)  { grid-column: 3; }
+    .pr-plan-node:nth-child(6)  { grid-column: 5; }
+    .pr-plan-node:nth-child(8)  { grid-column: 7; }
+    .pr-plan-node:nth-child(10) { grid-column: 9; }
+
+    /* a battery that fills a little more each year */
+    .pr-plan-batt {
+      position: relative;
+      width: 32%;
+      height: 50%;
+      border: 1.5px solid currentColor;
+      border-radius: 3px;
+    }
+
+    .pr-plan-batt::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 40%;
+      height: 3px;
+      border-radius: 1px 1px 0 0;
+      background: currentColor;
+      transform: translateX(-50%);
+    }
+
+    .pr-plan-batt-fill {
+      position: absolute;
+      inset: 2px;
+      border-radius: 1px;
+      background: currentColor;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.7s var(--ease-scene);
+      transition-delay: calc(0.5s + var(--i) * 0.32s);
+    }
+
+    /* text, joined to its node by a short stem with a dot */
+    .pr-plan-step {
+      position: relative;
+      max-width: 340px;
+      opacity: 0;
+      transform: translateY(var(--rise, 8px));
+      transition: opacity 0.5s ease, transform 0.6s var(--spring);
+      transition-delay: calc(0.45s + var(--i) * 0.32s);
+    }
+
+    .pr-plan-step--below { grid-row: 3; padding-top: calc(var(--stem) + 14px); }
+    .pr-plan-step--above { grid-row: 1; align-self: end; padding-bottom: calc(var(--stem) + 14px); --rise: -8px; }
+
+    .pr-plan-step:nth-child(3)  { grid-column: 1 / 4; }
+    .pr-plan-step:nth-child(5)  { grid-column: 3 / 6; }
+    .pr-plan-step:nth-child(7)  { grid-column: 5 / 8; }
+    .pr-plan-step:nth-child(9)  { grid-column: 7 / 10; }
+    .pr-plan-step:nth-child(11) { grid-column: 9 / 11; }
+
+    .pr-plan-step::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--node) / 2);
+      width: 0;
+      height: var(--stem);
+      border-left: 1.5px solid var(--accent);
+    }
+
+    .pr-plan-step::after {
+      content: '';
+      position: absolute;
+      left: calc(var(--node) / 2 - 3px);
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .pr-plan-step--below::before { top: 0; }
+    .pr-plan-step--below::after  { top: calc(var(--stem) - 3px); }
+    .pr-plan-step--above::before { bottom: 0; }
+    .pr-plan-step--above::after  { bottom: calc(var(--stem) - 3px); }
+
+    .pr-plan-t {
+      margin-bottom: 10px;
+      font-family: var(--font-h);
+      font-size: 1.0625rem;
       font-weight: 700;
       color: var(--pr-head);
     }
+
+    .pr-plan-t span { font-weight: 600; }
+
+    .pr-plan-l {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 1.1em;
+      list-style: disc;
+    }
+
+    .pr-plan-l li {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: var(--pr-dim);
+      text-wrap: pretty;
+    }
+
+    .pr-plan-l li::marker { color: var(--accent); }
+    .pr-plan-l strong { font-weight: 600; color: var(--pr-head); }
+
+    .pr-plan-intro { max-width: 60ch; }
+
+    .pr-plan-more { margin: calc(clamp(48px, 6vw, 72px) * -0.5) 0 clamp(36px, 5vw, 56px); }
+
+    .pr-plan-more a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .pr-plan-more a:hover { opacity: 0.75; }
+
+    /* arrival: line draws, then each year pops in, fills and shows its text */
+    .pr-plan.is-in .pr-plan-line::after   { transform: scaleX(1); }
+    .pr-plan.is-in .pr-plan-node          { opacity: 1; transform: none; }
+    .pr-plan.is-in .pr-plan-batt-fill     { transform: scaleY(var(--lvl)); }
+    .pr-plan.is-in .pr-plan-step          { opacity: 1; transform: none; }
+
+    .pr-plan-more:last-child { margin-bottom: 0; }
+
+    /* ── Impact & Outcomes ─────────────────────────── */
+    /* the crisis render fills the left column, matching the text's height */
+    .pr-impact-l { display: flex; }
+
+    .pr-impact-fig { flex: 1; }
+
+    .pr-impact-frame {
+      flex: 1;
+      min-height: 340px;
+      padding: 0;
+    }
+
+    /* keep the battery in frame when the landscape render is cropped */
+    .pr-impact-frame > img {
+      object-position: 12% 70%;
+      transform: scale(1.06);
+      transition: opacity 0.5s ease, transform 1.6s var(--ease-scene);
+    }
+
+    .pr-impact-fig.is-in .pr-impact-frame > img { transform: none; }
+
+    /* text column stays compact so the render can lead */
+    .pr-impact-split .pr-lead { font-size: clamp(1.125rem, 1.6vw, 1.3125rem); }
+    /* no divider: the render and the text sit side by side on their own */
+    .pr-impact-split .pr-col-r { border-left: 0; }
+
+    /* the whole section, band to next-project link, fits one screen */
+    #pr-impact .pr-body { padding-top: clamp(24px, 4svh, 48px); padding-bottom: clamp(20px, 3svh, 40px); }
+    .pr-impact-frame { min-height: 0; height: clamp(320px, calc(100svh - 290px), 640px); flex: none; }
+
+    /* short laptop screens: tighten the text column so it still fits */
+    @media (min-width: 901px) and (max-height: 820px) {
+      #pr-impact .pr-stack { gap: 6px; }
+      .pr-impact-ams { padding-top: 4px; }
+      .pr-impact-split .pr-lead { font-size: 1.0625rem; }
+      .pr-impact { gap: 6px; margin-top: 0; }
+      .pr-impact .pr-op { gap: 4px; padding: 8px 14px; }
+      .pr-impact .pr-op-ico { width: 30px; height: 30px; }
+      .pr-impact .pr-op-ico svg { width: 15px; height: 15px; }
+      #pr-impact .pr-split { margin-bottom: 14px; }
+      .pr-impact-split { grid-template-columns: 54% 46%; }
+      .pr-impact-split .pr-lead { font-size: 1rem; }
+      #pr-impact .pr-body { padding-top: 18px; padding-bottom: 14px; }
+      .pr-impact-split .pr-op-p { font-size: 0.8125rem; line-height: 1.5; }
+      #pr-impact .pr-next { padding-top: 14px; }
+    }
+
+    .pr-impact { gap: 12px; margin-top: 6px; }
+    .pr-impact .pr-op { gap: 6px; padding: 12px 16px; }
+    .pr-impact .pr-op-t { font-size: 1rem; }
+    .pr-impact-split .pr-op-p { font-size: 0.875rem; line-height: 1.6; }
+
+    /* the section fills the screen, so the plan above never peeks in at the bottom */
+    #pr-impact { min-height: 100svh; display: flex; flex-direction: column; }
+    #pr-impact .pr-body { flex: 1; display: flex; flex-direction: column; }
+    #pr-impact .pr-next { margin-top: auto; }
+    #pr-impact .pr-split { margin-bottom: clamp(20px, 3svh, 36px); }
+
+    .pr-impact-i {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.7s ease, transform 0.7s var(--spring);
+      transition-delay: calc(0.2s + var(--i) * 0.18s);
+    }
+
+    .pr-impact.is-in .pr-impact-i { opacity: 1; transform: none; }
+
+
+    .pr-impact-ams { margin-top: auto; padding-top: 14px; }
 
     .pr-next {
       display: flex;
@@ -1674,6 +2365,73 @@
       color: var(--accent);
       transform: translateX(5px);
     }
+
+    /* ── Floating section nav ──────────────────────── */
+    .pr-fnav {
+      position: fixed;
+      right: clamp(16px, 3vw, 32px);
+      bottom: clamp(16px, 3vw, 32px);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.45s var(--ease-scene);
+    }
+
+    .pr-fnav.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
+    .pr-fnav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--pr-line);
+      background: var(--pr-head);
+      color: var(--bg);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .pr-fnav-btn svg { width: 15px; height: 15px; }
+    .pr-fnav-btn:focus-visible,
+    .pr-fnav-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    .pr-fnav-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--pr-line);
+      background: var(--surface, var(--bg));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+      transform-origin: bottom right;
+      animation: pr-fnav-in 0.35s var(--ease-scene);
+    }
+
+    .pr-fnav-list[hidden] { display: none; }
+
+    @keyframes pr-fnav-in { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+
+    .pr-fnav-list a {
+      display: block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: var(--pr-dim);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .pr-fnav-list a:hover { color: var(--pr-head); background: color-mix(in srgb, var(--pr-head) 7%, transparent); }
+    .pr-fnav-list a[aria-current="true"] { color: var(--accent); font-weight: 600; }
 
     /* ── Scroll reveal ─────────────────────────────── */
     .pr-reveal {
@@ -1738,6 +2496,17 @@
 
     /* ── Tablet / mobile ───────────────────────────── */
     @media (max-width: 900px) {
+      .pr-tool { grid-template-columns: 1fr; }
+      .pr-tool .pr-col-r { border-top: 0; }
+      .pr-ipad-screen { aspect-ratio: auto; }
+
+      .pr-map { grid-template-columns: 1fr; row-gap: 28px; }
+      .pr-map-lines, .pr-map-hub { display: none; }
+      .pr-map-row { grid-template-columns: var(--node) minmax(0, 1fr); grid-template-areas: "node who" ". roles" ". link"; row-gap: 10px; }
+      .pr-map-row + .pr-map-row { padding-top: 28px; }
+      .pr-map-node { margin-left: 0; }
+      .pr-map-node::after { display: none; }
+
       :root { --pr-hero-top: 68px; }
 
       .pr-split,
@@ -1775,11 +2544,10 @@
       }
 
       .pr-how,
-      .pr-lives,
-      .pr-closing { grid-template-columns: 1fr; }
+      .pr-lives { grid-template-columns: 1fr; }
 
       .pr-how { gap: 36px; }
-      .pr-closing { gap: 22px; }
+      .pr-impact-frame { flex: none; min-height: 0; height: auto; aspect-ratio: 16 / 9; }
 
       .pr-life--a {
         padding-right: 0;
@@ -1799,9 +2567,14 @@
       }
 
 
-      .pr-years { grid-template-columns: 1fr; gap: 26px; }
-      .pr-time-rule,
-      .pr-time-fill { display: none; }
+      /* the plan turns vertical: node on the left, text beside it */
+      .pr-plan { grid-template-columns: var(--node) minmax(0, 1fr); grid-template-rows: none; column-gap: 18px; row-gap: 26px; }
+      .pr-plan-line { position: absolute; top: 0; bottom: 0; left: calc(var(--node) / 2); height: auto; margin: 0; border-top: 0; border-left: 1.5px dotted color-mix(in srgb, var(--pr-head) 35%, transparent); }
+      .pr-plan-line::after { inset: 0 auto 0 -1.5px; border-top: 0; border-left: 1.5px solid var(--accent); transform: scaleY(0); transform-origin: top; }
+      .pr-plan.is-in .pr-plan-line::after { transform: scaleY(1); }
+      .pr-plan-node[class] { grid-column: 1; grid-row: auto; }
+      .pr-plan-step[class] { grid-column: 2; grid-row: auto; align-self: start; max-width: none; padding: 0; --rise: 8px; }
+      .pr-plan-step::before, .pr-plan-step::after { display: none; }
 
       .pr-acard-d  { display: none; }
       .pr-cmp-tag { top: 10px; padding: 6px 9px; }
@@ -1810,6 +2583,10 @@
     }
 
     @media (max-width: 560px) {
+      .pr-ipad-screen { aspect-ratio: auto; }
+      .pr-tool { grid-template-columns: 1fr; }
+      .pr-ipad { border-radius: 28px; }
+
       /* too small for six labels; the lists below carry them */
       .pr-acard,
       .pr-ann-lines { display: none; }
@@ -1858,14 +2635,26 @@
 
       .pr-c-draw { stroke-dashoffset: 0; transition: none; }
 
+      .pr-map .pr-map-arc-mask { stroke-dashoffset: 0; transition: none; }
+      .bp-unit-fill, .bp-stack span { transition: none; }
+      .pr-map .pr-map-fan,
+      .pr-map .pr-map-node { opacity: 1; transition: none; }
+
       .pr-units .bx-face   { stroke-dashoffset: 0; fill-opacity: 1; transition: none; }
       .pr-units .bx-detail,
       .pr-units .bx-dims   { opacity: 1; transition: none; }
       .pr-c-late { opacity: 1; transition: none; }
 
-      .pr-batt-fill,
-      .pr-time-fill,
       .pr-proc-fill { transition: none; }
+
+      .pr-plan-line::after,
+      .pr-plan-node,
+      .pr-plan-batt-fill,
+      .pr-plan-step { transition: none; }
+
+      .pr-impact-i { opacity: 1; transform: none; transition: none; }
+      .pr-impact-frame > img { transform: none; }
+      .pr-fnav, .pr-fnav-list { transition: none; animation: none; }
     }
 
   </style>
@@ -1943,12 +2732,12 @@
              alt="Community battery render, crisis at night" />
         <span class="pr-ph-label">Render: daylight<br />(crosses to the night render when toggled)</span>
         <span class="pr-mode-cap">Life as usual / crisis</span>
-        <div class="pr-mode" role="group" aria-label="Life as usual / crisis">
-          <button class="pr-mode-btn" type="button" data-mode="day"
-                  aria-pressed="true" aria-label="Life as usual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></button>
-          <button class="pr-mode-btn" type="button" data-mode="night"
-                  aria-pressed="false" aria-label="Crisis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/></svg></button>
-        </div>
+        <button class="pr-mode" type="button" role="switch" aria-checked="false"
+                aria-label="Crisis mode">
+          <span class="pr-mode-knob" aria-hidden="true"></span>
+          <span class="pr-mode-ico pr-mode-ico--day" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+          <span class="pr-mode-ico pr-mode-ico--night" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/></svg></span>
+        </button>
       </div>
 
     </div>
@@ -1996,6 +2785,111 @@
 
 
   <!-- ══════════════════════════════════════════════════════════
+       OUR PROCESS
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="pr-03">
+    <div class="pr-band">
+      <span class="pr-band-title">Our Process</span>
+    </div>
+
+    <div class="pr-body" id="procBand">
+      <p class="pr-lead pr-proc-intro">From understanding the crisis to designing for a resilient future.</p>
+
+      <div class="pr-proc-rule">
+      </div>
+
+      <div class="pr-steps">
+        <div class="pr-step">
+          <span class="pr-step-num">01</span>
+          <span class="pr-step-t">Desk research</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-01-venn.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-01-venn.png" alt="Venn diagram: safety versus crisis management" />
+            <span class="pr-ph-label">Venn: safety vs crisis mgmt</span>
+          </div>
+          <span class="pr-step-c">Crisis management literature</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">02</span>
+          <span class="pr-step-t">Waterfall effects</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-02-causal.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-02-causal.png" alt="Causal effect diagram" />
+            <span class="pr-ph-label">Causal effect diagram</span>
+          </div>
+          <span class="pr-step-c">Effects on infrastructure and social fabric</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">03</span>
+          <span class="pr-step-t">Batteries &amp; BESS</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-03-peak-demand.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-03-peak-demand.png" alt="Peak demand chart" />
+            <span class="pr-ph-label">Peak demand chart</span>
+          </div>
+          <span class="pr-step-c">Literature review of battery systems</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">04</span>
+          <span class="pr-step-t">Impact of battery</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-04-renders.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-04-renders.png" alt="Day and night renders" />
+            <span class="pr-ph-label">Day / night renders</span>
+          </div>
+          <span class="pr-step-c">Social and crisis impact</span>
+        </div>
+      </div>
+
+      <hr class="pr-hr" />
+
+      <div class="pr-steps">
+        <div class="pr-step">
+          <span class="pr-step-num">05</span>
+          <span class="pr-step-t">Strategic pathways</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-05-radar.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-05-radar.png" alt="Radar chart: crisis versus daily use" />
+            <span class="pr-ph-label">Radar: crisis vs daily use</span>
+          </div>
+          <span class="pr-step-c">Designing for two contexts</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">06</span>
+          <span class="pr-step-t">Site visit</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-06-site-map.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-06-site-map.png" alt="Amsterdam siting map" />
+            <span class="pr-ph-label">Amsterdam siting map</span>
+          </div>
+          <span class="pr-step-c">Identifying key sites</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">07</span>
+          <span class="pr-step-t">Visualiser tool</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-07-tool.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-07-tool.png" alt="Visualiser tool screenshot" />
+            <span class="pr-ph-label">Tool screenshot</span>
+          </div>
+          <span class="pr-step-c">Planning usage against community needs</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">08</span>
+          <span class="pr-step-t">5-year plan</span>
+          <!-- Placeholder: ../images/projects/powering-resilience/process-08-timeline.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/powering-resilience/process-08-timeline.png" alt="Implementation timeline" />
+            <span class="pr-ph-label">Implementation timeline</span>
+          </div>
+          <span class="pr-step-c">Multi-stakeholder rollout</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
        02 · THE 72 HOURS
        ══════════════════════════════════════════════════════════ -->
   <section class="pr-sec" id="pr-02">
@@ -2022,7 +2916,7 @@
         <div class="pr-col-r">
           <div class="pr-ctx-r">
             <span class="pr-eyebrow">The waterfall effect</span>
-            <p class="pr-lead">We mapped the effects of what a 72 hour blackout does to a neighbourhood: which systems fail, and how each failure sets off the next.</p>
+            <p class="pr-lead">We mapped the effects of what a 72 hour blackout does to a neighbourhood: <strong>which systems fail</strong>, and <strong>how each failure sets off the next</strong>.</p>
             <p class="pr-p">A blackout is more than the lights going out. Almost everything in a neighbourhood relies or runs on electricity.</p>
             <p class="pr-p">These systems also lean on each other. When one fails, it drags the next one down with it. We traced that chain across Amsterdam and mapped where each failure leads.</p>
             <p class="pr-p">So the goal is not to keep the lights on. It is to find the key infrastructure points that people rely on, and protect those.</p>
@@ -2140,111 +3034,6 @@
 
             <p class="pr-ref">Reference: Casey, J. A., Fukurai, M., Hernández, D., Balsari, S., &amp; Kiang, M. V. (2020). Power Outages and Community Health: a Narrative Review. <em>Current Environmental Health Reports, 7</em>(4), 371–383. <a href="https://doi.org/10.1007/s40572-020-00295-0" target="_blank" rel="noopener">https://doi.org/10.1007/s40572-020-00295-0</a></p>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ══════════════════════════════════════════════════════════
-       03 · PROCESS
-       ══════════════════════════════════════════════════════════ -->
-  <section class="pr-sec" id="pr-03">
-    <div class="pr-band">
-      <span class="pr-band-title">Process</span>
-    </div>
-
-    <div class="pr-body" id="procBand">
-      <p class="pr-lead pr-proc-intro">From understanding the crisis to designing for a resilient future.</p>
-
-      <div class="pr-proc-rule">
-      </div>
-
-      <div class="pr-steps">
-        <div class="pr-step">
-          <span class="pr-step-num">01</span>
-          <span class="pr-step-t">Desk research</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-01-venn.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-01-venn.png" alt="Venn diagram: safety versus crisis management" />
-            <span class="pr-ph-label">Venn: safety vs crisis mgmt</span>
-          </div>
-          <span class="pr-step-c">Crisis management literature</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">02</span>
-          <span class="pr-step-t">Waterfall effects</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-02-causal.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-02-causal.png" alt="Causal effect diagram" />
-            <span class="pr-ph-label">Causal effect diagram</span>
-          </div>
-          <span class="pr-step-c">Effects on infrastructure and social fabric</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">03</span>
-          <span class="pr-step-t">Batteries &amp; BESS</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-03-peak-demand.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-03-peak-demand.png" alt="Peak demand chart" />
-            <span class="pr-ph-label">Peak demand chart</span>
-          </div>
-          <span class="pr-step-c">Literature review of battery systems</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">04</span>
-          <span class="pr-step-t">Impact of battery</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-04-renders.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-04-renders.png" alt="Day and night renders" />
-            <span class="pr-ph-label">Day / night renders</span>
-          </div>
-          <span class="pr-step-c">Social and crisis impact</span>
-        </div>
-      </div>
-
-      <hr class="pr-hr" />
-
-      <div class="pr-steps">
-        <div class="pr-step">
-          <span class="pr-step-num">05</span>
-          <span class="pr-step-t">Strategic pathways</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-05-radar.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-05-radar.png" alt="Radar chart: crisis versus daily use" />
-            <span class="pr-ph-label">Radar: crisis vs daily use</span>
-          </div>
-          <span class="pr-step-c">Designing for two contexts</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">06</span>
-          <span class="pr-step-t">Site visit</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-06-site-map.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-06-site-map.png" alt="Amsterdam siting map" />
-            <span class="pr-ph-label">Amsterdam siting map</span>
-          </div>
-          <span class="pr-step-c">Identifying key sites</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">07</span>
-          <span class="pr-step-t">Visualiser tool</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-07-tool.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-07-tool.png" alt="Visualiser tool screenshot" />
-            <span class="pr-ph-label">Tool screenshot</span>
-          </div>
-          <span class="pr-step-c">Planning usage against community needs</span>
-        </div>
-        <div class="pr-step">
-          <span class="pr-step-num">08</span>
-          <span class="pr-step-t">5-year plan</span>
-          <!-- Placeholder: ../images/projects/powering-resilience/process-08-timeline.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/powering-resilience/process-08-timeline.png" alt="Implementation timeline" />
-            <span class="pr-ph-label">Implementation timeline</span>
-          </div>
-          <span class="pr-step-c">Multi-stakeholder rollout</span>
         </div>
       </div>
     </div>
@@ -2451,7 +3240,7 @@
     <div class="pr-body pr-split">
       <div class="pr-col-l pr-stack pr-reveal">
         <span class="pr-eyebrow pr-eyebrow--wide">Why not home batteries?</span>
-        <p class="pr-lead">A home battery serves one household. A community battery serves the whole street.</p>
+        <p class="pr-lead">A home battery serves <b>one household</b>. A community battery serves <strong>the whole street</strong>.</p>
         <p class="pr-p">Sharing one system spreads the cost, opens it up to residents who can't install their own, and puts it to work for the whole grid.</p>
       </div>
 
@@ -3103,75 +3892,343 @@
         </figure>
       </div>
 
-      <div class="pr-split pr-reveal">
-        <div class="pr-col-l">
-          <span class="pr-tool-t">Battery usage visualiser</span>
-          <span class="pr-tool-link">View the deliverable →</span>
-        </div>
-        <div class="pr-col-r pr-stack" style="gap: 12px;">
-          <p class="pr-p">Plan, prioritise, optimise: a tool that lets stakeholders model real appliance demand and decide what the battery should carry during a crisis.</p>
-          <p class="pr-p pr-p--sub">At a continuous draw the modelled 500 kWh unit empties in ~8.9 hours, or powers an average home for 35 days.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Placeholder: ../images/projects/powering-resilience/visualiser-screenshot.png -->
-    <div class="pr-ph pr-bleed pr-zoom"
-         data-zoom-label="Visualiser screenshot: full bleed, edge to edge"
-         role="button" tabindex="0" aria-label="Zoom the visualiser screenshot">
-      <img src="../images/projects/powering-resilience/visualiser-screenshot.png" alt="Battery usage visualiser screenshot" />
-      <span class="pr-ph-label">Visualiser screenshot: full bleed, edge to edge</span>
-    </div>
 
   </section>
 
 
   <!-- ══════════════════════════════════════════════════════════
-       09 · FIVE YEARS OUT
+       STAKEHOLDER DYNAMICS
        ══════════════════════════════════════════════════════════ -->
-  <section class="pr-sec pr-sec--top" id="pr-09">
+  <section class="pr-sec" id="pr-stake">
+    <div class="pr-band">
+      <span class="pr-band-title">Stakeholder Dynamics</span>
+    </div>
+
     <div class="pr-body">
-      <span class="pr-eyebrow pr-eyebrow--wide">Five years out</span>
-      <p class="pr-lead" style="max-width: 40ch; margin: 14px 0 0;">One battery becomes standard urban infrastructure.</p>
-
-      <div class="pr-time">
-        <span class="pr-time-rule"></span>
-        <span class="pr-time-fill" id="timeFill"></span>
-
-        <div class="pr-years" id="prYears">
-          <div class="pr-year" data-fill="0">
-            <span class="pr-batt"><span class="pr-batt-fill"></span></span>
-            <span class="pr-year-t">Y1 Foundations</span>
-            <span class="pr-year-d">First battery in a grid-congested neighbourhood, under a multi-stakeholder governance model. Grants from the Ministry of Green Energy; live data shared with households.</span>
-          </div>
-          <div class="pr-year" data-fill="25">
-            <span class="pr-batt"><span class="pr-batt-fill"></span></span>
-            <span class="pr-year-t">Y2 Pilot testing</span>
-            <span class="pr-year-d">Stress-test the switch between modes with zero safety incidents. Validate Tier 1 loads: hours of backup, people supported.</span>
-          </div>
-          <div class="pr-year pr-year--soft" data-fill="50">
-            <span class="pr-batt"><span class="pr-batt-fill"></span></span>
-            <span class="pr-year-t">Y3 Playbook</span>
-            <span class="pr-year-d">Pilot learnings become an SOP with siting criteria, specs and safety guidelines. One to ten deployments.</span>
-          </div>
-          <div class="pr-year pr-year--soft" data-fill="75">
-            <span class="pr-batt"><span class="pr-batt-fill"></span></span>
-            <span class="pr-year-t">Y4 Scaling up</span>
-            <span class="pr-year-d">~20 deployments, centrally monitored. Amsterdam becomes the blueprint for the country.</span>
-          </div>
-          <div class="pr-year pr-year--soft" data-fill="100">
-            <span class="pr-batt"><span class="pr-batt-fill"></span></span>
-            <span class="pr-year-t">Y5+ Resilience pro</span>
-            <span class="pr-year-d">Batteries built into new neighbourhoods as standard. Communities fluent in crisis protocol.</span>
-          </div>
+      <div class="pr-split pr-reveal">
+        <div class="pr-col-l pr-stack">
+          <span class="pr-eyebrow">Co-development methodology</span>
+          <p class="pr-lead">A project of this scale requires <strong>close coordination and knowledge exchange</strong> between stakeholders to align on how the community battery will be used.</p>
+        </div>
+        <div class="pr-col-r pr-stack pr-intro-r">
+          <p class="pr-p">Beyond the technology, a community battery depends on a social agreement between people on how its power is used.</p>
+          <p class="pr-p">Values agreed in advance decide who gets power in a blackout, avoiding chaos in the moment.</p>
+          <p class="pr-p">Clear coordination and a shared understanding between stakeholders turn these agreements into action.</p>
         </div>
       </div>
 
-      <div class="pr-closing">
-        <div class="pr-close-i"><strong>Thinking ahead</strong><em>Denk Vooruit</em> asks for readiness. This builds the thing that delivers it.</div>
-        <div class="pr-close-i"><strong>A healthier grid</strong>Every install is one less pressure point on the national network.</div>
-        <div class="pr-close-i"><strong>Social cohesion</strong>A shared asset in daily life; a trusted anchor in a crisis.</div>
+      <!-- lines are measured from where the circles land, so they stay attached as text wraps -->
+      <div class="pr-map pr-reveal" id="prMap">
+        <svg class="pr-map-lines" aria-hidden="true"></svg>
+
+        <div class="pr-map-ams" data-key="ams">
+          <span class="pr-map-ams-mark">
+            <span class="pr-map-ams-w">AMS</span>
+            <span class="pr-map-ams-d">Amsterdam Institute for Advanced Metropolitan Solutions</span>
+          </span>
+          <span class="pr-map-k">Coordinator</span>
+          <h3 class="pr-map-t">AMS Institute</h3>
+          <ul class="pr-map-l">
+            <li>Sets the long-term vision and system-level goals: equity, resilience and sustainability</li>
+            <li>Acts as a trusted, non-commercial intermediary between public, private, and community representatives</li>
+            <li>Translates learnings into a scalable framework through policy briefs, design guidelines, and actionable playbooks</li>
+          </ul>
+        </div>
+
+        <span class="pr-map-hub" aria-hidden="true"></span>
+
+        <div class="pr-map-rows">
+          <div class="pr-map-row" data-key="ministry" style="--bulge: 0.259;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">National government</span>
+              <h3 class="pr-map-t">Ministries of Climate Policy and Green Growth, and Defence</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Align community batteries with national targets for renewables, resilience and grid congestion</li>
+              <li>Define the ownership model and how batteries take part in the energy market</li>
+              <li>Provide subsidies for pilots and scale-up</li>
+            </ul>
+            <div class="pr-map-linkrow"><span class="pr-map-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>Funding for pilots</span></div>
+          </div>
+          <div class="pr-map-row" data-key="city" style="--bulge: 0.707;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">Local government</span>
+              <h3 class="pr-map-t">Municipality (Gemeente Amsterdam)</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Help choose the sites where batteries are installed</li>
+              <li>Make sure residents understand the benefits and the governance</li>
+              <li>Allocate funds or co-finance pilots and first deployments</li>
+            </ul>
+            <div class="pr-map-linkrow"><span class="pr-map-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>Benefits &amp; governance</span></div>
+          </div>
+          <div class="pr-map-row" data-key="community" style="--bulge: 0.966;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">Residents</span>
+              <h3 class="pr-map-t">Communities</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Co-design what "community benefit" means to them</li>
+              <li>Identify which buildings matter most during an outage</li>
+              <li>Act as co-owners of the community battery</li>
+            </ul>
+            <div class="pr-map-linkrow"><span class="pr-map-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>Sites &amp; critical buildings</span></div>
+          </div>
+          <div class="pr-map-row" data-key="grid" style="--bulge: 0.966;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">Infrastructure</span>
+              <h3 class="pr-map-t">Grid operators</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Integrate the batteries with the grid</li>
+              <li>Work with manufacturers on grid forming, protection and islanding</li>
+              <li>Find where community batteries deliver the most value</li>
+            </ul>
+            <div class="pr-map-linkrow"><span class="pr-map-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>Grid forming &amp; installation</span></div>
+          </div>
+          <div class="pr-map-row" data-key="battery" style="--bulge: 0.707;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/><line x1="6" y1="11" x2="6" y2="13"/><line x1="10" y1="11" x2="10" y2="13"/><line x1="14" y1="11" x2="14" y2="13"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">Industry</span>
+              <h3 class="pr-map-t">Battery manufacturers and providers</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Build batteries that ease grid congestion and strengthen resilience</li>
+              <li>Handle installation, maintenance and safety together with grid operators</li>
+              <li>Keep developing and improving the technology</li>
+            </ul>
+            <div class="pr-map-linkrow"><span class="pr-map-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>Co-developing technology</span></div>
+          </div>
+          <div class="pr-map-row" data-key="research" style="--bulge: 0.259;">
+            <span class="pr-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+            <div class="pr-map-who">
+              <span class="pr-map-k">Knowledge</span>
+              <h3 class="pr-map-t">Education and research institutes</h3>
+            </div>
+            <ul class="pr-map-l">
+              <li>Collect data and carry out research</li>
+              <li>Co-develop battery technology with manufacturers</li>
+              <li>Use the data to create SOPs and playbooks for scaling up</li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </div>
+    <!-- the co-development tool: part of Stakeholder Dynamics, so its band stays pinned -->
+    <div class="pr-sec--top" id="pr-tool">
+      <div class="pr-body pr-split pr-tool">
+        <div class="pr-col-l pr-stack pr-reveal">
+          <span class="pr-eyebrow">The co-development tool</span>
+          <p class="pr-lead">To help communities and stakeholders plan how the battery is used, we built a tool for deciding <strong>which critical infrastructure gets power first</strong>.</p>
+          <p class="pr-p">Every community has different needs. The tool lets them plan and simulate different power-use scenarios before a blackout happens.</p>
+          <p class="pr-p">It also shows stakeholders, at a glance, how the battery is being used, so they can adapt as a situation unfolds.</p>
+        </div>
+
+        <div class="pr-col-r pr-reveal">
+          <!-- the planner runs inside a space-grey iPad; the app is drawn by the script below -->
+          <figure class="pr-ipad" id="prIpad">
+            <div class="pr-ipad-screen">
+              <div class="bp" id="bpApp">
+                <header class="bp-top">
+                  <span class="bp-logo" aria-hidden="true"></span>
+                  <div class="bp-brand">
+                    <span class="bp-title">Community Battery Planner</span>
+                    <span class="bp-sub">Load planner</span>
+                  </div>
+                  <button class="bp-reset" type="button" id="bpReset">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    Reset
+                  </button>
+                </header>
+
+                <div class="bp-grid">
+                  <section class="bp-card bp-batt" aria-label="Your battery">
+                    <div class="bp-batt-l">
+                      <div class="bp-row"><span class="bp-h">Your battery</span><span class="bp-tag">20 ft container</span></div>
+                      <div class="bp-unit" aria-hidden="true">
+                        <span class="bp-unit-fill" id="bpFill"></span>
+                        <span class="bp-unit-pct" id="bpPct">100%</span>
+                      </div>
+                      <span class="bp-dims">20 × 8 × 8.5 ft · 800 kWh usable</span>
+                    </div>
+                    <div class="bp-batt-r">
+                      <div><span class="bp-k"><i class="bp-dot bp-dot--left"></i>Available power</span><span class="bp-big"><b id="bpLeft">800</b> kWh</span></div>
+                      <div><span class="bp-k"><i class="bp-dot bp-dot--used"></i>Consumed per day</span><span class="bp-big"><b id="bpUsed">0</b> kWh</span></div>
+                    </div>
+                  </section>
+
+                  <section class="bp-card bp-run" id="bpRun" aria-label="Battery runtime" aria-live="polite">
+                    <div class="bp-row"><span class="bp-k">Battery runtime</span><span class="bp-status" id="bpStatus">Healthy</span></div>
+                    <span class="bp-hours"><b id="bpHours">0</b> hours</span>
+                    <p class="bp-run-t" id="bpRunT"></p>
+                    <p class="bp-run-s" id="bpRunS"></p>
+                  </section>
+
+                  <section class="bp-card bp-apps" aria-label="Appliances and consumption">
+                    <div class="bp-row"><span class="bp-h">Appliances &amp; consumption</span><span class="bp-total"><b id="bpTotal">0</b> kWh per day</span></div>
+                    <div class="bp-app-grid" id="bpApps"></div>
+                  </section>
+
+                  <div class="bp-side">
+                    <section class="bp-card" aria-label="Consumption breakdown">
+                      <span class="bp-h">Consumption breakdown</span>
+                      <div class="bp-stack" id="bpStack" aria-hidden="true"></div>
+                      <ul class="bp-legend" id="bpLegend"></ul>
+                    </section>
+
+                    <section class="bp-card bp-tip" aria-label="Efficiency insight" aria-live="polite">
+                      <span class="bp-k">Efficiency insight · top consumer</span>
+                      <span class="bp-tip-h" id="bpTipH"></span>
+                      <p class="bp-tip-t" id="bpTipT"></p>
+                      <div class="bp-row bp-tip-f"><span class="bp-gain" id="bpGain"></span><button class="bp-apply" type="button" id="bpApply"></button></div>
+                    </section>
+                  </div>
+                </div>
+              </div>            </div>
+          </figure>
+          <p class="pr-ref pr-tool-ref">Device power figures: <a href="https://www.ecoflow.com/us/blog/medical-equipment-power-outage-backup-plan" target="_blank" rel="noopener">EcoFlow, power outage plan for medically vulnerable family members ↗</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       IMPLEMENTATION PLAN
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="pr-09">
+    <div class="pr-band">
+      <span class="pr-band-title">Implementation Plan</span>
+    </div>
+
+    <div class="pr-body">
+      <div class="pr-stack pr-plan-intro pr-reveal">
+        <span class="pr-eyebrow">Five year plan</span>
+        <p class="pr-lead">Re-imagining the urban fabric of the Netherlands, with <strong>community batteries as standard urban infrastructure</strong>.</p>
+        <p class="pr-p">It starts with pilots in Amsterdam neighbourhoods and grows, step by step, into a roll-out across the country, making the Netherlands more resilient.</p>
+      </div>
+
+      <!-- years on a line: each battery a little fuller; text alternates below and above -->
+      <div class="pr-plan pr-reveal">
+        <span class="pr-plan-line" aria-hidden="true"></span>
+          <span class="pr-plan-node" style="--i: 0; --lvl: 0.2;" aria-hidden="true"><span class="pr-plan-batt"><span class="pr-plan-batt-fill"></span></span></span>
+          <div class="pr-plan-step pr-plan-step--below" style="--i: 0;">
+            <h3 class="pr-plan-t">Year 1 <span>(Foundations)</span></h3>
+            <ul class="pr-plan-l">
+              <li>Deploy a community battery in a <strong>grid-congested, high-impact neighbourhood</strong>, linked to resilience hubs and run by a <strong>multi-stakeholder governance model</strong>.</li>
+              <li>The ministry <strong>supports with grants and subsidies</strong> to fund and scale deployment.</li>
+              <li>Integrate safely with the grid, <strong>measure grid relief and energy savings</strong>, and share live data with households on a dashboard.</li>
+            </ul>
+          </div>
+          <span class="pr-plan-node" style="--i: 1; --lvl: 0.4;" aria-hidden="true"><span class="pr-plan-batt"><span class="pr-plan-batt-fill"></span></span></span>
+          <div class="pr-plan-step pr-plan-step--above" style="--i: 1;">
+            <h3 class="pr-plan-t">Year 2 <span>(Pilot testing)</span></h3>
+            <ul class="pr-plan-l">
+              <li><strong>Stress-test switching between Life as Usual and crisis</strong>, with zero safety incidents and critical power fully working.</li>
+              <li>Validate the battery can <strong>sustain Tier 1 (crucial) loads</strong>: hours of backup and people supported.</li>
+              <li>Confirm stable grid integration and <strong>assess how familiar the community is with crisis protocols</strong>.</li>
+            </ul>
+          </div>
+          <span class="pr-plan-node" style="--i: 2; --lvl: 0.6;" aria-hidden="true"><span class="pr-plan-batt"><span class="pr-plan-batt-fill"></span></span></span>
+          <div class="pr-plan-step pr-plan-step--below" style="--i: 2;">
+            <h3 class="pr-plan-t">Year 3 <span>(Scaling up to 10)</span></h3>
+            <ul class="pr-plan-l">
+              <li>Turn pilot learnings, gaps and outcomes into <strong>an SOP and playbook</strong>, with siting criteria, technical specs and safety guidelines.</li>
+              <li>Document <strong>use cases, operating rules and mode-switching guidelines</strong>, improving them as we go.</li>
+              <li>Use the playbook to <strong>scale from 1 to 10 deployments</strong>, learning and documenting along the way.</li>
+            </ul>
+          </div>
+          <span class="pr-plan-node" style="--i: 3; --lvl: 0.8;" aria-hidden="true"><span class="pr-plan-batt"><span class="pr-plan-batt-fill"></span></span></span>
+          <div class="pr-plan-step pr-plan-step--above" style="--i: 3;">
+            <h3 class="pr-plan-t">Year 4 <span>(Scaling up to 20)</span></h3>
+            <ul class="pr-plan-l">
+              <li>Reach <strong>~20 deployments</strong>, making energy resilience a core part of urban infrastructure rather than an afterthought.</li>
+              <li><strong>Deploy faster with the playbook</strong> and monitor batteries centrally.</li>
+              <li>Amsterdam becomes <strong>a model city, a blueprint</strong> for the rest of the Netherlands.</li>
+            </ul>
+          </div>
+          <span class="pr-plan-node" style="--i: 4; --lvl: 1;" aria-hidden="true"><span class="pr-plan-batt"><span class="pr-plan-batt-fill"></span></span></span>
+          <div class="pr-plan-step pr-plan-step--below" style="--i: 4;">
+            <h3 class="pr-plan-t">Year 5+ <span>(Resilience pro)</span></h3>
+            <ul class="pr-plan-l">
+              <li>As neighbourhoods are built or rebuilt, <strong>community batteries become standard urban infrastructure</strong>.</li>
+              <li>Scale from city-wide to other Dutch cities, towards the larger goal of <strong>a resilient country</strong>.</li>
+              <li>Communities know their crisis protocols, so there is <strong>less ambiguity when a crisis hits</strong>.</li>
+            </ul>
+          </div>
+      </div>
+
+      <p class="pr-p pr-plan-more">To see the detailed implementation plan, <a href="https://drive.google.com/file/d/16ElEexxzYFJDgBfLqF-vC5nHCYswJd1s/view?usp=sharing" target="_blank" rel="noopener">click here ↗</a>.</p>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       IMPACT & OUTCOMES
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="pr-impact">
+    <div class="pr-band">
+      <span class="pr-band-title">Impact &amp; Outcomes</span>
+    </div>
+
+    <div class="pr-body">
+     <div class="pr-split pr-split--wide-l pr-impact-split">
+      <div class="pr-col-l pr-impact-l">
+        <figure class="pr-fig pr-impact-fig pr-reveal">
+          <div class="pr-ph pr-impact-frame">
+            <img src="../images/projects/powering-resilience/lives-night.jpg"
+                 alt="At night during a blackout, the green community battery lights a neighbourhood support point: a wifi screen, a map of support points, a food stall and people gathered at tables" />
+            <span class="pr-ph-label">Crisis mode</span>
+          </div>
+        </figure>
+      </div>
+
+      <div class="pr-col-r pr-stack">
+        <span class="pr-eyebrow pr-reveal">Our recommendation</span>
+        <p class="pr-lead pr-reveal">Use community batteries to <strong>keep critical hubs running in blackouts</strong>, strengthen neighbourhood resilience, and ease Amsterdam's shift to <strong>affordable green energy</strong>.</p>
+
+        <!-- three outcomes, rising in one after another -->
+        <div class="pr-impact pr-ops pr-reveal">
+          <article class="pr-op pr-impact-i" style="--i: 0;">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+              <div>
+                <h3 class="pr-op-t">Thinking ahead</h3>
+              </div>
+            </div>
+            <p class="pr-op-p"><em>Denk Vooruit</em> asks citizens to be ready for 72 hours without power. This project goes beyond the ask, building the infrastructure that makes resilience real.</p>
+          </article>
+
+          <article class="pr-op pr-impact-i" style="--i: 1;">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span>
+              <div>
+                <h3 class="pr-op-t">A healthier grid</h3>
+              </div>
+            </div>
+            <p class="pr-op-p">Every installation is one less pressure point on the national grid, absorbing surplus solar locally and easing peak demand for the wider energy system.</p>
+          </article>
+
+          <article class="pr-op pr-impact-i" style="--i: 2;">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+              <div>
+                <h3 class="pr-op-t">Social cohesion</h3>
+              </div>
+            </div>
+            <p class="pr-op-p">A shared resource that brings neighbours together, carrying local events and news day to day, and a trusted anchor when crisis hits.</p>
+          </article>
+        </div>
+
+        <p class="pr-cap pr-impact-ams">In collaboration with the <a href="https://www.ams-institute.org/" target="_blank" rel="noopener">AMS Institute, Amsterdam ↗</a></p>
+      </div>
+     </div>
 
       <a href="belcorp-innovation.html" class="pr-next pr-next-link">
         <span class="pr-next-k">Next project</span>
@@ -3182,6 +4239,25 @@
 
 
   <!-- Zoom overlay for diagrams / screenshots -->
+  <!-- floating section nav: shows from Context until the next-project link -->
+  <nav class="pr-fnav" id="prFnav" aria-label="Jump to section">
+    <ul class="pr-fnav-list" id="prFnavList" hidden>
+      <li><a href="#pr-context">Context</a></li>
+      <li><a href="#pr-03">Our Process</a></li>
+      <li><a href="#pr-02">The 72 Hours</a></li>
+      <li><a href="#pr-04">The Battery</a></li>
+      <li><a href="#pr-06">A Tale of Two Contexts</a></li>
+      <li><a href="#pr-08">Grounded in Reality</a></li>
+      <li><a href="#pr-stake">Stakeholder Dynamics</a></li>
+      <li><a href="#pr-09">Implementation Plan</a></li>
+      <li><a href="#pr-impact">Impact &amp; Outcomes</a></li>
+    </ul>
+    <button class="pr-fnav-btn" type="button" aria-expanded="false" aria-controls="prFnavList">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>Sections</span>
+    </button>
+  </nav>
+
   <div class="pr-lightbox" id="prLightbox" hidden>
     <button class="pr-lightbox-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     <div class="pr-lightbox-body" id="prLightboxBody"></div>
@@ -3257,17 +4333,16 @@
        Drives the hero render.
        ═══════════════════════════════════════════════════════════ */
     const stages   = document.querySelectorAll('.pr-stage');
-    const modeBtns = document.querySelectorAll('.pr-mode-btn');
+    const modeSwitch = document.querySelector('.pr-mode');
 
-    function setMode(mode) {
-      const night = mode === 'night';
-      stages.forEach(s => s.classList.toggle('is-night', night));
-      modeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    // one switch: a click anywhere on it flips between the two modes
+    if (modeSwitch) {
+      modeSwitch.addEventListener('click', () => {
+        const night = modeSwitch.getAttribute('aria-checked') !== 'true';
+        modeSwitch.setAttribute('aria-checked', String(night));
+        stages.forEach(s => s.classList.toggle('is-night', night));
+      });
     }
-
-    modeBtns.forEach(btn => {
-      btn.addEventListener('click', () => setMode(btn.dataset.mode));
-    });
 
     /* ═══════════════════════════════════════════════════════════
        07 · ONE BATTERY, TWO LIVES: DRAG TO COMPARE
@@ -3373,6 +4448,239 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
+       STAKEHOLDER DYNAMICS
+       The map's lines are measured from where the circles land: a
+       dotted fan from AMS and a dotted pink arc through the
+       stakeholders, which draws itself on arrival.
+       ═══════════════════════════════════════════════════════════ */
+    const map = document.getElementById('prMap');
+
+    if (map) {
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg   = map.querySelector('.pr-map-lines');
+      const hub   = map.querySelector('.pr-map-hub');
+      const rows  = Array.from(map.querySelectorAll('.pr-map-row'));
+      let fans = [];
+
+      // a smooth curve through the circle centres (Catmull-Rom as cubic Béziers)
+      const curve = pts => {
+        let d = 'M' + pts[0].x + ' ' + pts[0].y;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+          d += ' C' + (p1.x + (p2.x - p0.x) / 6) + ' ' + (p1.y + (p2.y - p0.y) / 6) + ' '
+                    + (p2.x - (p3.x - p1.x) / 6) + ' ' + (p2.y - (p3.y - p1.y) / 6) + ' '
+                    + p2.x + ' ' + p2.y;
+        }
+        return d;
+      };
+
+      const sizeRules = () => {
+        const link = map.querySelector('.pr-map-linkrow');
+        if (!link) return;
+        let right = 0;
+        map.querySelectorAll('.pr-map-rows .pr-map-l li').forEach(li => {
+          const range = document.createRange();
+          range.selectNodeContents(li);
+          Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+        });
+        map.style.removeProperty('--rule-w');
+        const left = link.getBoundingClientRect().left;
+        if (right > left) map.style.setProperty('--rule-w', Math.ceil(right - left) + 'px');
+      };
+
+      const draw = () => {
+        sizeRules();
+        const box = map.getBoundingClientRect();
+        if (getComputedStyle(svg).display === 'none' || !box.width) return;
+        const at = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top }; };
+        const h = at(hub);
+        const pts = rows.map(r => at(r.querySelector('.pr-map-node')));
+
+        svg.setAttribute('viewBox', '0 0 ' + box.width + ' ' + box.height);
+        svg.replaceChildren();
+        fans = pts.map((p, i) => {
+          const l = document.createElementNS(svgNS, 'path');
+          l.setAttribute('class', 'pr-map-fan');
+          l.setAttribute('d', 'M' + h.x + ' ' + h.y + ' L' + p.x + ' ' + p.y);
+          l.dataset.key = rows[i].dataset.key;
+          svg.appendChild(l);
+          return l;
+        });
+        // dotted arc, shown through a solid mask that draws itself on arrival
+        const d = curve(pts);
+        const defs = document.createElementNS(svgNS, 'defs');
+        const mask = document.createElementNS(svgNS, 'mask');
+        mask.setAttribute('id', 'prArcMask');
+        mask.setAttribute('maskUnits', 'userSpaceOnUse');
+        const reveal = document.createElementNS(svgNS, 'path');
+        reveal.setAttribute('class', 'pr-map-arc-mask');
+        reveal.setAttribute('pathLength', '1');
+        reveal.setAttribute('d', d);
+        mask.appendChild(reveal);
+        defs.appendChild(mask);
+        svg.appendChild(defs);
+
+        const arc = document.createElementNS(svgNS, 'path');
+        arc.setAttribute('class', 'pr-map-arc');
+        arc.setAttribute('d', d);
+        arc.setAttribute('mask', 'url(#prArcMask)');
+        svg.appendChild(arc);
+      };
+
+
+      draw();
+      if (window.ResizeObserver) new ResizeObserver(draw).observe(map);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       THE CO-DEVELOPMENT TOOL
+       A day without the grid: pick a battery and a starting charge,
+       set what needs power; the battery, run time and cost follow.
+       Sizes and the €430/kWh rate match Grounded in Reality; the
+       default plan is the same essentials used there.
+       ═══════════════════════════════════════════════════════════ */
+    const bp = document.getElementById('bpApp');
+
+    if (bp) {
+      const CAPACITY = 800;   // 20 ft container, kWh usable
+      // per-unit power: medication fridge 100–150 W and ventilator 50–300 W
+      // from the EcoFlow figures; the rest from the planner brief
+      const LOADS = [
+        { key: 'fridge',  name: 'Refrigerators',     w: 125,  units: 8,  hours: 9,  max: 60,  c: '#5B9BE0', note: 'Medicines, food',
+          icon: '<line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>' },
+        { key: 'screen',  name: 'Info screens',      w: 200,  units: 6,  hours: 16, max: 30,  c: '#1FB5B5', note: 'Trusted updates',
+          icon: '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>' },
+        { key: 'kitchen', name: 'Electric kitchens', w: 3000, units: 5,  hours: 3,  max: 20,  c: '#A88BE0', note: 'Hot meals',
+          icon: '<path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>' },
+        { key: 'lamp',    name: 'Lamps',             w: 15,   units: 40, hours: 12, max: 400, c: '#C49A2C', note: 'LED lighting',
+          icon: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>' },
+        { key: 'charge',  name: 'Charging stations', w: 7400, units: 2,  hours: 4,  max: 10,  c: '#D27BB0', note: 'Phones, scooters, vehicles',
+          icon: '<path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="m2 22 3-3"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m18 3-4 4h6l-4 4"/>' },
+        { key: 'vent',    name: 'Ventilators',       w: 175,  units: 6,  hours: 24, max: 40,  c: '#3BAA82', note: 'Run around the clock',
+          icon: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>' },
+      ];
+      const DEFAULT = () => Object.fromEntries(LOADS.map(l => [l.key, { units: l.units, hours: l.hours }]));
+      let plan = DEFAULT();
+
+      const $ = id => document.getElementById(id);
+      const n1 = v => v.toLocaleString('en-GB', { maximumFractionDigits: v < 10 ? 1 : 0 });
+      const watts = w => w >= 1000 ? (w / 1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) + ' kW' : w + ' W';
+      const kwh = l => l.w * plan[l.key].units * plan[l.key].hours / 1000;
+      const hoursFor = daily => daily > 0 ? CAPACITY / daily * 24 : Infinity;
+
+      $('bpApps').innerHTML = LOADS.map(l =>
+        '<div class="bp-app" data-key="' + l.key + '" style="--c: ' + l.c + ';">' +
+          '<div class="bp-app-h"><span class="bp-app-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + l.icon + '</svg></span><span class="bp-app-n">' + l.name + '</span><span class="bp-app-v"><output data-v>0</output> <small>kWh</small></span></div>' +
+          '<span class="bp-app-w">' + watts(l.w) + ' each · ' + l.note + '</span>' +
+          '<div class="bp-stepper"><button type="button" data-d="-1" aria-label="Fewer ' + l.name + '">−</button>' +
+            '<output data-units>0</output><button type="button" data-d="1" aria-label="More ' + l.name + '">+</button></div>' +
+          '<label class="bp-hrs" for="bpH-' + l.key + '">Hours per day <b data-hours>0 h</b></label>' +
+          '<input class="bp-range" type="range" id="bpH-' + l.key + '" min="0" max="24" step="1" value="' + l.hours + '" />' +
+        '</div>').join('');
+
+      $('bpApps').addEventListener('click', e => {
+        const b = e.target.closest('button[data-d]'); if (!b) return;
+        const l = LOADS.find(x => x.key === b.closest('.bp-app').dataset.key);
+        plan[l.key].units = Math.min(l.max, Math.max(0, plan[l.key].units + Number(b.dataset.d)));
+        render();
+      });
+      $('bpApps').addEventListener('input', e => {
+        if (!e.target.matches('.bp-range')) return;
+        plan[e.target.closest('.bp-app').dataset.key].hours = Number(e.target.value);
+        render();
+      });
+
+      $('bpStack').innerHTML = LOADS.map(l => '<span style="--c: ' + l.c + ';"></span>').join('');
+      // reset clears the plan: every quantity and every hour back to zero
+      $('bpReset').addEventListener('click', () => {
+        plan = Object.fromEntries(LOADS.map(l => [l.key, { units: 0, hours: 0 }]));
+        render();
+      });
+
+      let suggestion = null;
+      $('bpApply').addEventListener('click', () => {
+        if (!suggestion) return;
+        plan[suggestion.key].hours = suggestion.hours;
+        render();
+      });
+
+      function render() {
+        const uses = LOADS.map(kwh);
+        const daily = uses.reduce((a, b) => a + b, 0);
+        const left = Math.max(0, CAPACITY - daily);
+        const share = left / CAPACITY;
+        const hours = hoursFor(daily);
+
+        $('bpFill').style.setProperty('--fill', share.toFixed(3));
+        $('bpFill').classList.toggle('is-mid', share < 0.5 && share >= 0.2);
+        $('bpFill').classList.toggle('is-low', share < 0.2);
+        $('bpPct').textContent = Math.round(share * 100) + '%';
+        $('bpLeft').textContent = n1(left);
+        $('bpUsed').textContent = n1(daily);
+        $('bpTotal').textContent = n1(daily);
+
+        // runtime, with a plain-language reading and when it would run out
+        const run = $('bpRun');
+        run.classList.toggle('is-mid', hours < 72 && hours >= 24);
+        run.classList.toggle('is-low', hours < 24);
+        if (hours === Infinity) {
+          $('bpStatus').textContent = 'No load';
+          $('bpHours').textContent = '—';
+          $('bpRunT').textContent = 'Nothing is drawing power yet. Add appliances to see how long the battery would last you.';
+          $('bpRunS').textContent = '';
+        } else {
+          const h = Math.round(hours), d = Math.floor(h / 24), r = h % 24;
+          const end = new Date(Date.now() + hours * 3600e3);
+          $('bpStatus').textContent = hours >= 72 ? 'Covers 72 h' : hours >= 24 ? 'Tight' : 'Critical';
+          $('bpHours').textContent = h;
+          $('bpRunT').textContent = 'With the current usage scenario, the battery would last you until ' +
+            end.toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '.';
+          $('bpRunS').textContent = (d ? 'About ' + d + ' day' + (d > 1 ? 's' : '') + (r ? ' ' + r + ' h' : '') + ' · ' : '') + n1(daily) + ' kWh used per day';
+        }
+
+        // appliance cards
+        $('bpApps').querySelectorAll('.bp-app').forEach((card, i) => {
+          const p = plan[LOADS[i].key];
+          card.querySelector('[data-v]').textContent = n1(uses[i]);
+          card.querySelector('[data-units]').innerHTML = p.units + ' <small>units</small>';
+          card.querySelector('[data-hours]').textContent = p.hours + ' h';
+          card.querySelector('.bp-range').value = p.hours;
+        });
+
+        // breakdown, largest first
+        const order = LOADS.map((l, i) => ({ l, v: uses[i] })).sort((a, b) => b.v - a.v);
+        $('bpStack').querySelectorAll('span').forEach((sp, i) => { sp.style.flexGrow = String(uses[i] || 0); });
+        $('bpLegend').innerHTML = order.map(o =>
+          '<li style="--c: ' + o.l.c + ';"><i class="bp-dot"></i><span>' + o.l.name + '</span><span>' + n1(o.v) + ' kWh</span><b>' + (daily ? Math.round(o.v / daily * 100) : 0) + '%</b></li>').join('');
+
+        // tip: halve the hours of the biggest user and show what that buys
+        const top = order[0];
+        const p = plan[top.l.key];
+        if (!daily || !top.v) {
+          suggestion = null;
+          $('bpTipH').textContent = 'No load yet';
+          $('bpTipT').textContent = 'Turn something on to see where the energy goes.';
+          $('bpGain').textContent = '';
+          $('bpApply').hidden = true;
+        } else {
+          const pct = Math.round(top.v / daily * 100);
+          const to = Math.floor(p.hours / 2);
+          const saved = top.v - top.l.w * p.units * to / 1000;
+          const gain = Math.round(hoursFor(daily - saved) - hours);
+          $('bpTipH').textContent = top.l.name + ' use ' + pct + '% of the energy';
+          $('bpTipT').textContent = p.units + ' running ' + p.hours + ' h a day use ' + n1(top.v) + ' kWh. Cutting them to ' + to + ' h would make the battery last longer.';
+          suggestion = p.hours > 1 ? { key: top.l.key, hours: to } : null;
+          $('bpGain').textContent = suggestion && isFinite(gain) ? '+' + gain + ' hours runtime' : '';
+          $('bpApply').hidden = !suggestion;
+          $('bpApply').textContent = 'Set to ' + to + ' h';
+        }
+      }
+
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════════════
        03 · PROCESS RULE
        Fills as the reader scrolls the band.
        ═══════════════════════════════════════════════════════════ */
@@ -3388,27 +4696,6 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       09 · FIVE YEARS
-       Each battery glyph fills as its year enters the viewport;
-       the rule between them advances with it.
-       ═══════════════════════════════════════════════════════════ */
-    const years    = Array.from(document.querySelectorAll('.pr-year'));
-    const timeFill = document.getElementById('timeFill');
-    let   yearsLit = 0;
-
-    function litYear(year) {
-      const fill = year.querySelector('.pr-batt-fill');
-      if (fill) {
-        fill.style.transform = 'scaleY(' + (Number(year.dataset.fill || 0) / 100) + ')';
-      }
-
-      yearsLit = Math.max(yearsLit, years.indexOf(year) + 1);
-      if (timeFill && years.length) {
-        timeFill.style.transform = 'scaleX(' + (yearsLit / years.length).toFixed(4) + ')';
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════
        SCROLL REVEALS (05 charts, 06 radar, text blocks)
        ═══════════════════════════════════════════════════════════ */
     if ('IntersectionObserver' in window) {
@@ -3416,16 +4703,13 @@
         entries.forEach(entry => {
           if (!entry.isIntersecting) return;
           entry.target.classList.add('is-in');
-          if (entry.target.classList.contains('pr-year')) litYear(entry.target);
           obs.unobserve(entry.target);
         });
       }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
 
       document.querySelectorAll('.pr-reveal').forEach(el => io.observe(el));
-      years.forEach(el => io.observe(el));
     } else {
       document.querySelectorAll('.pr-reveal').forEach(el => el.classList.add('is-in'));
-      years.forEach(litYear);
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -3503,6 +4787,50 @@
     window.addEventListener('resize', onScroll);
     onScroll(); /* initialise on load */
 
+
+    /* ═══════════════════════════════════════════════════════════
+       FLOATING SECTION NAV
+       Visible from Context until the next-project link comes into view;
+       the button opens a list of every section.
+       ═══════════════════════════════════════════════════════════ */
+    const fnav = document.getElementById('prFnav');
+
+    if (fnav) {
+      const btn   = fnav.querySelector('.pr-fnav-btn');
+      const list  = document.getElementById('prFnavList');
+      const links = Array.from(list.querySelectorAll('a'));
+      const first = document.getElementById('pr-context');
+      const next  = document.querySelector('.pr-next');
+
+      const setOpen = open => {
+        list.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+      };
+
+      btn.addEventListener('click', () => setOpen(list.hidden));
+      links.forEach(a => a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('click', e => { if (!fnav.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !list.hidden) { setOpen(false); btn.focus(); } });
+
+      const update = () => {
+        const vh = window.innerHeight;
+        const on = first.getBoundingClientRect().top < vh * 0.5 && (!next || next.getBoundingClientRect().top > vh - 24);
+        fnav.classList.toggle('is-on', on);
+        if (!on) setOpen(false);
+        // mark the section currently under the middle of the screen
+        let cur = null;
+        links.forEach(a => {
+          const t = document.querySelector(a.getAttribute('href'));
+          if (t && t.getBoundingClientRect().top < vh * 0.5) cur = a;
+        });
+        links.forEach(a => a.toggleAttribute('aria-current', a === cur));
+        if (cur) cur.setAttribute('aria-current', 'true');
+      };
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
   </script>
 
 </body>
