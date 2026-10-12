@@ -687,22 +687,6 @@
       color: var(--pr-dim);
     }
 
-    .pr-proc-rule {
-      position: relative;
-      height: 1px;
-      background: var(--pr-rule);
-    }
-
-    /* scaled, not resized: the fill is driven from a scroll handler */
-    .pr-proc-fill {
-      position: absolute;
-      inset: 0;
-      background: var(--accent);
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 0.15s linear;
-    }
-
     /* every step keeps the same side padding so the columns (and their
        thumbnails) come out identical; the outer padding is pulled back
        into the gutter instead of trimmed off the first and last step */
@@ -1595,9 +1579,10 @@
     .pr-unit-h b { display: block; font-weight: 700; color: var(--pr-head); }
 
     /* the cost line above the drawings, and what the numbers assume */
-    .pr-units-lead { max-width: 52ch; margin-top: 14px; }
-
-    .pr-units-basis { max-width: 64ch; margin-top: 10px; }
+    .pr-units-intro { margin-bottom: clamp(20px, 3vw, 36px); }
+    .pr-units-intro .pr-ref { margin-top: 0; }
+    /* section intros: main text, then small text under it, one width */
+    .pr-units-intro { max-width: 700px; }
 
     /* the drawings arrive one after another: each outline draws itself,
        then its modules and dimensions fade in */
@@ -1841,6 +1826,7 @@
     .pr-map.is-in .pr-map-node { opacity: 1; transition: opacity 0.5s ease 0.3s; }
 
     /* the intro's small text starts level with the main line, not the label */
+
     .pr-intro-r { padding-top: calc(0.6875rem * 1.5 + 16px); }
 
     /* ── The co-development tool ───────────────────── */
@@ -2751,7 +2737,6 @@
       .pr-units .bx-dims   { opacity: 1; transition: none; }
       .pr-c-late { opacity: 1; transition: none; }
 
-      .pr-proc-fill { transition: none; }
 
       .pr-plan-line::after,
       .pr-plan-node,
@@ -2902,9 +2887,6 @@
 
     <div class="pr-body" id="procBand">
       <p class="pr-lead pr-proc-intro">From <strong>understanding the crisis</strong> to designing for a <strong>resilient future</strong>.</p>
-
-      <div class="pr-proc-rule">
-      </div>
 
       <div class="pr-steps">
         <div class="pr-step">
@@ -3157,7 +3139,7 @@
       <span class="pr-band-title">The Battery</span>
     </div>
 
-    <div class="pr-body pr-split">
+    <div class="pr-body pr-split pr-split--hug">
         <div class="pr-col-l pr-stack pr-reveal">
           <span class="pr-eyebrow">What is a community battery?</span>
           <p class="pr-lead">A neighbourhood-scale battery that <strong>stores excess solar energy during the day and gives it back to the neighbourhood at peak demand</strong>, through the grid.</p>
@@ -3346,7 +3328,7 @@
        WHY NOT HOME BATTERIES
        ══════════════════════════════════════════════════════════ -->
   <div class="pr-sec--top" id="pr-home">  <!-- part of The Battery, so its band stays pinned -->
-    <div class="pr-body pr-split">
+    <div class="pr-body pr-split pr-split--hug">
       <div class="pr-col-l pr-stack pr-reveal">
         <span class="pr-eyebrow pr-eyebrow--wide">Why not home batteries?</span>
         <p class="pr-lead">A home battery serves <b>one household</b>. A community battery serves <strong>the whole street</strong>.</p>
@@ -3828,11 +3810,13 @@
     </div>
 
     <div class="pr-body" style="padding-bottom: 0;">
-      <span class="pr-eyebrow pr-eyebrow--wide">Putting numbers to the idea</span>
-
-      <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong>a 40–60% reduction</strong>.</p>
-      <p class="pr-p pr-units-basis">Costs exclude installation. The hours shown under each battery depicts how long it could power critical infrastructure such as 50 fridges, 200 lights and 10 home ventilators.</p>
-      <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a> · <a href="https://english.nctv.nl/topics/c/critical-infrastructure-protection" target="_blank" rel="noopener">NCTV, critical infrastructure ↗</a></p>
+      <!-- cost line, then what the numbers assume, in one column of the same width -->
+      <div class="pr-stack pr-units-intro">
+          <span class="pr-eyebrow">Putting numbers to the idea</span>
+          <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong>a 40–60% reduction</strong>.</p>
+          <p class="pr-p pr-units-basis">Costs exclude installation. The hours shown under each battery depicts how long it could power critical infrastructure such as 50 fridges, 200 lights and 10 home ventilators.</p>
+          <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a> · <a href="https://english.nctv.nl/topics/c/critical-infrastructure-protection" target="_blank" rel="noopener">NCTV, critical infrastructure ↗</a></p>
+      </div>
 
       <div class="pr-units pr-reveal" style="--cols: minmax(0, 300fr) minmax(0, 415fr) minmax(0, 548fr); --ratio: 2.9101;">
         <!-- one shared arrowhead for every dimension line -->
@@ -4339,9 +4323,9 @@
       </div>
      </div>
 
-      <a href="belcorp-innovation.html" class="pr-next pr-next-link">
+      <a href="frontline-voices.html" class="pr-next pr-next-link">
         <span class="pr-next-k">Next project</span>
-        <span class="pr-next-v">Belcorp Innovation →</span>
+        <span class="pr-next-v">Frontline Voices →</span>
       </a>
     </div>
   </section>
@@ -4769,21 +4753,6 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       03 · PROCESS RULE
-       Fills as the reader scrolls the band.
-       ═══════════════════════════════════════════════════════════ */
-    const procBand = document.getElementById('procBand');
-    const procFill = document.getElementById('procFill');
-
-    function updateProcess() {
-      if (!procBand || !procFill) return;
-      const rect  = procBand.getBoundingClientRect();
-      const range = rect.height + window.innerHeight * 0.4;
-      const p     = Math.min(Math.max((window.innerHeight * 0.8 - rect.top) / range, 0), 1);
-      procFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
-    }
-
-    /* ═══════════════════════════════════════════════════════════
        SCROLL REVEALS (05 charts, 06 radar, text blocks)
        ═══════════════════════════════════════════════════════════ */
     if ('IntersectionObserver' in window) {
@@ -4858,9 +4827,6 @@
 
       /* 1. Header border once the page has moved */
       if (headerEl) headerEl.classList.toggle('scrolled', scrollY > 8);
-
-      /* 2. Section-driven behaviour */
-      updateProcess();
     }
 
     window.addEventListener('scroll', () => {
@@ -4919,6 +4885,54 @@
       window.addEventListener('resize', update);
       update();
     }
+
+    /* ═══════════════════════════════════════════════════════════
+       SMALL TEXT MATCHES THE MAIN TEXT
+       The small paragraphs under a main line wrap no wider than the
+       main line's longest rendered line, so both share one right edge.
+       ═══════════════════════════════════════════════════════════ */
+    const matchLeads = () => {
+      document.querySelectorAll('.pr-lead').forEach(lead => {
+        const small = [];
+        for (let el = lead.nextElementSibling; el && !el.classList.contains('pr-lead'); el = el.nextElementSibling) {
+          if (el.matches('.pr-p, .pr-ref')) small.push(el);
+        }
+        if (!small.length) return;
+        small.forEach(el => { el.style.maxWidth = ''; });
+        const range = document.createRange();
+        range.selectNodeContents(lead);
+        const left = lead.getBoundingClientRect().left;
+        let right = 0;
+        Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+        if (right > left) small.forEach(el => { el.style.maxWidth = Math.ceil(right - left) + 'px'; });
+      });
+    };
+
+    /* Text beside a picture: the text column shrinks to its widest line,
+       so the gap to the divider matches the gap on the picture's side. */
+    const hugSplits = () => {
+      document.querySelectorAll('.pr-split--hug').forEach(split => {
+        split.style.gridTemplateColumns = '';
+        const col = split.querySelector(':scope > .pr-col-l');
+        if (!col || getComputedStyle(split).gridTemplateColumns.split(' ').length < 2) return;
+        const left = col.getBoundingClientRect().left;
+        let right = 0;
+        col.querySelectorAll('p, span, h3').forEach(el => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+        });
+        if (right <= left) return;
+        const pad = parseFloat(getComputedStyle(col).paddingRight) || 0;
+        split.style.gridTemplateColumns = Math.ceil(right - left + pad) + 'px minmax(0, 1fr)';
+      });
+    };
+
+    const fitText = () => { matchLeads(); hugSplits(); };
+
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitText);
+    window.addEventListener('load', fitText);
+    window.addEventListener('resize', fitText);
   </script>
 
 </body>

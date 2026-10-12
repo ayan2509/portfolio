@@ -90,6 +90,7 @@
       background: var(--bg);
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
+      will-change: transform;   /* on its own layer from the start, so the slide-out doesn't hitch promoting it */
     }
     /* Loader slides up off screen to reveal the page beneath */
     @keyframes loader-slide-out {
@@ -114,7 +115,10 @@
     .loader-bar {
       position: absolute; bottom: 0; left: 0;
       height: 2px;
-      width: 0%;
+      width: 100%;
+      transform: scaleX(0);   /* scaled, not resized: no layout per frame */
+      transform-origin: left center;
+      will-change: transform;
       background: #F3701E;
     }
 
@@ -598,7 +602,16 @@
         <div class="work-card-media"><img src="images/projects/powering-resilience/hero-night.jpg" alt="Powering Resilience: the community battery lighting a neighbourhood support point during a blackout" draggable="false" /></div>
         <div class="work-card-dim" aria-hidden="true"></div>
       </a>
-      <a class="work-card" href="projects/belcorp-innovation.html" style="--i: 1; --card-accent: var(--brick-orange)" aria-label="View Belcorp Innovation case study">
+      <a class="work-card" href="projects/frontline-voices.html" style="--i: 1; --card-accent: var(--brick-white)" aria-label="View Frontline Voices case study">
+        <div class="work-card-strip"><span>2025</span><ul class="work-card-tags"><li>Public-sector</li><li>Inclusive Participation</li><li>Design for Trust</li></ul></div>
+        <div class="work-card-head">
+          <div><h3 class="work-card-title">Frontline Voices</h3><p class="work-card-line">Turning frontline experiences into collective input for national labour agreements.</p></div>
+          <span class="work-card-arrow" aria-hidden="true">→</span>
+        </div>
+        <div class="work-card-media"><img src="images/projects/frontline-voices/thumbnail.jpg" alt="Frontline Voices" draggable="false" /></div>
+        <div class="work-card-dim" aria-hidden="true"></div>
+      </a>
+      <a class="work-card" href="projects/belcorp-innovation.html" style="--i: 2; --card-accent: var(--brick-orange)" aria-label="View Belcorp Innovation case study">
         <div class="work-card-strip"><span>2024</span><ul class="work-card-tags"><li>Change Management</li><li>Sustainable Expansion</li><li>Operational Transformation</li></ul></div>
         <div class="work-card-head">
           <div><h3 class="work-card-title">Belcorp Innovation</h3><p class="work-card-line">A holistic sales innovation strategy for Belcorp in an evolving beauty and personal care market.</p></div>
@@ -607,7 +620,7 @@
         <div class="work-card-media"><img src="images/projects/belcorp-innovation/thumbnail.jpg" alt="Belcorp Innovation" draggable="false" /></div>
         <div class="work-card-dim" aria-hidden="true"></div>
       </a>
-      <a class="work-card" href="projects/indic-keyboard.html" style="--i: 2; --card-accent: var(--brick-yellow)" aria-label="View Indic Keyboard case study">
+      <a class="work-card" href="projects/indic-keyboard.html" style="--i: 3; --card-accent: var(--brick-yellow)" aria-label="View Indic Keyboard case study">
         <div class="work-card-strip"><span>2020</span><ul class="work-card-tags"><li>Next-billion Users</li><li>Language Accessibility</li><li>Interface Design</li></ul></div>
         <div class="work-card-head">
           <div><h3 class="work-card-title">Indic Keyboard</h3><p class="work-card-line">Reimagining the typing experience in Indic languages for the next billion smartphone users.</p></div>
@@ -616,7 +629,7 @@
         <div class="work-card-media"><img src="images/projects/indic-keyboard/thumbnail.jpg" alt="Indic Keyboard" draggable="false" /></div>
         <div class="work-card-dim" aria-hidden="true"></div>
       </a>
-      <a class="work-card" href="projects/crafting-conviviality.html" style="--i: 3; --card-accent: var(--brick-pink)" aria-label="View Crafting Conviviality case study">
+      <a class="work-card" href="projects/crafting-conviviality.html" style="--i: 4; --card-accent: var(--brick-pink)" aria-label="View Crafting Conviviality case study">
         <div class="work-card-strip"><span>2019</span><ul class="work-card-tags"><li>Participatory Design</li><li>Sustainability</li><li>Rural Infrastructure</li></ul></div>
         <div class="work-card-head">
           <div><h3 class="work-card-title">Crafting Conviviality</h3><p class="work-card-line">Transforming schools into vibrant learning centres through community-led participatory design.</p></div>
@@ -830,7 +843,7 @@
         function tick(now) {
           const t     = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - t, 3);
-          barEl.style.width = (eased * 100) + '%';
+          barEl.style.transform = 'scaleX(' + eased + ')';
           if (t < 1) requestAnimationFrame(tick);
           else resolve();
         }
@@ -1075,55 +1088,82 @@
     import { mountMosaic } from './components/brand/mosaic.js';
 
     // Loader — a wall of outline Lego studs fills the whole screen, bottom row to top,
-    // on the loader's clock
+    // on the loader's clock. Landed studs are drawn once onto a cached layer; each frame
+    // only copies that layer and draws the studs still dropping, batched by opacity, so
+    // the frame cost stays small and the slide-out isn't fighting the canvas.
     (() => {
       const loader = document.getElementById('loader'), canvas = document.getElementById('loaderBricks');
       if (!loader || !canvas || loader.style.display === 'none') return;
       const ctx = canvas.getContext('2d');
+      const layer = document.createElement('canvas'), lctx = layer.getContext('2d');
       const clock = window.__loaderClock || { start: performance.now(), duration: 2200 };
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const area = document.getElementById('heroMosaicArea'), POP = 0.12, easeOut = x => 1 - Math.pow(1 - x, 3);
       const hash = (i, j) => ((Math.sin(i * 12.9898 + j * 78.233) * 43758.5453) % 1 + 1) % 1;
+      const LEVELS = 6;   // opacity buckets for studs mid-drop
 
-      const frame = now => {
-        if (loader.style.display === 'none') return;
-        requestAnimationFrame(frame);
-        const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
-        const dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.round(w * dpr), H = Math.round(h * dpr);
-        if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
-        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H);
+      const stud = (path, x, y, sz) => {
+        path.rect(x + 0.5, y + 0.5, sz - 1, sz - 1);
+        path.moveTo(x + sz * 0.8, y + sz / 2); path.arc(x + sz / 2, y + sz / 2, sz * 0.3, 0, Math.PI * 2);
+      };
 
+      // measured once (and again on resize), never per frame
+      let W = 0, H = 0, p = 0, cols = 0, rows = 0, ox = 0, starts = null, landed = null, left = 0;
+      function setup() {
+        const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return false;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        W = Math.round(w * dpr); H = Math.round(h * dpr);
+        canvas.width = layer.width = W; canvas.height = layer.height = H;
         // grid anchored to the bottom edge so the first row sits flush on the floor
         // stud size matches the hero mosaic (its area / 80 studs), about 8px if it isn't laid out yet
         const ar = area && area.getBoundingClientRect(), mw = ar ? Math.min(ar.width, ar.height) * dpr : 0;
-        const p = mw > 160 ? Math.max(2, Math.floor(mw / 80)) : Math.round(8 * dpr), cols = Math.ceil(W / p), rows = Math.ceil(H / p);
-        const ox = Math.round((W - cols * p) / 2);
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#24262A';
-        ctx.lineWidth = 1;
+        p = mw > 160 ? Math.max(2, Math.floor(mw / 80)) : Math.round(8 * dpr);
+        cols = Math.ceil(W / p); rows = Math.ceil(H / p); ox = Math.round((W - cols * p) / 2);
+        // rows rise bottom to top with a little scatter
+        starts = new Float32Array(cols * rows); landed = new Uint8Array(cols * rows); left = cols * rows;
+        for (let r = 0; r < rows; r++) for (let i = 0; i < cols; i++) starts[r * cols + i] = (r / rows) * 0.74 + hash(i, r) * 0.12;
+        const ink = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#24262A';
+        ctx.strokeStyle = lctx.strokeStyle = ink; ctx.lineWidth = lctx.lineWidth = 1;
+        return true;
+      }
 
-        // rows rise bottom to top with a little scatter; the top row lands as the bar reaches 100%
+      let ready = setup(), raf = 0;
+      window.addEventListener('resize', () => { ready = setup(); if (!raf && ready) raf = requestAnimationFrame(frame); });
+
+      function frame(now) {
+        raf = 0;
+        // stop once the loader is leaving: the last frame stays on screen while it slides
+        if (loader.style.display === 'none' || loader.classList.contains('slide-out')) return;
+        if (!ready && !(ready = setup())) { raf = requestAnimationFrame(frame); return; }
+
+        // the top row lands as the bar reaches 100%
         const t = reduced ? 1 : Math.min((now - clock.start) / clock.duration, 1) * 0.98;
-        const stud = (path, x, y, sz) => {
-          path.rect(x + 0.5, y + 0.5, sz - 1, sz - 1);
-          path.moveTo(x + sz * 0.8, y + sz / 2); path.arc(x + sz / 2, y + sz / 2, sz * 0.3, 0, Math.PI * 2);
-        };
-        const settled = new Path2D();   // landed studs share one stroke; only those mid-drop are drawn singly
-        for (let r = 0; r < rows; r++) {
+        const fresh = new Path2D(); let anyFresh = false;
+        const drops = Array.from({ length: LEVELS }, () => new Path2D()); let anyDrop = false;
+
+        const lastRow = Math.min(rows, Math.ceil((t / 0.74) * rows) + 1);   // rows past here haven't started
+        for (let r = 0; r < lastRow; r++) {
           const y0 = H - (r + 1) * p;
           for (let i = 0; i < cols; i++) {
-            const jit = hash(i, r), start = (r / rows) * 0.74 + jit * 0.12;
-            const q = Math.min(Math.max((t - start) / POP, 0), 1);
+            const k = r * cols + i; if (landed[k]) continue;
+            const q = (t - starts[k]) / POP;
             if (q <= 0) continue;
-            if (q >= 1) { stud(settled, ox + i * p, y0, p); continue; }
+            if (q >= 1) { stud(fresh, ox + i * p, y0, p); landed[k] = 1; left--; anyFresh = true; continue; }
             const s = easeOut(q), sz = Math.max(1, Math.round(p * (0.4 + 0.6 * s)));
-            const x = ox + i * p + (p - sz) / 2, y = y0 + (p - sz) / 2 - (1 - s) * p * 1.5;
-            const one = new Path2D(); stud(one, x, y, sz);
-            ctx.globalAlpha = s; ctx.stroke(one);
+            stud(drops[Math.min(LEVELS - 1, Math.floor(s * LEVELS))], ox + i * p + (p - sz) / 2, y0 + (p - sz) / 2 - (1 - s) * p * 1.5, sz);
+            anyDrop = true;
           }
         }
-        ctx.globalAlpha = 1; ctx.stroke(settled);
-      };
-      requestAnimationFrame(frame);
+        if (anyFresh) lctx.stroke(fresh);
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalAlpha = 1; ctx.drawImage(layer, 0, 0);
+        if (anyDrop) drops.forEach((path, b) => { ctx.globalAlpha = (b + 1) / LEVELS; ctx.stroke(path); });
+        ctx.globalAlpha = 1;
+
+        if (left > 0 || anyDrop) raf = requestAnimationFrame(frame);   // finished walls stop redrawing
+      }
+      raf = requestAnimationFrame(frame);
     })();
 
     // Hero — name cube rolls AYAN → DESIGNER → STRATEGIST → INNOVATOR → AYAN on scroll; the mosaic follows
