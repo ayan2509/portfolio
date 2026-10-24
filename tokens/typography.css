@@ -6,24 +6,20 @@
   /* Name only — the one deliberate deviation. Big Shoulders Display 900 with a pink offset copy. */
   --font-name: 'Big Shoulders Display', 'Instrument Sans', sans-serif;
   --type-name: 236px;
+  --type-name-m: 120px;   /* tablet screens under 760px tall */
+  --type-name-s: 150px;   /* phones, where the name stacks */
   --leading-name: 0.78;
   --name-offset: 7px;
 
   --stretch-condensed: 75%;
 
-  /* Display — Instrument Sans 700, condensed */
-  --type-display-xl: 210px;   /* hero name */
-  --type-display-l: 128px;    /* section titles */
-  --type-display-m: 72px;
+  /* Display — Instrument Sans 700, condensed. Landing page and work page only;
+     case studies use the --cs-* scale below. */
+  --type-display-l: clamp(3.85rem, 8.4vw, 7rem);   /* 62 → 112: section labels, the work page head */
+  --type-display-m: clamp(44px, 5.2vw, 68px);      /* work card titles */
+  --type-display-s: clamp(32px, 3.4vw, 46px);      /* work page archive titles */
   --leading-display: 0.8;
   --tracking-display: -0.02em;
-
-  /* Statement — Instrument Serif italic, one line per section.
-     Reserved for the case-study pages; the landing page uses --type-note. */
-  --type-statement: 52px;
-  --type-statement-s: 36px;
-  --leading-statement: 1.05;
-  --tracking-statement: -0.01em;
 
   /* Note — Instrument Serif italic, the sticky section-label aside */
   --type-note: 22px;
@@ -33,11 +29,12 @@
   --type-lead: 26px;
   --type-lead-s: 22px;
   --type-lead-xs: 20px;
+  --type-lead-compact: 18px;   /* hero body on short tablet screens */
   --leading-lead: 1.3;
   --tracking-lead: -0.01em;
 
   /* UI & body — Instrument Sans */
-  --type-logo: 24px;
+  --type-logo: 1.125rem;   /* 18: the A. wordmark in every header */
   --type-body-l: 17px;
   --type-body: 15px;
   --type-label: 16px;   /* role line, 600 */
@@ -52,4 +49,67 @@
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
+}
+
+/* ── Case-study scale ─────────────────────────────────────────
+   Shared by every page under projects/. 11 sizes in total.
+   No other font sizes are allowed on case-study pages; the only
+   exception is an embedded product mockup (see the guideline).
+   The big roles are fluid: mobile size → desktop size, reaching
+   the desktop size at a 1200px viewport. Roles of 20px and below
+   are fixed, except the hero intro and card title, which step down
+   once on mobile (see the @media block below).
+
+   Role             Desktop  Mobile  Font / weight
+   cs-title           72       44    Sans 700, condensed, accent
+   cs-statement       44       28    Sans 700
+   cs-section         32       22    Sans 700, condensed, uppercase
+   cs-stat            28       22    Sans 700
+   cs-lead            24       20    Sans 300 (emphasis 600)
+   cs-subhead         24       20    Sans 700
+   cs-quote           24       20    Serif italic 400
+   cs-intro           20       17    Sans 400
+   cs-card-title      18       16    Sans 700
+   cs-body            15       15    Sans 400 (emphasis 600)
+   cs-body-s          14       14    Sans 400
+   cs-ref             12       12    Sans 400
+   cs-index           12       12    Mono 600, accent
+   cs-label           11       11    Mono 400, uppercase
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --cs-title:      clamp(2.75rem, 6vw, 4.5rem);        /* 44 → 72 */
+  --cs-statement:  clamp(1.75rem, 3.667vw, 2.75rem);   /* 28 → 44 */
+  --cs-section:    clamp(1.375rem, 2.667vw, 2rem);     /* 22 → 32 */
+  --cs-stat:       clamp(1.375rem, 2.333vw, 1.75rem);  /* 22 → 28 */
+  --cs-lead:       clamp(1.25rem, 2vw, 1.5rem);        /* 20 → 24 */
+  --cs-subhead:    clamp(1.25rem, 2vw, 1.5rem);        /* 20 → 24 */
+  --cs-quote:      clamp(1.25rem, 2vw, 1.5rem);        /* 20 → 24 */
+  --cs-intro:      1.25rem;                            /* 20, 17 on mobile */
+  --cs-card-title: 1.125rem;                           /* 18, 16 on mobile */
+  --cs-body:       0.9375rem;                          /* 15 */
+  --cs-body-s:     0.875rem;                           /* 14 */
+  --cs-ref:        0.75rem;                            /* 12 */
+  --cs-index:      0.75rem;                            /* 12 */
+  --cs-label:      0.6875rem;                          /* 11 — the floor */
+
+  /* Line height */
+  --cs-leading-title:   0.95;
+  --cs-leading-display: 1.1;    /* statement, stat, section */
+  --cs-leading-lead:    1.35;   /* lead, quote */
+  --cs-leading-head:    1.25;   /* subhead, card title */
+  --cs-leading-body:    1.75;   /* body */
+  --cs-leading-body-s:  1.6;    /* small body, ref, intro */
+
+  /* Tracking */
+  --cs-tracking-display: -0.02em;  /* title, statement, section, lead */
+  --cs-tracking-head:    -0.01em;  /* stat, subhead, quote */
+  --cs-tracking-label:   0.12em;   /* every mono uppercase label */
+  --cs-tracking-index:   0.08em;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --cs-intro:      1.0625rem;  /* 17 */
+    --cs-card-title: 1rem;       /* 16 */
+  }
 }

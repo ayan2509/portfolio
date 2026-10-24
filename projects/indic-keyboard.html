@@ -3,315 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Indic Keyboard — Reimagining the typing experience in Indic languages for the next billion smartphone users." />
-  <title>Indic Keyboard — Ayan</title>
+  <meta name="description" content="Indic Keyboard: reimagining the typing experience in Indic languages for the next billion smartphone users." />
+  <title>Indic Keyboard · Ayan</title>
 
-  <!-- ─── Google Fonts ─────────────────────────────── -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-
-  <style>
-    /* ═══════════════════════════════════════════════════════════════
-       DESIGN TOKENS
-       ═══════════════════════════════════════════════════════════════ */
-    :root {
-      --bg:      #111;
-      --text:    #F5F3F5;
-      --accent:  #F3701E;
-      --muted:   #888;
-      --border:  rgba(255, 255, 255, 0.1);
-      --surface: rgba(255, 255, 255, 0.05);
-      --font-h:  'Space Grotesk', sans-serif;
-      --font-b:  'Inter', sans-serif;
-      --spring:  cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    [data-theme="light"] {
-      --bg:      #F5F3F5;
-      --text:    #191919;
-      --accent:  #F3701E;
-      --muted:   rgba(75, 96, 127, 0.55);
-      --border:  rgba(75, 96, 127, 0.12);
-      --surface: rgba(255, 255, 255, 0.55);
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       RESET & BASE
-       ═══════════════════════════════════════════════════════════════ */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-
-    body {
-      font-family: var(--font-b);
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      transition: background 0.45s ease, color 0.45s ease;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; }
-
-    ::selection { background: var(--accent); color: #fff; }
-
-    ::-webkit-scrollbar       { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-
-    /* ═══════════════════════════════════════════════════════════════
-       COMBINED FIXED HEADER WRAPPER
-       ═══════════════════════════════════════════════════════════════ */
-    .page-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      transform: translateY(0);
-      transition: transform 0.4s ease;
-    }
-
-    /* Main nav slides away upward once user has scrolled */
-    .page-header.nav-scrolled {
-      transform: translateY(-68px);
-    }
-
-    /* ── Main nav row ── */
-    .main-nav {
-      height: 68px;
-      background: rgba(17, 17, 17, 0.72);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .main-nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 100%;
-    }
-
-    .nav-logo {
-      font-family: var(--font-h);
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 40px;
-    }
-
-    .nav-links a {
-      font-family: var(--font-b);
-      font-size: 0.9375rem;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover { color: var(--text); }
-
-    .theme-toggle {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      cursor: pointer;
-      transition: color 0.18s, border-color 0.18s, transform 0.35s var(--spring);
-    }
-
-    .theme-toggle:hover {
-      color: var(--text);
-      border-color: var(--text);
-      transform: rotate(30deg) scale(1.06);
-    }
-
-    .theme-toggle svg { width: 16px; height: 16px; }
-
-    .ico-sun  { display: none; }
-    .ico-moon { display: block; }
-    [data-theme="dark"] .ico-sun  { display: block; }
-    [data-theme="dark"] .ico-moon { display: none; }
-
-    /* ── Project header row ── */
-    .project-header {
-      background: rgba(17, 17, 17, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
-    }
-
-    .project-header-inner {
-      display: grid;
-      grid-template-columns: 120px 1fr 120px;
-      align-items: center;
-      padding: 14px 24px;
-    }
-
-    .project-header-title {
-      grid-column: 2;
-      text-align: center;
-      font-family: var(--font-h);
-      font-size: clamp(2rem, 4.5vw, 4rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1;
-      color: #E8D8C9;
-      text-transform: uppercase;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .project-nav-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-b);
-      font-size: 0.875rem;
-      color: var(--muted);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: color 0.2s ease;
-      padding: 0;
-    }
-
-    .project-nav-btn:hover { color: var(--text); }
-
-    .project-nav-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    .prev-btn { justify-self: start; }
-    .next-btn { justify-self: end; grid-column: 3; }
-
-    /* Progress bar */
-    .project-progress-track {
-      height: 2px;
-      width: 100%;
-      background: transparent;
-    }
-
-    .project-progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--accent);
-      transition: width 0.1s linear;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       HERO SECTION
-       ═══════════════════════════════════════════════════════════════ */
-    .project-hero {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .project-hero-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      z-index: 0;
-    }
-
-    /* ── Bottom meta strip ── */
-    .project-hero-meta {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: space-evenly;
-      padding: 16px 24px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      opacity: 1;
-      transition: opacity 0.35s ease;
-      pointer-events: auto;
-    }
-
-    .project-hero-meta.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .project-hero-meta span {
-      font-family: var(--font-b);
-      font-size: 0.8125rem;
-      font-weight: 400;
-      color: rgba(245, 243, 245, 0.75);
-      letter-spacing: 0.03em;
-      white-space: nowrap;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       SPLIT PANE CONTENT
-       ═══════════════════════════════════════════════════════════════ */
-    .project-content {
-      display: grid;
-      grid-template-columns: 50% 50%;
-      min-height: 100vh;
-      background: var(--bg);
-    }
-
-    .content-left {
-      background: var(--bg);
-      border-right: 1px solid var(--border);
-      min-height: 100vh;
-    }
-
-    .content-right {
-      background: var(--bg);
-      min-height: 100vh;
-    }
-
-  </style>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../case-study.css" />
+  <!-- Built on the shared case-study layer. Add page-only styles in a <style>
+       block here, using the --cs-* type roles and the colour tokens. -->
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════════════════════
-       COMBINED PAGE HEADER (fixed)
-       Row 1: Main nav — slides away after 80px scroll
-       Row 2: Project header — always visible
-       ══════════════════════════════════════════════════════════ -->
-  <div class="page-header" id="pageHeader">
+  <header class="header" id="header" role="banner">
+    <div class="header-inner">
 
-    <!-- Row 1: Main nav -->
-    <div class="main-nav" id="mainNav">
-      <div class="main-nav-inner">
-        <a href="../index.html" class="nav-logo">A.</a>
-        <nav class="nav-links">
-          <a href="../index.html#work">Work</a>
-          <a href="../index.html#about">About</a>
-          <a href="../index.html#contact">Get in Touch</a>
-        </nav>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+
+      <!-- Same header as the landing page: logo, navigation, theme switch -->
+      <a href="../index.html" class="logo" aria-label="Ayan — home">A<em>.</em></a>
+
+      <ul class="nav" role="list" aria-label="Main navigation">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#contact">Let's Talk</a></li>
+      </ul>
+
+      <div class="header-right">
+        <button class="icon-btn theme-btn" id="themeToggle" aria-label="Switch colour scheme">
           <svg class="ico-sun" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -332,75 +50,55 @@
           </svg>
         </button>
       </div>
-    </div>
 
-    <!-- Row 2: Project header -->
-    <div class="project-header" id="projectHeader">
-      <div class="project-header-inner">
-        <a href="belcorp-innovation.html"
-           class="project-nav-btn prev-btn"
-           aria-label="Previous project">
-          <svg width="14" height="14" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-          <span>Prev</span>
-        </a>
-        <h1 class="project-header-title">Indic Keyboard</h1>
-        <a href="crafting-conviviality.html"
-           class="project-nav-btn next-btn"
-           aria-label="Next project">
-          <span>Next</span>
-          <svg width="14" height="14" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </a>
+    </div>
+  </header>
+
+  <main>
+
+  <!-- ══════════ 01 · HERO ══════════ -->
+  <section class="pr-sec" id="cs-hero">
+    <div class="pr-hero">
+
+      <div class="pr-hero-l">
+        <span class="pr-hero-title">Indic<br />Keyboard</span>
+        <p class="pr-hero-sub">Reimagining the typing experience in Indic languages for the next billion smartphone users.</p>
+        <hr class="pr-hr pr-hero-rule" />
+        <div class="pr-meta">
+          <span><span class="pr-meta-k">Year</span>2020</span>
+          <span><span class="pr-meta-k">Context</span>Solo · Academic</span>
+          <span><span class="pr-meta-k">Focus</span>Next-billion users · Language accessibility · Interface design</span>
+        </div>
       </div>
-      <div class="project-progress-track">
-        <div class="project-progress-fill" id="progressFill"></div>
+
+      <!-- Placeholder: drop ../images/projects/indic-keyboard/hero.jpg in and it takes over -->
+      <div class="pr-ph pr-hero-stage">
+        <img src="../images/projects/indic-keyboard/hero.jpg" alt="Indic Keyboard" />
+        <span class="pr-ph-label">Hero image</span>
       </div>
-    </div>
 
-  </div>
-
-
-  <!-- ══════════════════════════════════════════════════════════
-       HERO — full viewport
-       ══════════════════════════════════════════════════════════ -->
-  <section class="project-hero" id="projectHero">
-
-    <img
-      class="project-hero-img"
-      src="../images/projects/indic-keyboard/hero.jpg"
-      alt="Indic Keyboard"
-      draggable="false"
-      onerror="this.src='../images/projects/indic-keyboard/hero.jpeg'; this.onerror=null;"
-    />
-
-    <div class="project-hero-meta" id="heroMeta">
-      <span>2020</span>
-      <span>Solo</span>
-      <span>Academic</span>
-    </div>
-
-  </section>
-
-
-  <!-- ══════════════════════════════════════════════════════════
-       SPLIT PANE — populated later
-       ══════════════════════════════════════════════════════════ -->
-  <section class="project-content" id="projectContent">
-    <div class="content-left" id="contentLeft">
-      <!-- Visual pane — populated later -->
-    </div>
-    <div class="content-right" id="contentRight">
-      <!-- Content pane — populated later -->
     </div>
   </section>
 
+  <!-- ══════════ 02 · CASE STUDY (being written) ══════════ -->
+  <section class="pr-sec pr-sec--top" id="cs-body">
+    <div class="pr-band">
+      <span class="pr-band-title">Case Study</span>
+    </div>
+    <div class="pr-body">
+      <div class="pr-stack">
+        <span class="pr-eyebrow">In progress</span>
+        <p class="pr-lead">The full case study for this project is being written.</p>
+      </div>
+
+      <a href="crafting-conviviality.html" class="pr-next pr-next-link">
+        <span class="pr-next-k">Next project</span>
+        <span class="pr-next-v">Crafting Conviviality →</span>
+      </a>
+    </div>
+  </section>
+
+  </main>
 
   <script>
     'use strict';
@@ -416,80 +114,22 @@
     });
 
     /* ── Skip loader when navigating back to index ── */
-    const navLinks = document.querySelectorAll('.main-nav a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        sessionStorage.setItem('skipLoader', 'true');
-      });
+    document.querySelectorAll('.header a').forEach(link => {
+      link.addEventListener('click', () => sessionStorage.setItem('skipLoader', 'true'));
     });
 
-    /* ── Elements ── */
-    const pageHeader   = document.getElementById('pageHeader');
-    const progressFill = document.getElementById('progressFill');
-    const heroSection  = document.getElementById('projectHero');
-    const heroMeta     = document.getElementById('heroMeta');
-
-    /* ── Constants ── */
-    const NAV_HEIGHT       = 68;
-    const SCROLL_THRESHOLD = 80; /* px before main nav slides away */
-
-    /* ── Single scroll handler ── */
-    function onScroll() {
-      const scrollY   = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-
-      /* 1. Progress bar */
-      if (progressFill) {
-        progressFill.style.width = Math.min((scrollY / docHeight) * 100, 100) + '%';
+    /* ── Image placeholders: the label box stays until the image loads ── */
+    document.querySelectorAll('.pr-ph > img').forEach(img => {
+      const box = img.parentElement;
+      const ok  = () => box.classList.add('is-loaded');
+      const no  = () => img.remove();
+      if (img.complete) { img.naturalWidth > 0 ? ok() : no(); }
+      else {
+        img.addEventListener('load', ok,  { once: true });
+        img.addEventListener('error', no, { once: true });
       }
-
-      /* 2. Slide main nav away */
-      if (pageHeader) {
-        if (scrollY > SCROLL_THRESHOLD) {
-          pageHeader.classList.add('nav-scrolled');
-        } else {
-          pageHeader.classList.remove('nav-scrolled');
-        }
-      }
-
-      /* 3. Hide bottom strip when hero scrolls out of view */
-      if (heroMeta && heroSection) {
-        const heroBottom = heroSection.getBoundingClientRect().bottom;
-        if (heroBottom <= 0) {
-          heroMeta.classList.add('hidden');
-        } else {
-          heroMeta.classList.remove('hidden');
-        }
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); /* initialise on load */
-
-    /* ── Snap scroll: hero → split pane ── */
-    let hasSnapped = false;
-    let isSnapping = false;
-
-    function handleHeroSnap() {
-      if (isSnapping || !heroSection) return;
-      const heroRect   = heroSection.getBoundingClientRect();
-      const heroMid    = heroRect.height * 0.5;
-      const scrolledIn = -heroRect.top;
-
-      if (scrolledIn > heroMid && !hasSnapped) {
-        isSnapping = true;
-        hasSnapped = true;
-        document.getElementById('projectContent')
-          ?.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => { isSnapping = false; }, 800);
-      }
-
-      if (heroRect.top >= 0) hasSnapped = false;
-    }
-
-    window.addEventListener('scroll', handleHeroSnap, { passive: true });
-
+    });
   </script>
-
+  <script src="../case-study.js"></script>
 </body>
 </html>

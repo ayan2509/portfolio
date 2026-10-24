@@ -32,6 +32,27 @@
   --brick-black:  oklch(0.33 0.012 250);
   --brick-grey:   oklch(0.8 0.012 85);
 
+  /* Diagram / data palette: categorical, for diagrams and charts in
+     case studies. Use the slots in this order (1, 2, 3…) and never cycle them.
+     Every coloured mark carries a text label; text itself never takes
+     these colours. Pink is deliberately absent: it stays the accent.
+     Checked for colour-blind separation on --bg in both themes. */
+  --data-1: #2863AB;  /* blue   */
+  --data-2: #DC701C;  /* orange */
+  --data-3: #008F7D;  /* teal   */
+  --data-4: #CD9C1F;  /* ochre  */
+  --data-5: #A269C9;  /* violet */
+  --data-6: #346D26;  /* green  */
+  --data-tint: 22%;   /* fill strength: color-mix(in srgb, var(--data-n) var(--data-tint), transparent) */
+  /* Text steps: only for a label that must carry its data colour
+     (a "Crisis" tag, a legend key). 4.6:1 or more on --bg. */
+  --data-1-text: #2C68B0;
+  --data-2-text: #AE4600;
+  --data-3-text: #007463;
+  --data-4-text: #8C5E00;
+  --data-5-text: #864EAB;
+  --data-6-text: #3A732C;
+
   /* Semantic (light) */
   --bg: var(--paper-200);
   --surface: var(--paper-100);
@@ -43,6 +64,9 @@
   --accent: var(--pink-500);
   --accent-hover: var(--pink-600);
   --accent-body: oklch(0.52 0.2 0);
+  /* Pink text below 24px (or below 19px bold) uses --accent-text: --accent is
+     4.3:1 on paper, which fails AA for small text; this one is 5.0:1. */
+  --accent-text: var(--accent-body);
   --border: rgba(36, 38, 42, 0.12);
   --border-strong: var(--ink-900);
   --grid-line: rgba(36, 38, 42, 0.07);
@@ -68,6 +92,7 @@
   --accent: var(--pink-300);
   --accent-hover: oklch(0.78 0.15 0);
   --accent-body: var(--pink-300);
+  --accent-text: var(--accent-body);
   --border: rgba(239, 232, 216, 0.12);
   --border-strong: var(--bone-100);
   --grid-line: rgba(239, 232, 216, 0.06);
@@ -80,4 +105,18 @@
   --focus-ring: var(--pink-300);
   --watermark: var(--night-800);
   --danger: oklch(0.7 0.16 25);
+
+  /* Data palette, dark steps. Same hues, re-stepped for the night surface */
+  --data-1: #418AD1;
+  --data-2: #DC701C;
+  --data-3: #009583;
+  --data-4: #B68B16;
+  --data-5: #8F5FC0;
+  --data-6: #478638;
+  --data-1-text: #418AD1;
+  --data-2-text: #DC701C;
+  --data-3-text: #009583;
+  --data-4-text: #B68B16;
+  --data-5-text: #A86FCF;
+  --data-6-text: #5A944D;
 }

@@ -11,133 +11,40 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="../styles.css" />
 
+  <link rel="stylesheet" href="../case-study.css" />
   <style>
+    /* Project colours (README: Project colours). Life as Usual and Crisis,
+       pointed at data-palette slots; -text steps for labels. */
+    :root {
+      --project-lau: var(--data-3);
+      --project-lau-text: var(--data-3-text);
+      --project-crisis: var(--data-2);
+      --project-crisis-text: var(--data-2-text);
+    }
+
     /* ═══════════════════════════════════════════════════════════════
        DESIGN TOKENS
        ═══════════════════════════════════════════════════════════════ */
     /* Design-system tokens come from styles.css — these alias the old names */
-    :root {
-      --heading: var(--text);
-      --muted: var(--text-muted);
-      --header-bg: var(--bg);
-      --font-h: var(--font-sans);
-      --font-b: var(--font-sans);
-      --spring: var(--ease-spring);
-      --snap: var(--ease-snap);
-      /* Page gutter — the same curve the landing page uses */
-      --page-gutter: clamp(20px, 5vw, 72px);
-      --page-max: none;
-    }
 
     /* ═══════════════════════════════════════════════════════════════
        RESET & BASE
        ═══════════════════════════════════════════════════════════════ */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-
-    body {
-      font-family: var(--font-b);
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      transition: background 0.45s ease, color 0.45s ease;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; cursor: pointer; border: none; background: none; }
-
-    ::selection { background: var(--accent); color: var(--text-on-ink); }
-
-    ::-webkit-scrollbar       { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-pill); }
 
     /* ═══════════════════════════════════════════════════════════════
        COMBINED FIXED HEADER WRAPPER
        ═══════════════════════════════════════════════════════════════ */
     /* Identical to the landing page header. */
     /* sits at the top of the page and scrolls away with it */
-    .header {
-      position: absolute; top: 0; left: 0; right: 0;
-      z-index: 1000;
-      height: 68px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      transition: border-color 0.3s ease, background 0.45s ease, box-shadow 0.3s ease;
-    }
-    .header.scrolled {
-      border-bottom-color: var(--border);
-      box-shadow: 0 1px 24px rgba(0,0,0,0.06);
-    }
     /* A case study carries a back button and the theme switch, nothing else —
        the project is the page, and the one exit is the way you came in. */
-    .header-inner {
-      width: 100%; max-width: var(--page-max);
-      padding: 0 var(--page-gutter);
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-    }
-
-    .header-inner .logo { justify-self: start; }
-    .header-right { justify-self: end; }
-
-    .nav { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
-
-    .nav a {
-      font-family: var(--font-b);
-      font-size: 0.9375rem;
-      font-weight: 400;
-      color: var(--muted);
-      padding: 7px 18px;
-      border-radius: 100px;
-      letter-spacing: 0.01em;
-      transition: color 0.18s, background 0.18s;
-    }
-
-    .nav a:hover { color: var(--text); background: var(--border); }
-    .nav a.active { color: var(--text); }
-
-    @media (max-width: 640px) {
-      .header-inner { grid-template-columns: auto 1fr; }
-      .header-inner .logo { display: none; }
-      .nav { justify-self: start; }
-    }
 
     /* Same wordmark as the landing page */
-    .logo {
-      font-family: var(--font-h);
-      font-size: 1.125rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--heading);
-      transition: color 0.2s;
-    }
-
-    .logo em { font-style: normal; color: var(--accent); }
-    .logo:hover { color: var(--accent); }
 
     /* Shared circular control. The theme switch and the back button are the
        same object; only their hover motion differs. */
-    .icon-btn {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      transition: color 0.18s, border-color 0.18s, transform 0.35s var(--spring);
-    }
-    .icon-btn:hover { color: var(--text); border-color: var(--text); }
-    .icon-btn svg { width: 16px; height: 16px; }
 
     /* The sun turns; the arrow goes back the way it points. */
-    .theme-btn:hover { transform: rotate(30deg) scale(1.06); }
-
-    .ico-sun  { display: none; }
-    .ico-moon { display: block; }
-    [data-theme="dark"] .ico-sun  { display: block; }
-    [data-theme="dark"] .ico-moon { display: none;  }
 
     /* ═══════════════════════════════════════════════════════════════
        2A LAYOUT: nine full-width sections
@@ -145,287 +52,19 @@
     /* Page-local layer, re-derived light-first on the design-system tokens.
        Most entries now follow --bg/--text/--border, so they invert for free;
        only the steps the system has no token for are spelled out per theme. */
-    :root {
-      --pr-head:   var(--text);
-      --pr-raise:  var(--bg);   /* one page colour throughout; panels use --surface */
-      --pr-crisis: oklch(0.6 0.17 48);
-      --pr-line:   var(--border);
-      --pr-rule:   var(--border);
-      --pr-dim:    var(--text-muted);
-      --pr-faint:  var(--text-faint);
-      --pr-ghost:  rgba(36, 38, 42, 0.30);
-      --pr-ph-bg:  rgba(36, 38, 42, 0.04);
-      --pr-ph-bd:  rgba(36, 38, 42, 0.18);
-      --pr-chip:   var(--surface);
-      --pr-scrim:  var(--bg);
-      --pr-sticky: 0px;   /* the header scrolls away, so bands pin to the top */
-      --pr-hero-top: 136px;
-      --pr-gut:    var(--page-gutter);
-      --pr-inner:  clamp(20px, 4vw, 52px);
-      --pr-studs:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Ccircle cx='5' cy='5' r='3' fill='none' stroke='%2324262A' stroke-opacity='0.1' stroke-width='0.9'/%3E%3C/svg%3E");
-    }
-
-    [data-theme="dark"] {
-      --pr-crisis: oklch(0.75 0.15 55);
-      --pr-studs:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Ccircle cx='5' cy='5' r='3' fill='none' stroke='%23EFE8D8' stroke-opacity='0.085' stroke-width='0.9'/%3E%3C/svg%3E");
-      --pr-ghost:  rgba(239, 232, 216, 0.26);
-      --pr-ph-bg:  rgba(239, 232, 216, 0.035);
-      --pr-ph-bd:  rgba(239, 232, 216, 0.16);
-    }
 
     /* ── Section shell ─────────────────────────────── */
-    .pr-sec {
-      position: relative;
-      background: var(--bg);
-      transition: background 0.45s ease;
-    }
-
-    .pr-sec--raise { background: var(--pr-raise); }
-    .pr-sec--top   { border-top: 1px solid var(--pr-line); }
-
-    .pr-band {
-      position: sticky;
-      top: var(--pr-sticky);
-      z-index: 40;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 14px var(--pr-gut) 10px;
-      border-top: 1px solid var(--pr-line);
-      border-bottom: 1px solid var(--pr-line);
-      background: var(--bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .pr-band-title {
-      font-family: var(--font-h);
-      font-stretch: var(--stretch-condensed);
-      font-size: clamp(1.375rem, 3.4vw, 2rem);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-display);
-      line-height: 1;
-      text-transform: uppercase;
-      color: var(--pr-head);
-    }
-
-    .pr-body {
-      padding: clamp(28px, 4vw, 46px) var(--pr-gut) clamp(32px, 5vw, 52px);
-    }
 
     /* stretch, so a sticky child of the left column has room to travel */
-    .pr-split {
-      display: grid;
-      grid-template-columns: 40% 60%;
-      align-items: stretch;
-    }
 
-    .pr-col-l { padding-right: var(--pr-inner); }
-
-    .pr-col-r {
-      border-left: 1px solid var(--pr-line);
-      padding-left: var(--pr-inner);
-    }
-
-    .pr-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* ── Shared type ───────────────────────────────── */
-    .pr-eyebrow {
-      font-family: var(--font-mono);
-      display: block;
-      font-size: 0.6875rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--pr-dim);  /* faint fell below readable contrast at this size */
-    }
-
-    .pr-eyebrow--wide {
-      font-family: var(--font-h);
-      letter-spacing: 0.2em;
-    }
-
-    .pr-lead {
-      font-family: var(--font-h);
-      font-weight: 300;
-      font-size: clamp(1.25rem, 2.1vw, 1.5625rem);
-      letter-spacing: -0.02em;
-      line-height: 1.35;
-      color: var(--pr-head);
-    }
-
-    .pr-lead strong { font-weight: 600; color: var(--accent); }
-    .pr-lead b      { font-weight: 600; }   /* a neutral lead-in, no pink */
-
-    .pr-lead--lg {
-      font-size: clamp(1.3125rem, 2.3vw, 1.6875rem);
-      max-width: 36ch;
-    }
-
-    .pr-p {
-      font-size: 0.9375rem;
-      line-height: 1.75;
-      color: var(--text);
-    }
-
-    .pr-p--sub   { font-size: 0.875rem;  color: var(--pr-dim); }
-    .pr-p--quiet { font-size: 0.8125rem; line-height: 1.7; color: var(--pr-faint); }
-
-    .pr-hr {
-      height: 1px;
-      border: 0;
-      background: var(--pr-rule);
-    }
+    /* ── Shared type ───────────────────────────────── */   /* a neutral lead-in, no pink */
 
     /* ── Image placeholders: swap in automatically once files exist ── */
-    .pr-ph {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      padding: 14px;
-      text-align: center;
-      background: var(--pr-ph-bg);
-      border: 1px dashed var(--pr-ph-bd);
-      transition: border-color 0.3s ease;
-    }
-
-    .pr-ph-label {
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      line-height: 1.6;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--pr-faint);
-      transition: opacity 0.3s ease;
-    }
-
-    .pr-ph > img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-
-    .pr-ph.is-loaded { border-color: transparent; }
-    .pr-ph.is-loaded > img { opacity: 1; }
-    .pr-ph.is-loaded .pr-ph-label { opacity: 0; }
 
     /* day / night stage */
-    .pr-ph.is-loaded .pr-layer--night         { opacity: 0; }
-    .pr-ph.is-loaded.is-night .pr-layer--night { opacity: 1; }
-    .pr-ph.is-loaded.is-night .pr-layer--day   { opacity: 0; }
-
-    .pr-zoom { cursor: zoom-in; }
-
-    .pr-chip {
-      position: absolute;
-      right: 14px;
-      top: 14px;
-      z-index: 3;
-      padding: 5px 12px;
-      border: 1px solid var(--pr-ph-bd);
-      border-radius: 999px;
-      background: var(--pr-chip);
-      font-size: 0.625rem;
-      letter-spacing: 0.08em;
-      color: var(--pr-faint);
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .pr-chip svg {
-      width: 10px;
-      height: 10px;
-      margin-left: 3px;
-      vertical-align: -1px;
-    }
-
-    .pr-zoom:hover .pr-chip {
-      color: var(--text);
-      border-color: var(--text);
-    }
 
     /* ── 01 Hero ───────────────────────────────────── */
-    .pr-hero {
-      display: grid;
-      grid-template-columns: 40% 60%;
-      align-items: stretch;
-      /* clears the header at the top of the page */
-      padding: calc(var(--pr-hero-top) + clamp(24px, 4vw, 44px)) var(--pr-gut) clamp(32px, 5vw, 48px);
-    }
-
-    .pr-hero-l {
-      position: relative;
-      isolation: isolate;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding-right: var(--pr-inner);
-    }
-
-    /* the landing hero's plain stud field (components/brand/mosaic.js, buildBg):
-       outline studs on a 10px grid, fading out toward the edges */
-    .pr-hero-l::before {
-      content: '';
-      position: absolute;
-      z-index: -1;
-      top: -40px;
-      bottom: -24px;
-      left: calc(-1 * var(--pr-gut));
-      right: 0;
-      pointer-events: none;
-      background-image: var(--pr-studs);
-      background-size: 10px 10px;
-      -webkit-mask-image: radial-gradient(56% 60% at 55% 50%, #000 45%, rgba(0, 0, 0, 0.4) 75%, transparent 100%);
-              mask-image: radial-gradient(56% 60% at 55% 50%, #000 45%, rgba(0, 0, 0, 0.4) 75%, transparent 100%);
-    }
-
-    .pr-hero-title {
-      font-family: var(--font-h);
-      font-stretch: var(--stretch-condensed);
-      font-size: clamp(2.75rem, 6.2vw, 4.5rem);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-display);
-      line-height: 0.95;
-      color: var(--accent);
-    }
-
-    .pr-hero-sub {
-      font-size: clamp(1.0625rem, 1.4vw, 1.3125rem);
-      line-height: 1.6;
-      color: var(--text);
-      max-width: 26ch;
-    }
-
-    .pr-hero-rule { margin-top: auto; }
-
-    .pr-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px 24px;
-      font-size: 0.75rem;
-      color: var(--pr-dim);
-    }
-
-    .pr-meta-k {
-      font-family: var(--font-mono);
-      display: block;
-      margin-bottom: 4px;
-      font-size: 0.625rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--pr-dim);
-    }
-
-    .pr-hero-stage { aspect-ratio: 16 / 11; }
+    /* the hero frame (.pr-hero, title, intro, meta) lives in case-study.css */
 
     .pr-mode {
       position: absolute;
@@ -494,7 +133,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--pr-faint);
+      color: var(--pr-dim);
       transition: color 0.3s ease;
     }
 
@@ -509,10 +148,10 @@
       left: 16px;
       bottom: 58px;
       z-index: 3;
-      font-size: 0.625rem;
+      font-size: var(--cs-label);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--pr-faint);
+      color: var(--pr-dim);
     }
 
     /* ── Context ───────────────────────────────────── */
@@ -535,16 +174,8 @@
     .pr-fig-frame { aspect-ratio: 4 / 3; padding: 0; }
     .pr-fig-frame,
     .pr-fig-frame.is-loaded { background: #000; }
-    .pr-fig-frame .pr-ph-label { color: rgba(239, 232, 216, 0.5); }
+    .pr-fig-frame .pr-ph-label { color: color-mix(in srgb, var(--bone-100) 50%, transparent); }
     .pr-fig-frame > img { object-fit: contain; }
-
-    .pr-cap {
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      line-height: 1.6;
-      letter-spacing: 0.08em;
-      color: var(--pr-faint);
-    }
 
     .pr-cap a,
     .pr-ref a {
@@ -556,7 +187,7 @@
     }
 
     .pr-cap a:hover,
-    .pr-ref a:hover { color: var(--accent); }
+    .pr-ref a:hover { color: var(--accent-text); }
 
     /* ── 02 The 72 Hours ───────────────────────────── */
     /* the map is portrait (1064 × 1386) and leads the section, so the
@@ -625,22 +256,23 @@
 
     .pr-cat-ico svg { width: 16px; height: 16px; }
 
-    .pr-cat--comms   { --cat: #2f5bb7; }
-    .pr-cat--health  { --cat: #7cc8ee; }
-    .pr-cat--move    { --cat: #f2cd3a; }
-    .pr-cat--food    { --cat: #35b65f; }
-    .pr-cat--finance { --cat: #9fe0bb; }
-    .pr-cat--water   { --cat: #6a3fd1; }
+    /* six systems: data palette slots 1–6, in reading order */
+    .pr-cat--comms   { --cat: var(--data-1); }
+    .pr-cat--health  { --cat: var(--data-2); }
+    .pr-cat--move    { --cat: var(--data-3); }
+    .pr-cat--food    { --cat: var(--data-4); }
+    .pr-cat--finance { --cat: var(--data-5); }
+    .pr-cat--water   { --cat: var(--data-6); }
 
     .pr-cat-n {
       font-family: var(--font-h);
-      font-size: 0.9375rem;
+      font-size: var(--cs-body);
       font-weight: 700;
       color: var(--pr-head);
     }
 
     .pr-cat-d {
-      font-size: 0.8125rem;
+      font-size: var(--cs-body-s);
       line-height: 1.6;
       color: var(--pr-dim);
     }
@@ -659,30 +291,30 @@
 
     .pr-key-t {
       font-family: var(--font-h);
-      font-size: 1.0625rem;
+      font-size: var(--cs-card-title);
       font-weight: 700;
       line-height: 1.3;
       color: var(--pr-head);
     }
 
     .pr-key-d {
-      font-size: 0.875rem;
+      font-size: var(--cs-body-s);
       line-height: 1.65;
       color: var(--pr-dim);
     }
 
     .pr-ref {
       margin-top: 10px;
-      font-size: 0.75rem;
+      font-size: var(--cs-ref);
       line-height: 1.6;
-      color: var(--pr-faint);
+      color: var(--pr-dim);
     }
 
     /* ── 03 Process ────────────────────────────────── */
     .pr-proc-intro { margin-bottom: 26px; }
 
     .pr-proc-note {
-      font-size: 0.8125rem;
+      font-size: var(--cs-body-s);
       line-height: 1.7;
       color: var(--pr-dim);
     }
@@ -715,7 +347,7 @@
       gap: 8px;
       margin-right: -16px;
       font-family: var(--font-mono);
-      font-size: 0.875rem;
+      font-size: var(--cs-index);
       font-weight: 600;
       letter-spacing: 0.04em;
     }
@@ -737,15 +369,16 @@
     }
 
     .pr-step-num {
-      font-family: var(--font-h);
-      font-size: 0.8125rem;
-      letter-spacing: 0.1em;
-      color: var(--accent);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: var(--cs-index);
+      letter-spacing: var(--cs-tracking-index);
+      color: var(--accent-text);
     }
 
     .pr-step-t {
       font-family: var(--font-h);
-      font-size: 1.0625rem;
+      font-size: var(--cs-card-title);
       font-weight: 700;
       line-height: 1.3;
       color: var(--pr-head);
@@ -757,17 +390,17 @@
     .pr-step-ref {
       display: block;
       margin-top: 6px;
-      font-size: 0.75rem;
-      color: var(--pr-faint);
+      font-size: var(--cs-ref);
+      color: var(--pr-dim);
     }
 
     .pr-step-ref a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-    .pr-step-ref a:hover { color: var(--accent); }
+    .pr-step-ref a:hover { color: var(--accent-text); }
 
     .pr-step-c b { font-weight: 600; color: var(--pr-head); }
 
     .pr-step-c {
-      font-size: 0.9375rem;
+      font-size: var(--cs-body);
       line-height: 1.5;
       color: var(--pr-dim);
     }
@@ -779,7 +412,7 @@
       transition: transform 0.4s var(--spring), border-color 0.3s ease, box-shadow 0.4s ease;
     }
 
-    .pr-step .pr-ph-label { font-size: 0.5625rem; letter-spacing: 0.1em; }
+    .pr-step .pr-ph-label { font-size: var(--cs-label); letter-spacing: 0.1em; }
 
     /* thumbnails show the whole artefact on a white card, never cropped */
     .pr-step .pr-ph.is-loaded { background: #fff; }
@@ -820,9 +453,9 @@
     .pr-cats--3 .pr-cat:last-child  { padding-right: 0; }
 
     /* brick colours from the brand palette (components/brand/brickEngine.js) */
-    .pr-cat--store  { --cat: oklch(0.62 0.11 180); }
-    .pr-cat--share  { --cat: oklch(0.72 0.16 52); }
-    .pr-cat--backup { --cat: oklch(0.85 0.15 82); }
+    .pr-cat--store  { --cat: var(--data-3); }
+    .pr-cat--share  { --cat: var(--data-2); }
+    .pr-cat--backup { --cat: var(--data-4); }
 
     /* ── 05 How it works ───────────────────────────── */
     /* two mechanisms side by side; in each, the explanation comes first and
@@ -850,7 +483,7 @@
 
     .pr-duo-t {
       font-family: var(--font-h);
-      font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+      font-size: var(--cs-subhead);
       font-weight: 700;
       line-height: 1.2;
       color: var(--pr-head);
@@ -887,12 +520,12 @@
     .pr-c-mark  { stroke: var(--pr-head); stroke-width: 1.5; }
     .pr-c-dash  { stroke: color-mix(in srgb, var(--pr-head) 50%, transparent); stroke-width: 1.2; stroke-dasharray: 5 5; }
     .pr-c-pink  { fill: var(--accent); }
-    .pr-c-green { fill: oklch(0.68 0.15 150); }
+    .pr-c-green { fill: var(--data-6); }
 
     .pr-c-text {
       fill: var(--pr-head);
       font-family: var(--font-sans);
-      font-size: 15px;
+      font-size: calc(var(--cs-body-s) * max(1, var(--svg-k, 1)));
     }
 
     .pr-c-draw {
@@ -912,7 +545,7 @@
     .pr-how-ref { margin-top: 16px; }
 
     .pr-duo-p {
-      font-size: 1rem;
+      font-size: var(--cs-body);
       line-height: 1.75;
       color: var(--text);
     }
@@ -942,47 +575,7 @@
       border-color: color-mix(in srgb, var(--accent) 30%, transparent);
     }
 
-    .pr-vs-h {
-      font-family: var(--font-h);
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--pr-head);
-    }
-
-    .pr-vs-card--community .pr-vs-h { color: var(--accent); }
-
-    .pr-vs-i {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .pr-vs-ico {
-      display: inline-flex;
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      color: var(--pr-dim);
-    }
-
-    .pr-vs-ico svg { width: 100%; height: 100%; }
-
-    .pr-vs-t {
-      display: block;
-      margin-bottom: 3px;
-      font-family: var(--font-h);
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: var(--pr-head);
-    }
-
-    .pr-vs-d {
-      font-size: 0.9375rem;
-      line-height: 1.55;
-      color: var(--pr-dim);
-      text-wrap: pretty;
-    }
+    .pr-vs-card--community .pr-vs-h { color: var(--accent-text); }
 
     .pr-vs-card--community .pr-vs-d { color: var(--text); }
 
@@ -1010,8 +603,8 @@
     }
 
     .pr-op--crisis {
-      --mode: var(--pr-crisis);
-      border-color: color-mix(in srgb, var(--pr-crisis) 45%, transparent);
+      --mode: var(--project-crisis-text);
+      border-color: color-mix(in srgb, var(--project-crisis) 45%, transparent);
     }
 
     .pr-op-h {
@@ -1036,18 +629,18 @@
     .pr-op-ico svg { width: 17px; height: 17px; }
 
     .pr-op .pr-step-num { display: block; margin-bottom: 5px; }
-    .pr-op--crisis .pr-step-num { color: var(--pr-crisis); }
+    .pr-op--crisis .pr-step-num { color: var(--project-crisis-text); }
 
     .pr-op-t {
       font-family: var(--font-h);
-      font-size: 1.125rem;
+      font-size: var(--cs-card-title);
       font-weight: 700;
       line-height: 1.2;
       color: var(--mode);
     }
 
     .pr-op-p {
-      font-size: 0.9375rem;
+      font-size: var(--cs-body);
       line-height: 1.65;
       color: var(--text);
     }
@@ -1068,25 +661,26 @@
       overflow-x: auto;
     }
 
-    .pr-ctx2 svg { display: block; width: 100%; min-width: 560px; height: auto; }
+    /* 720px keeps the smallest label at 11px or more when the frame scrolls */
+    .pr-ctx2 svg { display: block; width: 100%; min-width: 720px; height: auto; }
 
     .pr-d-ink    { stroke: var(--pr-head); fill: none; }
-    .pr-d-crisis { stroke: var(--pr-crisis); fill: none; }
-    .pr-d-tint   { fill: color-mix(in srgb, var(--pr-crisis) 16%, transparent); }
+    .pr-d-crisis { stroke: var(--project-crisis); fill: none; }
+    .pr-d-tint   { fill: color-mix(in srgb, var(--project-crisis) 16%, transparent); }
     .pr-d-bar    { stroke-width: 4; }
     .pr-d-rule   { stroke-width: 1.4; stroke-linecap: round; }
 
     .pr-d-text {
       font-family: var(--font-sans);
-      font-size: 17px;
+      font-size: calc(var(--cs-body) * max(1, var(--svg-k, 1)));
       fill: var(--pr-head);
     }
 
-    .pr-d-text--crisis { fill: var(--pr-crisis); }
+    .pr-d-text--crisis { fill: var(--project-crisis-text); }
     .pr-d-text--dim    { fill: var(--pr-dim); }
-    .pr-d-title  { font-size: 26px; font-weight: 700; }
+    .pr-d-title  { font-size: calc(var(--cs-subhead) * max(1, var(--svg-k, 1))); font-weight: 700; }
     .pr-d-head   { font-weight: 700; }
-    .pr-d-sub    { font-size: 16px; font-style: italic; }
+    .pr-d-sub    { font-size: calc(var(--cs-body-s) * max(1, var(--svg-k, 1))); font-style: italic; }
 
     /* ── 07 Two lives ──────────────────────────────── */
     /* drag to compare: the day render is the base, the night render is
@@ -1159,7 +753,7 @@
       justify-content: center;
       transform: translate(-50%, -50%);
       background: #fff;
-      color: #24262A;
+      color: var(--ink-900);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
       pointer-events: none;
       transition: transform 0.25s var(--spring);
@@ -1200,7 +794,7 @@
       background: rgba(22, 21, 19, 0.72);
       -webkit-backdrop-filter: blur(6px);
               backdrop-filter: blur(6px);
-      color: #EFE8D8;
+      color: var(--bone-100);
       pointer-events: none;
       transition: opacity 0.25s ease;
     }
@@ -1210,11 +804,11 @@
 
     .pr-cmp-tag-t {
       font-family: var(--font-h);
-      font-size: 0.875rem;
+      font-size: var(--cs-body-s);
       font-weight: 700;
     }
 
-    .pr-cmp-tag--night .pr-cmp-tag-t { color: oklch(0.75 0.15 55); }
+    .pr-cmp-tag--night .pr-cmp-tag-t { color: var(--data-2); }
 
     /* annotations: a leader line from a card down to the feature on the
        battery; points are in the renders' own 2000 x 1093 space */
@@ -1229,10 +823,10 @@
     .pr-ann-lines line   { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
     .pr-ann-lines circle { stroke-width: 2; vector-effect: non-scaling-stroke; }
 
-    .pr-cmp-day .pr-ann-lines line     { stroke: #24262A; }
-    .pr-cmp-day .pr-ann-lines circle   { stroke: #24262A; fill: var(--brick-green); }
-    .pr-cmp-night .pr-ann-lines line   { stroke: #EFE8D8; }
-    .pr-cmp-night .pr-ann-lines circle { stroke: #EFE8D8; fill: var(--brick-orange); }
+    .pr-cmp-day .pr-ann-lines line     { stroke: var(--ink-900); }
+    .pr-cmp-day .pr-ann-lines circle   { stroke: var(--ink-900); fill: var(--project-lau); }
+    .pr-cmp-night .pr-ann-lines line   { stroke: var(--bone-100); }
+    .pr-cmp-night .pr-ann-lines circle { stroke: var(--bone-100); fill: var(--project-crisis); }
 
     /* annotation cards, anchored by their bottom-left corner so the leader
        lines meet the bottom edge; brick green for life as usual, brick
@@ -1251,17 +845,17 @@
     }
 
     .pr-cmp-day .pr-acard {
-      --card: var(--brick-green);
+      --card: var(--project-lau);
       background: rgba(246, 241, 230, 0.95);
       border: 1px solid color-mix(in oklch, var(--card) 70%, transparent);
-      color: #24262A;
+      color: var(--ink-900);
     }
 
     .pr-cmp-night .pr-acard {
-      --card: var(--brick-orange);
+      --card: var(--project-crisis);
       background: rgba(22, 21, 19, 0.88);
       border: 1px solid color-mix(in oklch, var(--card) 70%, transparent);
-      color: #EFE8D8;
+      color: var(--bone-100);
     }
 
     .pr-acard-t {
@@ -1269,7 +863,7 @@
       align-items: center;
       gap: 7px;
       font-family: var(--font-h);
-      font-size: clamp(0.75rem, 1.05vw, 0.9375rem);
+      font-size: var(--cs-body);
       font-weight: 700;
       line-height: 1.25;
     }
@@ -1284,7 +878,7 @@
     }
 
     .pr-acard-d {
-      font-size: clamp(0.6875rem, 0.88vw, 0.8125rem);
+      font-size: var(--cs-body-s);
       line-height: 1.45;
       opacity: 0.82;
     }
@@ -1321,23 +915,23 @@
 
     .pr-cmp-day .pr-cmp-feat {
       --f-bg: rgba(246, 241, 230, 0.96);
-      --f-ink: #24262A;
-      --f-dim: #4A4740;
-      --f-chip: var(--brick-green);
+      --f-ink: var(--ink-900);
+      --f-dim: var(--ink-700);
+      --f-chip: var(--project-lau);
     }
 
     .pr-cmp-night .pr-cmp-feat {
       --f-bg: rgba(14, 13, 12, 0.95);
-      --f-ink: #F4EEE2;
-      --f-dim: #C9C2B4;
-      --f-chip: var(--brick-orange);
+      --f-ink: var(--paper-100);
+      --f-dim: var(--paper-300);
+      --f-chip: var(--project-crisis);
     }
 
     /* tighter type for the narrow overlay column */
     .pr-cmp-feat .pr-feat     { gap: 10px; }
     .pr-cmp-feat .pr-feat-ico { width: clamp(28px, 2.4vw, 34px); height: clamp(28px, 2.4vw, 34px); }
-    .pr-cmp-feat .pr-feat-t   { font-size: clamp(0.8125rem, 1.1vw, 1rem); }
-    .pr-cmp-feat .pr-feat-d   { font-size: clamp(0.6875rem, 0.92vw, 0.875rem); line-height: 1.45; }
+    .pr-cmp-feat .pr-feat-t   { font-size: var(--cs-body); }
+    .pr-cmp-feat .pr-feat-d   { font-size: var(--cs-body-s); line-height: 1.45; }
 
     /* what the scene means socially, under its benefits */
     .pr-social {
@@ -1350,23 +944,23 @@
 
     .pr-social-k {
       font-family: var(--font-mono);
-      font-size: clamp(0.5625rem, 0.72vw, 0.6875rem);
+      font-size: var(--cs-label);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--f-dim);
     }
 
-    .pr-cmp-night .pr-social-k { color: oklch(0.75 0.15 55); }
-    .pr-life--b .pr-social-k   { color: var(--pr-crisis); }
+    .pr-cmp-night .pr-social-k { color: var(--data-2); }
+    .pr-life--b .pr-social-k   { color: var(--project-crisis-text); }
 
     .pr-social-p {
-      font-size: clamp(0.6875rem, 0.92vw, 0.875rem);
+      font-size: var(--cs-body-s);
       line-height: 1.5;
       color: var(--f-ink);
       text-wrap: pretty;
     }
 
-    .pr-lives .pr-social-p { font-size: 0.9375rem; }
+    .pr-lives .pr-social-p { font-size: var(--cs-body); }
 
     /* no single word left alone on a line */
     .pr-feat-t,
@@ -1374,14 +968,14 @@
 
     .pr-cmp-feat-h {
       font-family: var(--font-h);
-      font-size: clamp(0.6875rem, 0.9vw, 0.8125rem);
+      font-size: var(--cs-ref);
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--f-ink);
     }
 
     .pr-cmp-feat-h b { font-weight: 700; }
-    .pr-cmp-night .pr-cmp-feat-h { color: oklch(0.75 0.15 55); }
+    .pr-cmp-night .pr-cmp-feat-h { color: var(--data-2); }
 
     /* one benefit: icon chip, criterion, title, line of text; shared by the
        overlays and the lists that replace them on narrow screens */
@@ -1409,7 +1003,7 @@
     .pr-feat-k {
       display: block;
       font-family: var(--font-mono);
-      font-size: clamp(0.5625rem, 0.72vw, 0.6875rem);
+      font-size: var(--cs-label);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--f-dim);
@@ -1419,14 +1013,14 @@
       display: block;
       margin: 2px 0 4px;
       font-family: var(--font-h);
-      font-size: clamp(0.9375rem, 1.4vw, 1.1875rem);
+      font-size: var(--cs-card-title);
       font-weight: 700;
       line-height: 1.2;
       color: var(--f-ink);
     }
 
     .pr-feat-d {
-      font-size: clamp(0.75rem, 1vw, 0.9375rem);
+      font-size: var(--cs-body-s);
       line-height: 1.5;
       color: var(--f-dim);
     }
@@ -1461,18 +1055,18 @@
 
     .pr-life-h {
       font-family: var(--font-h);
-      font-size: 0.8125rem;
+      font-size: var(--cs-body-s);
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--pr-head);
     }
 
     .pr-life-h b { font-weight: 700; }
-    .pr-life--b .pr-life-h { color: var(--pr-crisis); }
+    .pr-life--b .pr-life-h { color: var(--project-crisis-text); }
 
     /* each success criterion with the features that serve it */
-    .pr-life--a { --f-ink: var(--pr-head); --f-dim: var(--pr-dim); --f-chip: var(--brick-green); }
-    .pr-life--b { --f-ink: var(--pr-head); --f-dim: var(--pr-dim); --f-chip: var(--brick-orange); }
+    .pr-life--a { --f-ink: var(--pr-head); --f-dim: var(--pr-dim); --f-chip: var(--project-lau); }
+    .pr-life--b { --f-ink: var(--pr-head); --f-dim: var(--pr-dim); --f-chip: var(--project-crisis); }
 
     /* ── 08 Grounded in reality ────────────────────── */
     /* three batteries drawn isometrically at one shared scale: each column is
@@ -1535,7 +1129,7 @@
 
     .dm-text {
       font-family: var(--font-mono);
-      font-size: 12.5px;
+      font-size: calc(var(--cs-label) * max(1, var(--svg-k, 1)));
       letter-spacing: 0.04em;
       fill: var(--pr-dim);
     }
@@ -1550,7 +1144,7 @@
 
     .pr-unit-k {
       font-family: var(--font-mono);
-      font-size: 0.6875rem;
+      font-size: var(--cs-label);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--pr-dim);
@@ -1558,21 +1152,21 @@
 
     .pr-unit-n {
       font-family: var(--font-h);
-      font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+      font-size: var(--cs-stat);
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--accent);
     }
 
     .pr-unit-c {
-      font-size: 0.9375rem;
+      font-size: var(--cs-body);
       color: var(--text);
     }
 
     /* backup time under each unit */
     .pr-unit-h {
       margin-top: 2px;
-      font-size: 0.8125rem;
+      font-size: var(--cs-body-s);
       color: var(--pr-dim);
     }
 
@@ -1685,20 +1279,20 @@
 
     .pr-map-ams-w {
       font-family: var(--font-h);
-      font-size: 2.125rem;
+      font-size: var(--cs-stat);
       font-weight: 700;
       letter-spacing: 0.04em;
       line-height: 1;
     }
 
     .pr-map-ams-d {
-      font-size: 0.5625rem;
+      font-size: var(--cs-label);
       line-height: 1.3;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
-    .pr-map-ams .pr-map-k { color: var(--accent); }
+    .pr-map-ams .pr-map-k { color: var(--accent-text); }
 
     .pr-map-rows {
       position: relative;
@@ -1753,7 +1347,7 @@
 
     .pr-map-k {
       font-family: var(--font-mono);
-      font-size: 0.625rem;
+      font-size: var(--cs-label);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--pr-dim);
@@ -1761,7 +1355,7 @@
 
     .pr-map-t {
       font-family: var(--font-h);
-      font-size: 1.0625rem;
+      font-size: var(--cs-card-title);
       font-weight: 700;
       line-height: 1.25;
       color: var(--pr-head);
@@ -1793,7 +1387,7 @@
       padding: 3px 8px;
       border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
       font-family: var(--font-mono);
-      font-size: 0.625rem;
+      font-size: var(--cs-label);
       letter-spacing: 0.04em;
       color: var(--pr-head);
     }
@@ -1809,7 +1403,7 @@
     }
 
     .pr-map-l li {
-      font-size: 0.875rem;
+      font-size: var(--cs-body-s);
       line-height: 1.5;
       color: var(--text);
       text-wrap: pretty;
@@ -1885,8 +1479,10 @@
       inset: 0;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;   /* like the real app, the screen scrolls once its labels are readable */
+      overscroll-behavior: contain;
       font-family: var(--font-sans);
-      font-size: clamp(8px, 1.18cqw, 13px);
+      font-size: max(var(--cs-label), clamp(8px, 1.18cqw, 13px));  /* the app's base; no label inside renders below --cs-label */
       color: var(--bp-ink);
       background: #F4F1EA;
     }
@@ -1902,8 +1498,8 @@
 
     .bp-logo { width: 2.4em; height: 2.4em; border-radius: 0.6em; background: var(--bp-green); }
     .bp-brand { flex: 1; }
-    .bp-title { display: block; font-family: var(--font-h); font-size: 1.3em; font-weight: 700; }
-    .bp-sub { display: block; font-size: 0.9em; color: var(--bp-dim); }
+    .bp-title { display: block; font-family: var(--font-h); font-size: max(var(--cs-label), 1.3em); font-weight: 700; }
+    .bp-sub { display: block; font-size: max(var(--cs-label), 0.9em); color: var(--bp-dim); }
 
     .bp-reset {
       display: inline-flex;
@@ -1913,7 +1509,7 @@
       border: 1px solid var(--bp-line);
       border-radius: 0.7em;
       background: var(--bp-card);
-      font-size: 1em;
+      font-size: max(var(--cs-label), 1em);
       font-weight: 600;
       color: var(--bp-ink);
     }
@@ -1940,13 +1536,13 @@
     }
 
     .bp-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8em; }
-    .bp-h { font-family: var(--font-h); font-size: 1.15em; font-weight: 700; }
+    .bp-h { font-family: var(--font-h); font-size: max(var(--cs-label), 1.15em); font-weight: 700; }
 
     .bp-k {
       display: flex;
       align-items: center;
       gap: 0.45em;
-      font-size: 0.88em;
+      font-size: max(var(--cs-label), 0.88em);
       color: var(--bp-dim);
     }
 
@@ -1957,7 +1553,7 @@
 
     .bp-tag {
       font-family: var(--font-mono);
-      font-size: 0.78em;
+      font-size: max(var(--cs-label), 0.78em);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--bp-dim);
@@ -1993,19 +1589,19 @@
       border-radius: 0.4em;
       background: rgba(255, 255, 255, 0.92);
       font-family: var(--font-mono);
-      font-size: 1em;
+      font-size: max(var(--cs-label), 1em);
       font-weight: 700;
       transform: translate(-50%, -50%);
     }
 
-    .bp-dims { font-family: var(--font-mono); font-size: 0.82em; color: var(--bp-dim); text-align: center; }
+    .bp-dims { font-family: var(--font-mono); font-size: max(var(--cs-label), 0.82em); color: var(--bp-dim); text-align: center; }
 
     .bp-dot { width: 0.7em; height: 0.7em; border-radius: 0.15em; }
     .bp-dot--left { background: var(--bp-green); }
     .bp-dot--used { background: #F2B65A; }
 
-    .bp-big { display: block; margin-top: 0.15em; font-size: 0.95em; color: var(--bp-dim); }
-    .bp-big b { font-family: var(--font-h); font-size: 2.1em; font-weight: 700; color: var(--bp-ink); letter-spacing: -0.02em; }
+    .bp-big { display: block; margin-top: 0.15em; font-size: max(var(--cs-label), 0.95em); color: var(--bp-dim); }
+    .bp-big b { font-family: var(--font-h); font-size: max(var(--cs-label), 2.1em); font-weight: 700; color: var(--bp-ink); letter-spacing: -0.02em; }
 
     /* runtime */
     .bp-run { display: flex; flex-direction: column; gap: 0.35em; background: var(--bp-green-bg); border-color: transparent; }
@@ -2014,7 +1610,7 @@
       padding: 0.3em 0.8em;
       border-radius: 999px;
       background: #fff;
-      font-size: 0.85em;
+      font-size: max(var(--cs-label), 0.85em);
       font-weight: 700;
       color: var(--bp-green);
     }
@@ -2024,14 +1620,14 @@
     .bp-run.is-low { background: color-mix(in srgb, var(--bp-pink) 10%, #fff); }
     .bp-run.is-low .bp-status, .bp-run.is-low .bp-hours { color: var(--bp-pink); }
 
-    .bp-hours { font-size: 1.3em; font-weight: 700; color: var(--bp-green); }
-    .bp-hours b { font-family: var(--font-h); font-size: 3.2em; line-height: 1; letter-spacing: -0.03em; margin-right: 0.15em; }
-    .bp-run-t { font-size: 1em; line-height: 1.45; }
-    .bp-run-s { font-size: 0.82em; color: var(--bp-dim); }
+    .bp-hours { font-size: max(var(--cs-label), 1.3em); font-weight: 700; color: var(--bp-green); }
+    .bp-hours b { font-family: var(--font-h); font-size: max(var(--cs-label), 3.2em); line-height: 1; letter-spacing: -0.03em; margin-right: 0.15em; }
+    .bp-run-t { font-size: max(var(--cs-label), 1em); line-height: 1.45; }
+    .bp-run-s { font-size: max(var(--cs-label), 0.82em); color: var(--bp-dim); }
 
     /* appliances */
     .bp-apps { display: flex; flex-direction: column; gap: 0.8em; min-height: 0; }
-    .bp-total { font-size: 0.95em; color: var(--bp-dim); }
+    .bp-total { font-size: max(var(--cs-label), 0.95em); color: var(--bp-dim); }
     .bp-total b { color: var(--bp-ink); }
 
     .bp-app-grid {
@@ -2074,7 +1670,7 @@
     .bp-app-n { flex: 1; min-width: 0; font-weight: 700; }
     .bp-app-v { font-weight: 700; white-space: nowrap; }
     .bp-app-v small { font-weight: 400; color: var(--bp-dim); }
-    .bp-app-w { margin-top: -0.3em; font-size: 0.82em; color: var(--bp-dim); }
+    .bp-app-w { margin-top: -0.3em; font-size: max(var(--cs-label), 0.82em); color: var(--bp-dim); }
 
     .bp-stepper {
       display: flex;
@@ -2090,7 +1686,7 @@
       width: 1.9em;
       height: 1.9em;
       border-radius: 0.4em;
-      font-size: 1.15em;
+      font-size: max(var(--cs-label), 1.15em);
       line-height: 1;
       color: var(--bp-ink);
     }
@@ -2099,7 +1695,7 @@
     .bp-stepper output { font-weight: 700; }
     .bp-stepper output small { font-weight: 400; color: var(--bp-dim); }
 
-    .bp-hrs { display: flex; justify-content: space-between; font-size: 0.82em; color: var(--bp-dim); }
+    .bp-hrs { display: flex; justify-content: space-between; font-size: max(var(--cs-label), 0.82em); color: var(--bp-dim); }
     .bp-hrs b { font-family: var(--font-mono); color: var(--bp-ink); }
 
     .bp-range { width: 100%; margin: 0; accent-color: var(--bp-ink); }
@@ -2126,7 +1722,7 @@
       grid-template-columns: auto minmax(0, 1fr) auto 3em;
       align-items: center;
       gap: 0.6em;
-      font-size: 0.9em;
+      font-size: max(var(--cs-label), 0.9em);
     }
 
     .bp-legend .bp-dot { background: var(--c); }
@@ -2143,9 +1739,9 @@
       color: #F4F1EA;
     }
 
-    .bp-tip .bp-k { font-size: 0.78em; letter-spacing: 0.06em; text-transform: uppercase; color: #A9A397; }
-    .bp-tip-h { font-family: var(--font-h); font-size: 1.15em; font-weight: 700; line-height: 1.3; }
-    .bp-tip-t { font-size: 0.9em; line-height: 1.45; color: #CFC9BC; }
+    .bp-tip .bp-k { font-size: max(var(--cs-label), 0.78em); letter-spacing: 0.06em; text-transform: uppercase; color: #A9A397; }
+    .bp-tip-h { font-family: var(--font-h); font-size: max(var(--cs-label), 1.15em); font-weight: 700; line-height: 1.3; }
+    .bp-tip-t { font-size: max(var(--cs-label), 0.9em); line-height: 1.45; color: #CFC9BC; }
     .bp-tip-f { margin-top: auto; }
     .bp-gain { font-weight: 700; color: #7BD6A0; }
 
@@ -2153,7 +1749,7 @@
       padding: 0.55em 1em;
       border-radius: 0.6em;
       background: #fff;
-      font-size: 0.95em;
+      font-size: max(var(--cs-label), 0.95em);
       font-weight: 600;
       color: var(--bp-ink);
     }
@@ -2161,15 +1757,17 @@
     .bp-apply:hover { background: #E9E4D8; }
     .bp-apply[hidden] { display: none; }
 
+    .bp small { font-size: max(var(--cs-label), 0.83em); }  /* the browser's 'smaller', floored */
+
     .bp button:focus-visible,
     .bp input:focus-visible { outline: 2px solid var(--bp-pink); outline-offset: 2px; }
 
     /* narrow screens: the app stacks inside a taller frame */
     @container (max-width: 640px) {
       .bp { position: relative; font-size: 12px; }
-      .bp-grid, .bp-batt { grid-template-columns: 1fr; }
+      .bp-grid, .bp-batt { grid-template-columns: minmax(0, 1fr); }
       .bp-batt-r { padding-left: 0; border-left: 0; flex-direction: row; justify-content: space-between; }
-      .bp-app-grid { grid-template-columns: 1fr 1fr; }
+      .bp-app-grid { grid-template-columns: minmax(0, 1fr); }  /* one appliance per row keeps names and values apart */
     }
 
     /* ── Implementation plan ───────────────────────── */
@@ -2312,7 +1910,7 @@
     .pr-plan-t {
       margin-bottom: 10px;
       font-family: var(--font-h);
-      font-size: 1.0625rem;
+      font-size: var(--cs-card-title);
       font-weight: 700;
       color: var(--pr-head);
     }
@@ -2328,7 +1926,7 @@
     }
 
     .pr-plan-l li {
-      font-size: 0.875rem;
+      font-size: var(--cs-body-s);
       line-height: 1.55;
       color: var(--pr-dim);
       text-wrap: pretty;
@@ -2342,7 +1940,7 @@
     .pr-plan-more { margin: calc(clamp(48px, 6vw, 72px) * -0.5) 0 clamp(36px, 5vw, 56px); }
 
     .pr-plan-more a {
-      color: var(--accent);
+      color: var(--accent-text);
       font-weight: 600;
       text-decoration: underline;
       text-underline-offset: 3px;
@@ -2380,7 +1978,7 @@
     .pr-impact-fig.is-in .pr-impact-frame > img { transform: none; }
 
     /* text column stays compact so the render can lead */
-    .pr-impact-split .pr-lead { font-size: clamp(1.125rem, 1.6vw, 1.3125rem); }
+    .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
 
     /* the whole section, band to next-project link, fits one screen */
     #pr-impact .pr-body { padding-top: clamp(24px, 4svh, 48px); padding-bottom: clamp(20px, 3svh, 40px); }
@@ -2390,23 +1988,23 @@
     @media (min-width: 901px) and (max-height: 820px) {
       #pr-impact .pr-stack { gap: 6px; }
       .pr-impact-ams { padding-top: 4px; }
-      .pr-impact-split .pr-lead { font-size: 1.0625rem; }
+      .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
       .pr-impact { gap: 6px; margin-top: 0; }
       .pr-impact .pr-op { gap: 4px; padding: 8px 14px; }
       .pr-impact .pr-op-ico { width: 30px; height: 30px; }
       .pr-impact .pr-op-ico svg { width: 15px; height: 15px; }
       #pr-impact .pr-split { margin-bottom: 14px; }
       .pr-impact-split { grid-template-columns: 54% 46%; }
-      .pr-impact-split .pr-lead { font-size: 1rem; }
+      .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
       #pr-impact .pr-body { padding-top: 18px; padding-bottom: 14px; }
-      .pr-impact-split .pr-op-p { font-size: 0.8125rem; line-height: 1.5; }
+      .pr-impact-split .pr-op-p { font-size: var(--cs-body-s); line-height: 1.5; }
       #pr-impact .pr-next { padding-top: 14px; }
     }
 
     .pr-impact { gap: 12px; margin-top: 6px; }
     .pr-impact .pr-op { gap: 6px; padding: 12px 16px; }
-    .pr-impact .pr-op-t { font-size: 1rem; }
-    .pr-impact-split .pr-op-p { font-size: 0.875rem; line-height: 1.6; }
+    .pr-impact .pr-op-t { font-size: var(--cs-card-title); }
+    .pr-impact-split .pr-op-p { font-size: var(--cs-body-s); line-height: 1.6; }
 
     /* the section fills the screen, so the plan above never peeks in at the bottom */
     #pr-impact { min-height: 100svh; display: flex; flex-direction: column; }
@@ -2425,38 +2023,6 @@
 
 
     .pr-impact-ams { margin-top: auto; padding-top: 14px; }
-
-    .pr-next {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      margin-top: 36px;
-      padding-top: 22px;
-      border-top: 1px solid var(--pr-line);
-    }
-
-    .pr-next-k {
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--pr-faint);
-    }
-
-    .pr-next-v {
-      display: inline-block;
-      font-family: var(--font-h);
-      font-size: clamp(1.125rem, 2.2vw, 1.375rem);
-      font-weight: 700;
-      color: var(--pr-head);
-      transition: color 0.2s ease, transform 0.35s var(--spring);
-    }
-
-    .pr-next-link:hover .pr-next-v {
-      color: var(--accent);
-      transform: translateX(5px);
-    }
 
     /* ── Floating section nav ──────────────────────── */
     .pr-fnav {
@@ -2486,7 +2052,7 @@
       background: var(--pr-head);
       color: var(--bg);
       font-family: var(--font-mono);
-      font-size: 0.6875rem;
+      font-size: var(--cs-label);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       cursor: pointer;
@@ -2517,13 +2083,13 @@
       display: block;
       padding: 8px 14px;
       border-radius: 8px;
-      font-size: 0.875rem;
+      font-size: var(--cs-body-s);
       color: var(--pr-dim);
       transition: background 0.2s ease, color 0.2s ease;
     }
 
     .pr-fnav-list a:hover { color: var(--pr-head); background: color-mix(in srgb, var(--pr-head) 7%, transparent); }
-    .pr-fnav-list a[aria-current="true"] { color: var(--accent); font-weight: 600; }
+    .pr-fnav-list a[aria-current="true"] { color: var(--accent-text); font-weight: 600; }
 
     /* ── Scroll reveal ─────────────────────────────── */
     .pr-reveal {
@@ -2535,56 +2101,8 @@
     .pr-reveal.is-in { opacity: 1; transform: none; }
 
     /* ── Lightbox (click to zoom) ──────────────────── */
-    .pr-lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(20px, 6vw, 72px);
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      cursor: zoom-out;
-    }
 
     /* must beat the display:flex above, or [hidden] does nothing */
-    .pr-lightbox[hidden] { display: none; }
-
-    .pr-lightbox img {
-      max-width: 100%;
-      max-height: 84vh;
-      object-fit: contain;
-    }
-
-    .pr-lightbox-note {
-      padding: clamp(28px, 8vw, 72px);
-      border: 1px dashed rgba(239, 232, 216, 0.25);
-      font-size: 0.75rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      line-height: 1.7;
-      text-align: center;
-      color: rgba(239, 232, 216, 0.5);
-    }
-
-    .pr-lightbox-close {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.125rem;
-      line-height: 1;
-      color: var(--bone-100);
-      border: 1px solid rgba(239, 232, 216, 0.25);
-      background: rgba(0, 0, 0, 0.4);
-    }
 
     /* ── Tablet / mobile ───────────────────────────── */
     @media (max-width: 900px) {
@@ -2599,13 +2117,9 @@
       .pr-map-node { margin-left: 0; }
       .pr-map-node::after { display: none; }
 
-      :root { --pr-hero-top: 68px; }
+      .pr-split { grid-template-columns: 1fr; }
 
-      .pr-split,
-      .pr-hero { grid-template-columns: 1fr; }
-
-      .pr-col-l,
-      .pr-hero-l { padding-right: 0; }
+      .pr-col-l { padding-right: 0; }
 
       .pr-col-r {
         margin-top: 28px;
@@ -2615,8 +2129,6 @@
         border-top: 1px solid var(--pr-line);
       }
 
-      .pr-hero-l { gap: 20px; margin-bottom: 28px; }
-      .pr-hero-rule { margin-top: 6px; }
 
       .pr-ctx-fig { position: static; width: 100%; }
       .pr-fig--pin { position: static; }
@@ -2710,8 +2222,6 @@
       }
 
       .pr-steps .pr-step:last-child { border-bottom: 0; }
-
-      .pr-meta { grid-template-columns: 1fr; gap: 14px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -2853,7 +2363,7 @@
         <p class="pr-p"><b>Why 72 hours?</b> After a major incident, emergency services may be busy restoring critical infrastructure or helping where the need is greatest, and utilities may be down. The NCTV's national manual asks households to get through the first three days on their own.</p>
         <p class="pr-p"><b>The risk is rising.</b> Cyberattacks on power and water systems, sabotage linked to the war in Ukraine and extreme weather all threaten the infrastructure we depend on. Yet fewer than 30% of Dutch residents feel prepared.</p>
         <p class="pr-ref">Source: <a href="https://www.dutchbrief.com/p/government-issues-national-manual-for-surviving-first-72-hours-of-a-crisis" target="_blank" rel="noopener">Dutch Brief, 18 November 2025 ↗</a></p>
-        <p class="pr-lead pr-ctx-close">This project explores how community batteries can become <strong>strategic assets</strong>, supporting local energy needs while <strong>keeping critical services running</strong> when the grid fails.</p>
+        <p class="pr-lead pr-ctx-close">This project explores how community batteries can become <strong class="cs-key">strategic assets</strong>, supporting local energy needs while <strong>keeping critical services running</strong> when the grid fails.</p>
       </div>
 
       <div class="pr-col-r">
@@ -2886,7 +2396,7 @@
     </div>
 
     <div class="pr-body" id="procBand">
-      <p class="pr-lead pr-proc-intro">From <strong>understanding the crisis</strong> to designing for a <strong>resilient future</strong>.</p>
+      <p class="pr-lead pr-proc-intro">From <strong>understanding the crisis</strong> to designing for a <strong class="cs-key">resilient future</strong>.</p>
 
       <div class="pr-steps">
         <div class="pr-step">
@@ -3007,7 +2517,7 @@
         <div class="pr-col-r">
           <div class="pr-ctx-r">
             <span class="pr-eyebrow">The waterfall effect</span>
-            <p class="pr-lead">We mapped the effects of what a 72 hour blackout does to a neighbourhood: <strong>which systems fail</strong>, and <strong>how each failure sets off the next</strong>.</p>
+            <p class="pr-lead">We mapped the effects of what a 72 hour blackout does to a neighbourhood: <strong>which systems fail</strong>, and <strong class="cs-key">how each failure sets off the next</strong>.</p>
             <p class="pr-p">A blackout is more than the lights going out. Almost everything in a neighbourhood relies or runs on electricity.</p>
             <p class="pr-p">These systems also lean on each other. When one fails, it drags the next one down with it. We traced that chain across Amsterdam and mapped where each failure leads.</p>
             <p class="pr-p">So the goal is not to keep the lights on. It is to find the key infrastructure points that people rely on, and protect those.</p>
@@ -3331,7 +2841,7 @@
     <div class="pr-body pr-split pr-split--hug">
       <div class="pr-col-l pr-stack pr-reveal">
         <span class="pr-eyebrow pr-eyebrow--wide">Why not home batteries?</span>
-        <p class="pr-lead">A home battery serves <b>one household</b>. A community battery serves <strong>the whole street</strong>.</p>
+        <p class="pr-lead">A home battery serves <b>one household</b>. A community battery serves <strong class="cs-key">the whole street</strong>.</p>
         <p class="pr-p">Sharing one system spreads the cost, opens it up to residents who can't install their own, and puts it to work for the whole grid.</p>
       </div>
 
@@ -3476,7 +2986,7 @@
 
       <div class="pr-col-r pr-stack pr-reveal">
         <span class="pr-eyebrow">Batteries as a strategic asset</span>
-        <p class="pr-lead">A crisis-only battery is an <strong>expensive fire extinguisher</strong>: essential when needed, but idle most of the time. A community battery <strong>works every day, while staying ready for when crisis hits</strong>.</p>
+        <p class="pr-lead">A crisis-only battery is an <strong>expensive fire extinguisher</strong>: essential when needed, but idle most of the time. A community battery <strong class="cs-key">works every day, while staying ready for when crisis hits</strong>.</p>
         <p class="pr-p pr-ops-lead">This brings us to the two modes the battery operates in.</p>
 
         <div class="pr-ops">
@@ -3813,7 +3323,7 @@
       <!-- cost line, then what the numbers assume, in one column of the same width -->
       <div class="pr-stack pr-units-intro">
           <span class="pr-eyebrow">Putting numbers to the idea</span>
-          <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong>a 40–60% reduction</strong>.</p>
+          <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong class="cs-key">a 40–60% reduction</strong>.</p>
           <p class="pr-p pr-units-basis">Costs exclude installation. The hours shown under each battery depicts how long it could power critical infrastructure such as 50 fridges, 200 lights and 10 home ventilators.</p>
           <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a> · <a href="https://english.nctv.nl/topics/c/critical-infrastructure-protection" target="_blank" rel="noopener">NCTV, critical infrastructure ↗</a></p>
       </div>
@@ -4116,7 +3626,7 @@
       <div class="pr-body pr-split pr-tool">
         <div class="pr-col-l pr-stack pr-reveal">
           <span class="pr-eyebrow">The co-development tool</span>
-          <p class="pr-lead">To help communities and stakeholders plan how the battery is used, we built a tool for deciding <strong>which critical infrastructure gets power first</strong>.</p>
+          <p class="pr-lead">To help communities and stakeholders plan how the battery is used, we built a tool for deciding <strong class="cs-key">which critical infrastructure gets power first</strong>.</p>
           <p class="pr-p">Every community has different needs. The tool lets them plan and simulate different power-use scenarios before a blackout happens.</p>
           <p class="pr-p">It also shows stakeholders, at a glance, how the battery is being used, so they can adapt as a situation unfolds.</p>
         </div>
@@ -4200,7 +3710,7 @@
     <div class="pr-body">
       <div class="pr-stack pr-plan-intro pr-reveal">
         <span class="pr-eyebrow">Five year plan</span>
-        <p class="pr-lead">Re-imagining the urban fabric of the Netherlands, with <strong>community batteries as standard urban infrastructure</strong>.</p>
+        <p class="pr-lead">Re-imagining the urban fabric of the Netherlands, with <strong class="cs-key">community batteries as standard urban infrastructure</strong>.</p>
         <p class="pr-p">It starts with pilots in Amsterdam neighbourhoods and grows, step by step, into a roll-out across the country, making the Netherlands more resilient.</p>
       </div>
 
@@ -4281,7 +3791,7 @@
 
       <div class="pr-col-r pr-stack">
         <span class="pr-eyebrow pr-reveal">Our recommendation</span>
-        <p class="pr-lead pr-reveal">Use community batteries to <strong>keep critical hubs running in blackouts</strong>, strengthen neighbourhood resilience, and ease Amsterdam's shift to <strong>affordable green energy</strong>.</p>
+        <p class="pr-lead pr-reveal">Use community batteries to <strong class="cs-key">keep critical hubs running in blackouts</strong>, strengthen neighbourhood resilience, and ease Amsterdam's shift to <strong>affordable green energy</strong>.</p>
 
         <!-- three outcomes, rising in one after another -->
         <div class="pr-impact pr-ops pr-reveal">
@@ -4935,5 +4445,6 @@
     window.addEventListener('resize', fitText);
   </script>
 
+  <script src="../case-study.js"></script>
 </body>
 </html>
