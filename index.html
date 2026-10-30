@@ -169,9 +169,19 @@
       /* hidden until loader finishes */
       opacity: 0; pointer-events: none;
       transition: opacity 0.55s ease, border-color 0.3s ease,
-                  background 0.45s ease, box-shadow 0.3s ease;
+                  background 0.45s ease, box-shadow 0.3s ease,
+                  transform 0.45s var(--ease-spring);
     }
     .header.visible { opacity: 1; pointer-events: all; }
+
+    /* Past the hero the header slides away and the section label bar
+       takes its place at the top. --header-h is registered so it can
+       transition, carrying everything pinned below the header with it */
+    @property --header-h { syntax: '<length>'; inherits: true; initial-value: 68px; }
+    :root { --header-h: 68px; transition: --header-h 0.45s var(--ease-spring); }
+    :root.header-away { --header-h: 0px; }
+    .header { transform: translateY(0); }
+    .header-away .header { transform: translateY(-100%); pointer-events: none; }
     .header.scrolled {
       border-bottom-color: var(--border);
       box-shadow: 0 1px 24px rgba(0,0,0,0.06);
@@ -344,7 +354,7 @@
     /* Short windows: no room for the peeking strips, so each card covers the previous one completely */
     @media (max-height: 800px) { .work-stack { --step: 0px; } }
     /* Sticky section label bar (shared by WORK + ABOUT) — restored; the landing page 4 export dropped these rules */
-    .section-label-bar { position: sticky; top: 68px; z-index: 100; background: var(--bg); transition: background 0.45s ease; }
+    .section-label-bar { position: sticky; top: var(--header-h); z-index: 100; background: var(--bg); transition: background 0.45s ease; }
     .section-label-inner { max-width: var(--page-max); margin: 0 auto; padding: 28px var(--page-gutter) 18px; }
     .section-label-text { font-family: var(--font-h); font-stretch: var(--stretch-condensed); font-size: var(--type-display-l); font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1; text-transform: uppercase; transition: opacity 0.2s ease; }
     .section-label-text.switching { opacity: 0; }
@@ -774,7 +784,7 @@
         if (hash) {
           const target = document.querySelector(hash);
           if (target) {
-            setTimeout(() => { target.scrollIntoView({ behavior: 'smooth' }); }, 100);
+            setTimeout(() => { goToSection(target); }, 100);
           }
         }
       }
@@ -800,8 +810,44 @@
        2. HEADER — scroll border
        ───────────────────────────────────────────────────────── */
     const headerEl = document.getElementById('header');
-    const onScroll = () => headerEl.classList.toggle('scrolled', window.scrollY > 12);
+    // once the label bar reaches the header (the hero has scrolled past),
+    // the header leaves; scrolling back into the hero brings it back
+    const heroTrack = document.querySelector('.hero-track');
+    let navLock = false;
+    const onScroll = () => {
+      headerEl.classList.toggle('scrolled', window.scrollY > 12);
+      if (heroTrack && !navLock) document.documentElement.classList.toggle('header-away', heroTrack.getBoundingClientRect().bottom <= 68);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Jumps to Work, About and Let's Talk. Past the hero the header leaves,
+    // which makes the pinned work cards and About panel taller, so settle
+    // that layout first (no transition), then scroll so the section starts
+    // just under the label bar. The header state holds until the scroll ends
+    function goToSection(target) {
+      const root = document.documentElement;
+      const bar  = document.getElementById('sectionLabelBar');
+      root.style.transition = 'none';
+      root.classList.add('header-away');
+      void root.offsetHeight;
+      root.style.transition = '';
+      const top = target.getBoundingClientRect().top + window.scrollY - (bar ? bar.offsetHeight : 0);
+      navLock = true;
+      const unlock = () => { navLock = false; onScroll(); };
+      if ('onscrollend' in window) window.addEventListener('scrollend', unlock, { once: true });
+      else setTimeout(unlock, 1200);
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('a[href="#work"], a[href="#about"], a[href="#contact"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        history.pushState(null, '', a.getAttribute('href'));
+        goToSection(target);
+      });
+    });
 
 
     /* ─────────────────────────────────────────────────────────
@@ -918,8 +964,9 @@
     // ── 7a. Keep --sidebar-top in sync with label bar height ──
     function updateSidebarTop() {
       if (!sectionLabelBar) return;
-      const offset = 68 + sectionLabelBar.offsetHeight;
-      document.documentElement.style.setProperty('--sidebar-top', offset + 'px');
+      // follows --header-h, so the pinned cards and About panel rise
+      // with the label bar when the header slides away
+      document.documentElement.style.setProperty('--sidebar-top', `calc(var(--header-h) + ${sectionLabelBar.offsetHeight}px)`);
 
       // Contact must fill exactly the gap between the label bar and the footer,
       // or the tail of the About section shows through beneath the bar.
