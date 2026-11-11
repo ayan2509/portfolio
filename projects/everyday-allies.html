@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Everyday Allies: building a culture of collective responsibility and mutual support for a more resilient society." />
+  <title>Everyday Allies · Ayan</title>
+
+  <!-- ─── Google Fonts ─────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="../styles.css" />
+
+  <link rel="stylesheet" href="../case-study.css" />
+  <style>
+    /* ── 01 Hero ───────────────────────────────────── */
+    /* the hero frame (.pr-hero, title, intro, meta) lives in case-study.css */
+
+    /* this page's title is in the text colour, not pink */
+    #ea-01 .pr-hero-title { color: var(--text); }
+
+    .pr-mode {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      z-index: 3;
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--pr-ph-bd);
+      border-radius: 999px;
+      background: var(--pr-chip);
+    }
+
+    .pr-mode { cursor: pointer; }
+
+    .pr-mode:focus-visible { outline: 2px solid var(--focus-ring, var(--accent)); outline-offset: 3px; }
+
+    /* the knob slides under whichever icon is the current mode */
+    .pr-mode-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--pr-head);
+      transition: transform 0.35s var(--spring);
+    }
+
+    .pr-mode[aria-checked="true"] .pr-mode-knob { transform: translateX(32px); }
+
+    /* every 10 s a short pink stroke runs once around the switch, then fades */
+    .pr-mode-ring {
+      position: absolute;
+      inset: -1px;
+      width: calc(100% + 2px);
+      height: calc(100% + 2px);
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .pr-mode-ring rect {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 0.3 0.7;
+      stroke-dashoffset: 0;
+      opacity: 0;
+      animation: pr-mode-ring 10s linear 2s infinite;
+    }
+
+    @keyframes pr-mode-ring {
+      0%   { stroke-dashoffset: 0;  opacity: 0; }
+      2%   { opacity: 1; }
+      14%  { stroke-dashoffset: -1; opacity: 1; }
+      18%  { stroke-dashoffset: -1.15; opacity: 0; }
+      100% { stroke-dashoffset: -1.15; opacity: 0; }
+    }
+
+    .pr-mode-ico {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pr-dim);
+      transition: color 0.3s ease;
+    }
+
+    .pr-mode-ico svg { width: 14px; height: 14px; }
+
+    .pr-mode[aria-checked="false"] .pr-mode-ico--day,
+    .pr-mode[aria-checked="true"]  .pr-mode-ico--night { color: var(--bg); }
+
+    .pr-mode-cap {
+      font-family: var(--font-mono);
+      position: absolute;
+      left: 16px;
+      bottom: 58px;
+      z-index: 3;
+      font-size: var(--cs-label);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    /* ── Context ───────────────────────────────────── */
+    /* the section's takeaway, sitting at the foot of the text column so it
+       lines up with the bottom of the quote */
+    .pr-ctx-close { margin-top: auto; padding-top: 24px; }
+
+    /* band, both columns and the closing lead fill one screen; the
+       next-project link sits below it */
+    @media (min-width: 901px) {
+      #ea-context { min-height: 100svh; display: flex; flex-direction: column; }
+      #ea-context .pr-body { flex: 1; display: flex; flex-direction: column; }
+      #ea-context .pr-split { flex: 1; }
+    }
+
+    /* the right column stacks the news collage over the quote */
+    #ea-context .pr-col-r {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      gap: clamp(24px, 3vw, 40px);
+    }
+
+    .pr-fig {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pr-fig-frame { aspect-ratio: 4 / 3; padding: 0; }
+    .pr-fig-frame,
+    .pr-fig-frame.is-loaded { background: #000; }
+    .pr-fig-frame .pr-ph-label { color: color-mix(in srgb, var(--bone-100) 50%, transparent); }
+    .pr-fig-frame > img { object-fit: contain; }
+
+    /* ── News board ──────────────────────────────────
+       Each clipping is placed on a 1000-unit-wide grid; --x/--y/--w are
+       percentages of the board, --r a small tilt, --z the stacking order. */
+    .ea-board {
+      position: relative;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      aspect-ratio: 1000 / var(--board-h);
+      flex: none;
+    }
+
+    .ea-clip {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+      z-index: var(--z);
+      transform: rotate(var(--r));
+      transition: transform 0.35s var(--spring, ease), z-index 0s 0.35s;
+    }
+
+    .ea-clip a {
+      display: block;
+      border-radius: 6px;
+      overflow: hidden;
+      outline: 1px solid var(--pr-line);
+      box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .ea-clip img { display: block; width: 100%; height: auto; }
+
+    /* hover or keyboard focus straightens a clipping and lifts it to the front */
+    .ea-clip:hover,
+    .ea-clip:focus-within {
+      z-index: 20;
+      transform: rotate(0deg) scale(1.08);
+      transition: transform 0.35s var(--spring, ease), z-index 0s;
+    }
+
+    .ea-clip a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+
+    /* ── Reflection ─────────────────────────────────────
+       Same layout as Powering Resilience's closing section: the roadmap
+       artwork on the left, the lead and three cards stacked on the right. */
+    .ea-refl-split { grid-template-columns: 58% 42%; align-items: center; }
+    .ea-refl-fig { margin: 0; }
+    .ea-refl-fig img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transform: scale(1.04);
+      opacity: 0;
+      transition: opacity .8s ease, transform 1.6s cubic-bezier(.2, .7, .2, 1);
+    }
+    .ea-refl-fig.is-in img { opacity: 1; transform: none; }
+    .ea-refl-r { display: flex; flex-direction: column; gap: 22px; }
+    .ea-refl-lead { font-size: var(--cs-lead); }
+    .ea-refl { display: flex; flex-direction: column; gap: 12px; }
+    .ea-refl-i {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 16px 14px;
+      background: var(--surface);
+      border: 1px solid var(--pr-line);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+      transition-delay: calc(.2s + var(--i) * .18s);
+    }
+    .ea-refl.is-in .ea-refl-i { opacity: 1; transform: none; }
+    .ea-refl-h { display: flex; align-items: center; gap: 12px; }
+    .ea-refl-ico {
+      flex: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pr-head);
+      background: color-mix(in srgb, var(--pr-head) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--pr-head) 45%, transparent);
+    }
+    .ea-refl-ico svg { width: 17px; height: 17px; }
+    .ea-refl-t {
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--pr-head);
+    }
+    .ea-refl-p { font-size: var(--cs-body-s); line-height: 1.6; color: var(--text); }
+    @media (max-width: 900px) {
+      .ea-refl-split { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ea-refl-i, .ea-refl-fig img { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* collaborator credit and previous / next project links, as on Practising Parity */
+    .ea-refl-collab { margin-top: 2px; }
+    .ea-pn { flex-wrap: wrap; }
+    .ea-pn-next { margin-left: auto; text-align: right; }
+    .ea-pn-prev:hover .pr-next-v { transform: translateX(-5px); }
+    @media (max-width: 600px) {
+      .ea-pn { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .ea-pn-next { margin-left: 0; text-align: left; }
+    }
+
+    /* the Minister's words, the Dutch original first with the English under it */
+    .ea-quote {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding-inline: 0;
+      text-align: center;
+    }
+
+    .ea-quote blockquote {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: var(--cs-quote);
+      font-weight: 400;
+      line-height: var(--cs-leading-display);
+      letter-spacing: var(--cs-tracking-head);
+      color: var(--pr-head);
+      text-wrap: balance;
+    }
+
+    .ea-quote-en {
+      font-family: var(--font-sans);
+      font-style: normal;
+      font-size: var(--cs-body);
+      line-height: var(--cs-leading-body-s);
+      color: var(--pr-dim);
+      text-wrap: balance;
+    }
+
+    #ea-context .ea-quote { flex: 1; justify-content: flex-start; }
+
+    /* the source sits at the very bottom of the column */
+    .ea-quote-src { margin-top: auto; padding-top: 8px; }
+
+    .pr-cap a,
+    .pr-ref a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      word-break: break-word;
+      transition: color 0.2s ease;
+    }
+
+    .pr-cap a:hover,
+    .pr-ref a:hover { color: var(--accent-text); }
+
+    /* ── Floating section nav ──────────────────────── */
+    .pr-fnav {
+      position: fixed;
+      right: clamp(16px, 3vw, 32px);
+      bottom: clamp(16px, 3vw, 32px);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.45s var(--ease-scene);
+    }
+
+    .pr-fnav.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
+    .pr-fnav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--pr-line);
+      background: var(--pr-head);
+      color: var(--bg);
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .pr-fnav-btn svg { width: 15px; height: 15px; }
+    .pr-fnav-btn:focus-visible,
+    .pr-fnav-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    .pr-fnav-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--pr-line);
+      background: var(--surface, var(--bg));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+      transform-origin: bottom right;
+      animation: pr-fnav-in 0.35s var(--ease-scene);
+    }
+
+    .pr-fnav-list[hidden] { display: none; }
+
+    @keyframes pr-fnav-in { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+
+    .pr-fnav-list a {
+      display: block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: var(--cs-body-s);
+      color: var(--pr-dim);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .pr-fnav-list a:hover { color: var(--pr-head); background: color-mix(in srgb, var(--pr-head) 7%, transparent); }
+    .pr-fnav-list a[aria-current="true"] { color: var(--accent-text); font-weight: 600; }
+
+    /* ── Who we design for ─────────────────────────── */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .ea-who-intro { margin-bottom: clamp(32px, 4vw, 48px); }
+    .ea-who-close,
+    .ea-net-end { margin-top: clamp(32px, 4vw, 48px); }
+
+    /* a key to the three kinds of line in each card */
+    .ea-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 28px;
+      margin-top: 22px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-faint);
+    }
+
+    .ea-legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .ea-legend i { display: inline-block; flex: none; }
+    .ea-legend-g i { width: 18px; height: 10px; background: var(--pr-head); }
+    .ea-legend-d i { width: 18px; height: 10px; background: var(--pr-dim); opacity: 0.6; }
+    .ea-legend-n i { width: 2px; height: 14px; background: var(--accent); }
+
+    /* one card per value; subgrid keeps the "vs" lines and the footers
+       level across each row, however long a card's text runs */
+    .ea-cards {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .ea-card {
+      display: grid;
+      grid-row: span 5;
+      grid-template-rows: subgrid;
+      row-gap: 14px;
+      padding: 22px 22px 20px;
+      border: 1px solid var(--pr-line);
+      border-radius: 16px;
+      background: var(--surface);
+      transition: border-color 0.2s ease;
+    }
+
+    .ea-card:hover { border-color: color-mix(in srgb, var(--pr-head) 24%, transparent); }
+
+    .ea-card-v {
+      justify-self: start;
+      margin: 0;
+      padding: 6px 12px;
+      border: 1px solid var(--pr-line);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      font-weight: 400;
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-head);
+    }
+
+    .ea-card-g,
+    .ea-card-d {
+      align-self: start;
+      font-size: var(--cs-card-title);
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    .ea-card-g { color: var(--pr-head); }
+    .ea-card-d { color: var(--pr-dim); }
+
+    .ea-card-vs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-faint);
+    }
+
+    .ea-card-vs::before,
+    .ea-card-vs::after {
+      content: '';
+      flex: 1;
+      border-top: 1px dashed var(--pr-line);
+    }
+
+    /* the network's answer: marked by a thin pink bar, never styled like a link */
+    /* stretched, so its rule sits level across the row */
+    .ea-card-n {
+      position: relative;
+      align-self: stretch;
+      padding: 12px 0 0 14px;
+      border-top: 1px solid var(--pr-line);
+      font-size: var(--cs-body);
+      line-height: 1.45;
+      color: var(--pr-head);
+    }
+
+    .ea-card-n::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 13px;
+      bottom: 2px;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    @media (max-width: 1100px) {
+      .ea-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .ea-cards { grid-template-columns: 1fr; }
+      .ea-card { display: flex; flex-direction: column; gap: 14px; }
+      .ea-card-v { align-self: flex-start; }
+      .ea-card-n { margin-top: auto; }
+    }
+
+    /* ── The Network ───────────────────────────────── */
+    .ea-net-lead { margin-bottom: clamp(32px, 4vw, 56px); }
+
+    .ea-net-panels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(24px, 3vw, 40px);
+      align-items: start;
+    }
+
+    /* header, visual, legend and copy share rows across the panels,
+       so the headings line up however long a legend runs */
+    .ea-net-panel {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      align-content: start;
+    }
+
+    .ea-net-panel > * { align-self: start; }
+
+    .ea-net-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    /* the dot-grid visual: square frame, SVG drawn by script */
+    .ea-net-viz {
+      margin-top: 14px;
+      aspect-ratio: 1 / 1;
+      padding: 7%;
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .ea-net-viz > svg { display: block; width: 100%; height: 100%; }
+
+    .ea-net-viz--grow {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 6%;
+    }
+
+    .ea-net-cohort {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .ea-net-cohort svg { display: block; flex: 1 1 0; min-height: 0; width: 100%; }
+
+    .ea-net-cohort span {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-faint);
+    }
+
+    /* dot types, shared by every visual and legend */
+    .ea-dot--cit  { fill: none; stroke: var(--pr-faint); stroke-width: 1; }
+    .ea-dot--al   { fill: var(--accent); }
+    .ea-dot--reach { fill: var(--pr-head); fill-opacity: 0.85; }
+    .ea-dot--join { fill: var(--pr-head); }
+    .ea-dot--halo { fill: none; stroke: var(--pr-head); stroke-width: 1; }
+    .ea-ring--dash { fill: none; stroke: var(--pr-line); stroke-width: 1; stroke-dasharray: 3 4; }
+    .ea-ring--care { fill: var(--pr-head); fill-opacity: 0.06; stroke: var(--pr-dim); stroke-width: 1; }
+    .ea-ring--key  { fill: none; stroke: var(--pr-dim); stroke-width: 1; }
+
+    /* fade in from the alumni outward, once, when scrolled into view */
+    .ea-net-viz.is-armed .ea-dot,
+    .ea-net-viz.is-armed .ea-ring { opacity: 0; transition: opacity 0.4s ease; }
+    .ea-net-viz.is-armed.is-in .ea-dot,
+    .ea-net-viz.is-armed.is-in .ea-ring { opacity: 1; }
+
+    .ea-net-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 24px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-faint);
+    }
+
+    .ea-net-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .ea-net-legend svg { width: 12px; height: 12px; flex: none; overflow: visible; }
+
+    .ea-net-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .ea-net-copy h3 {
+      font-size: var(--cs-subhead);
+      font-weight: 600;
+      color: var(--pr-head);
+    }
+
+    .ea-net-copy p {
+      font-size: var(--cs-body);
+      line-height: var(--cs-leading-body);
+      color: var(--text);
+    }
+
+    .ea-net-copy b { font-weight: 600; color: var(--pr-head); }
+
+    /* who each stage benefits, on its own row so they line up across panels */
+    .ea-net-gain {
+      font-size: var(--cs-body);
+      line-height: var(--cs-leading-body);
+      color: var(--text);
+    }
+
+    .ea-net-gain b { font-weight: 600; color: var(--pr-head); }
+
+    @media (max-width: 1100px) {
+      .ea-net-panels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .ea-net-panels { grid-template-columns: 1fr; }
+      .ea-net-viz { max-width: 420px; }
+    }
+
+    /* ── Ecosystem map ─────────────────────────────────
+       NWT → partner → channel → offer → outcomes, in the visual language of
+       the Powering Resilience stakeholder map. One grid; the partner and
+       channel lists are subgrids so every channel row shares the columns.
+       The page script draws the connectors into .ea-map-lines.
+       Below 1100px the lines go and the map stacks per partner. */
+    .ea-eco-lead { margin-bottom: clamp(32px, 4vw, 56px); }
+
+    .ea-map {
+      --node: clamp(48px, 4vw, 60px);
+      --gap: clamp(28px, 2.6vw, 48px);
+      position: relative;
+      display: grid;
+      grid-template-columns:
+        minmax(140px, 1.1fr)           /* NWT */
+        clamp(48px, 6vw, 130px)        /* hub dot + fan */
+        minmax(130px, 0.9fr)           /* partner */
+        minmax(180px, 1fr)             /* channel */
+        minmax(140px, 0.85fr)          /* offer */
+        minmax(200px, 1.4fr);          /* outcomes */
+      grid-template-rows: repeat(4, auto);
+      column-gap: var(--gap);
+      align-items: center;
+    }
+
+    .ea-map-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    /* dotted grey: NWT → partners → channels */
+    .ea-map-fan {
+      fill: none;
+      stroke: color-mix(in srgb, var(--pr-head) 40%, transparent);
+      stroke-width: 1.2;
+      stroke-dasharray: 1.5 4;
+      stroke-linecap: round;
+    }
+
+    /* pink dotted spine through the channel circles */
+    .ea-map-spine {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-dasharray: 0.1 6;
+      stroke-linecap: round;
+    }
+
+    /* thin solid arrows: channel → offer → outcomes */
+    .ea-map-arrow {
+      fill: none;
+      stroke: color-mix(in srgb, var(--pr-head) 45%, transparent);
+      stroke-width: 1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ea-map-k {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    .ea-map-t {
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--pr-head);
+      text-wrap: balance;
+    }
+
+    /* NWT */
+    .ea-map-nwt {
+      position: relative;
+      z-index: 1;
+      grid-column: 1;
+      grid-row: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 18px 18px 20px;
+      border: 1px solid var(--pr-line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .ea-map-nwt .ea-map-k { color: var(--accent-text); }
+    .ea-map-nwt p {
+      margin-top: 4px;
+      font-size: var(--cs-body-s);
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .ea-map-hub {
+      position: relative;
+      z-index: 1;
+      grid-column: 2;
+      grid-row: 1 / -1;
+      justify-self: start;
+      width: 9px;
+      height: 9px;
+      margin-left: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* partners and channels share the outer grid's columns and rows */
+    .ea-map-partners,
+    .ea-map-partner,
+    .ea-map-chs {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-template-rows: subgrid;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .ea-map-partners { grid-column: 3 / -1; grid-row: 1 / -1; }
+    .ea-map-partner  { grid-column: 1 / -1; grid-row: span var(--span, 1); }
+    .ea-map-chs      { grid-column: 2 / -1; grid-row: 1 / -1; }
+
+    .ea-map-who {
+      position: relative;
+      z-index: 1;
+      grid-column: 1;
+      grid-row: 1 / -1;
+      align-self: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    /* one row per channel, closed off by a dashed rule from the channel column on */
+    .ea-map-ch {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: center;
+      padding: clamp(22px, 2.4vw, 34px) 0;
+      border-top: 1px dashed var(--pr-line);
+    }
+    .ea-map-partner:first-child .ea-map-ch:first-child { border-top: 0; }
+
+    .ea-map-ch-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-left: clamp(8px, 1.4vw, 28px);
+    }
+
+    .ea-map-node {
+      position: relative;
+      z-index: 1;
+      flex: none;
+      width: var(--node);
+      height: var(--node);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1.5px solid var(--pr-head);
+      background: var(--bg);
+      color: var(--pr-head);
+    }
+    .ea-map-node svg { width: 40%; height: 40%; }
+
+    .ea-map-ch-t {
+      font-size: var(--cs-body);
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--pr-head);
+      text-wrap: balance;
+    }
+
+    .ea-map-offer {
+      padding: 10px 12px;
+      border: 1px solid var(--accent);
+      font-size: var(--cs-body-s);
+      line-height: 1.45;
+      color: var(--pr-head);
+      text-wrap: pretty;
+    }
+
+    .ea-map-out {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin: 0;
+      padding-left: 1.1em;
+      list-style: disc;
+    }
+    .ea-map-out li {
+      font-size: var(--cs-body-s);
+      line-height: 1.5;
+      color: var(--text);
+      text-wrap: pretty;
+    }
+    .ea-map-out li::marker { color: var(--accent); }
+
+    /* just above the stack point: tighter gaps so the offers keep their width */
+    @media (max-width: 1280px) {
+      .ea-map { --gap: 20px; }
+      .ea-map-ch-head { padding-left: 4px; }
+    }
+
+    /* stacked: partner, then its channels indented on a thin rule */
+    @media (max-width: 1099.98px) {
+      .ea-map { display: flex; flex-direction: column; gap: 40px; }
+      .ea-map-lines, .ea-map-hub { display: none; }
+
+      .ea-map-nwt { align-self: flex-start; max-width: 360px; }
+
+      .ea-map-partners { display: flex; flex-direction: column; gap: 40px; }
+      .ea-map-partner  { display: block; }
+      .ea-map-chs {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        margin-top: 18px;
+        padding-left: 18px;
+        border-left: 1px solid var(--pr-line);
+      }
+      .ea-map-ch {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 0;
+        border-top: 0;
+      }
+      .ea-map-ch-head { padding-left: 0; }
+      .ea-map-node { --node: 44px; }
+      .ea-map-offer { align-self: flex-start; max-width: 46ch; }
+      .ea-map-out { max-width: 60ch; }
+    }
+
+
+    /* ── Roadmap ───────────────────────────────────────
+       Rendered from ROADMAP in the page script. Trend colours: values use the
+       accent, market trends orange, technology trends --data-1 blue. */
+    #ea-roadmap {
+      --rm-orange: #E9852B;
+      --rm-orange-text: #E9852B;
+      --rm-lab: 200px;
+    }
+    /* the orange is too light for text on the paper background */
+    [data-theme="light"] #ea-roadmap { --rm-orange-text: color-mix(in srgb, #E9852B 72%, #000); }
+
+    .ea-rm-lead + .ea-rm-desc { margin-top: 12px; }
+
+    .ea-rm-years {
+      font-family: var(--font-mono);
+      font-size: var(--cs-ref);
+      letter-spacing: var(--cs-tracking-index);
+      color: var(--rm-orange-text);
+    }
+
+    /* strategic overview */
+    /* the artwork is cropped tight; cap its height so the whole roadmap fits on screen */
+    .ea-rm-ov {
+      width: 100%;
+      margin: clamp(24px, 3vw, 40px) auto 0;
+    }
+    /* the artwork's top-left corner is empty (the staircase starts low), so on wide
+       screens it tucks up beside the text instead of leaving a gap */
+    @media (min-width: 1360px) {
+      .ea-rm-ov { margin-top: -11%; }
+      .ea-rm-lead, .ea-rm-lead + .ea-rm-desc { position: relative; z-index: 1; }
+    }
+
+    .ea-rm-ov-art { position: relative; }
+    .ea-rm-ov-art img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .ea-rm-ov-ph { display: none; }
+
+    /* Roadmap build-up: the artwork is split into layers (exported from the Figma frame)
+       that play once when the roadmap scrolls into view. Without JS, on small screens
+       or with reduced motion, the flat image shows instead. */
+    .ea-rm-anim { display: none; position: absolute; inset: 0; pointer-events: none; }
+    .ea-rm-ov-art.is-anim > img { opacity: 0; }
+    .ea-rm-ov-art.is-anim .ea-rm-anim { display: block; }
+    .ea-rm-anim img {
+      position: absolute;
+      left: calc(var(--x) / 1800 * 100%);
+      top: calc(var(--y) / 1345 * 100%);
+      width: calc(var(--w) / 1800 * 100%);
+      height: auto;
+      will-change: transform, opacity, clip-path;
+    }
+    /* starting states */
+    .ea-rm-anim .is-wave { clip-path: inset(0 100% 0 0); }
+    .ea-rm-anim .is-rib  { clip-path: inset(100% 0 0 0); }
+    .ea-rm-anim .is-ill  { opacity: 0; transform: translateY(-6%); }
+    .ea-rm-anim .is-box  { opacity: 0; transform: translateY(1.5%); }
+    /* played */
+    .ea-rm-ov-art.is-in .is-wave {
+      clip-path: inset(0 0 0 0);
+      transition: clip-path 1.7s cubic-bezier(.45, 0, .35, 1) .35s;
+    }
+    .ea-rm-ov-art.is-in .is-rib {
+      clip-path: inset(0 0 0 0);
+      transition: clip-path .8s cubic-bezier(.2, .7, .2, 1) var(--d);
+    }
+    .ea-rm-ov-art.is-in .is-ill {
+      opacity: 1; transform: none;
+      transition: opacity .5s ease-out calc(var(--d) + .45s), transform .6s cubic-bezier(.2, .7, .2, 1) calc(var(--d) + .45s);
+    }
+    .ea-rm-ov-art.is-in .is-box {
+      opacity: 1; transform: none;
+      transition: opacity .5s ease-out calc(var(--d) + .75s), transform .5s ease-out calc(var(--d) + .75s);
+    }
+    .ea-rm-ov-art.is-missing {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--pr-line);
+      border-radius: 8px;
+    }
+    .ea-rm-ov-art.is-missing img { display: none; }
+    .ea-rm-ov-art.is-missing .ea-rm-ov-ph {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      color: var(--pr-faint);
+    }
+
+    /* The artwork carries its own horizon labels, so on desktop the HTML labels
+       are kept for screen readers only; below 1000px they show as a list,
+       because the text inside the image gets too small to read. */
+    .ea-rm-ov-labels {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .ea-rm-ov-label { display: flex; flex-direction: column; gap: 8px; }
+    .ea-rm-ov-hd { display: flex; align-items: baseline; gap: 10px; }
+    .ea-rm-ov-sub {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: #F1A25C;
+    }
+    .ea-rm-ov-yr {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      color: var(--pr-faint);
+    }
+    .ea-rm-ov-focus { font-size: var(--cs-body); line-height: 1.45; color: var(--text); }
+    .ea-rm-ov-focus b { font-weight: 600; }
+    .ea-rm-ov-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 2px 0 0; }
+    .ea-rm-ov-tags li {
+      font-size: 13px;
+      line-height: 1;
+      padding: 6px 9px;
+      border: 1px solid var(--pr-line);
+      border-radius: 999px;
+      color: var(--pr-dim);
+    }
+    .ea-rm-ov-note { font-size: 14px; line-height: 1.5; color: var(--pr-dim); }
+
+    .ea-rm-name {
+      font-size: var(--cs-card-title);
+      font-weight: 600;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ea-rm-ov-label .ea-rm-focus {
+      margin-top: 2px;
+      font-size: var(--cs-body);
+      line-height: 1.45;
+      color: var(--pr-dim);
+    }
+
+    /* tactical roadmap grid */
+    .ea-rm-tac {
+      position: relative;
+      display: grid;
+      grid-template-columns: var(--rm-lab) repeat(3, minmax(0, 1fr));
+      margin-top: clamp(24px, 3vw, 40px);
+    }
+
+    /* the column dividers run through every row */
+    .ea-rm-cols {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: inherit;
+      pointer-events: none;
+    }
+    .ea-rm-cols i { grid-row: 1; border-left: 1px solid var(--pr-line); }
+    .ea-rm-cols i:nth-child(1) { grid-column: 2; }
+    .ea-rm-cols i:nth-child(2) { grid-column: 3; }
+    .ea-rm-cols i:nth-child(3) { grid-column: 4; }
+
+    /* horizon header: pinned under the section band while the grid scrolls */
+    .ea-rm-head {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      position: sticky;
+      top: calc(var(--pr-sticky, 0px) + var(--rm-top, 0px));
+      z-index: 5;
+      padding-top: 14px;
+      background: var(--bg);
+    }
+
+    .ea-rm-hz {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 16px 12px;
+    }
+
+    .ea-rm-axis {
+      grid-column: 2 / -1;
+      position: relative;
+      height: 28px;
+      border-top: 1px solid var(--pr-faint);
+    }
+
+    .ea-rm-tick {
+      position: absolute;
+      top: 0;
+      left: var(--x);
+      padding-top: 9px;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-index);
+      color: var(--pr-dim);
+    }
+    .ea-rm-tick::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      width: 1px;
+      height: 6px;
+      background: var(--pr-faint);
+    }
+    .ea-rm-tick:first-child { transform: none; }
+    .ea-rm-tick:first-child::before { left: 0; }
+    .ea-rm-tick:last-child { transform: translateX(-100%); }
+    .ea-rm-tick:last-child::before { left: auto; right: 0; }
+
+    .ea-rm-legend {
+      grid-column: 2 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      padding: 14px 16px 0;
+      border-top: 1px solid var(--pr-line);
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+    .ea-rm-legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .ea-rm-legend i {
+      width: 18px;
+      height: 10px;
+      border-radius: 5px;
+      background: color-mix(in srgb, var(--c) 25%, transparent);
+      box-shadow: inset 2px 0 0 var(--c);
+    }
+
+    .ea-rm-lab,
+    .ea-rm-cell,
+    .ea-rm-bars { border-top: 1px solid var(--pr-line); min-width: 0; }
+
+    .ea-rm-lab--end { padding: 0; }
+
+    .ea-rm-lab {
+      padding: 14px 16px 14px 0;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      line-height: 1.6;
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    .ea-rm-cell { padding: 14px 16px; }
+
+    /* values and trends: one bar per line, spanning whole horizons */
+    .ea-rm-bars {
+      grid-column: 2 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: 4px;
+      padding: 12px 0;
+      list-style: none;
+    }
+
+    .ea-rm-v { --c: var(--accent); }
+    .ea-rm-m { --c: var(--rm-orange); }
+    .ea-rm-t { --c: var(--data-1); }
+
+    /* fill and colour edge sit on ::before, so a fade never dims the text */
+    .ea-rm-bar,
+    .ea-rm-pill {
+      position: relative;
+      isolation: isolate;
+      color: var(--text);
+    }
+    .ea-rm-bar::before,
+    .ea-rm-pill::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: 13px;
+      background: color-mix(in srgb, var(--c) 25%, transparent);
+      box-shadow: inset 3px 0 0 var(--c);
+    }
+
+    .ea-rm-bar {
+      grid-column: var(--s) / var(--e);
+      margin: 0 8px;
+      min-height: 22px;
+      padding: 3px 14px;
+      font-size: var(--cs-body-s);
+      line-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* already under way before its span: soft start; carries on after it: long fade out */
+    .ea-rm-bar.is-in { padding-left: 28px; }
+    .ea-rm-bar.is-in::before  { -webkit-mask-image: linear-gradient(to right, transparent, #000 5%); mask-image: linear-gradient(to right, transparent, #000 5%); }
+    .ea-rm-bar.is-out::before { -webkit-mask-image: linear-gradient(to right, #000 80%, transparent); mask-image: linear-gradient(to right, #000 80%, transparent); }
+
+    /* core focus */
+    .ea-rm-core {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .ea-rm-core .ea-rm-focus {
+      max-width: 26ch;
+      font-size: var(--cs-body);
+      line-height: 1.45;
+      color: var(--text);
+    }
+    .ea-rm-num {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: var(--cs-body-s);
+      color: var(--pr-dim);
+    }
+    .ea-rm-num b {
+      font-size: var(--cs-stat);
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: var(--cs-tracking-head);
+      color: var(--pr-head);
+    }
+
+    /* products & services */
+    .ea-rm-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ea-rm-list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: var(--cs-body-s);
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .ea-rm-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--pr-faint);
+    }
+
+    /* partners: original logo colours on an off-white tile */
+    .ea-rm-logos {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ea-rm-logos li {
+      display: flex;
+      width: 88px;
+      height: 42px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #F6F4EF;
+    }
+    [data-theme="light"] .ea-rm-logos li { box-shadow: inset 0 0 0 1px var(--pr-line); }
+    .ea-rm-logos img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* expertise */
+    .ea-rm-grps { display: flex; flex-direction: column; gap: 10px; }
+    .ea-rm-grp {
+      font-size: var(--cs-body-s);
+      line-height: 1.5;
+    }
+    .ea-rm-grp p:first-child { color: var(--pr-dim); }
+    .ea-rm-grp p + p { margin-top: 2px; color: var(--text); }
+
+    .ea-rm-cap { margin-top: 20px; }
+
+    /* phone cards (rendered from the same data) */
+    .ea-rm-cards { display: none; }
+
+    .ea-rm-card {
+      padding: 20px;
+      border: 1px solid var(--pr-line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .ea-rm-card-head { display: flex; flex-direction: column; gap: 4px; }
+    .ea-rm-card .ea-rm-core { margin-top: 14px; }
+    .ea-rm-k {
+      margin: 22px 0 10px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      font-weight: 400;
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+    .ea-rm-pills {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ea-rm-pill {
+      padding: 4px 10px 4px 12px;
+      font-size: var(--cs-ref);
+      line-height: 1.4;
+    }
+    .ea-rm-pill small { font-size: inherit; color: var(--pr-dim); }
+
+    /* future vision 2040 */
+    .ea-rm-vis { margin-top: clamp(36px, 4vw, 56px); }
+    .ea-rm-sublead--tac { margin-top: clamp(56px, 7vw, 96px); }
+    .ea-rm-desc { margin-top: 12px; }
+    .ea-rm-h {
+      margin-bottom: clamp(20px, 3vw, 32px);
+      font-size: var(--cs-subhead);
+      font-weight: 600;
+      line-height: var(--cs-leading-head);
+      letter-spacing: var(--cs-tracking-head);
+      color: var(--pr-head);
+    }
+    .ea-rm-vis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 55%;
+      gap: clamp(28px, 4vw, 64px);
+      align-items: start;
+    }
+    .ea-rm-statement {
+      font-family: var(--font-sans);
+      font-size: var(--cs-quote);
+      font-weight: 300;
+      line-height: var(--cs-leading-lead);
+      letter-spacing: var(--cs-tracking-head);
+      color: var(--pr-head);
+      text-wrap: pretty;
+    }
+    .ea-rm-statement p + p { margin-top: 0.75em; }
+    .ea-rm-statement strong { font-weight: 600; color: var(--accent-text); }
+    .ea-rm-film { margin: 0; }
+    .ea-rm-video {
+      aspect-ratio: 16 / 9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow: hidden;
+      border: 1px solid var(--pr-line);
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: var(--cs-body-s);
+      color: var(--pr-dim);
+    }
+    .ea-rm-video svg { width: 40px; height: 40px; }
+    .ea-rm-video video { display: block; width: 100%; height: 100%; background: #000; }
+    .ea-rm-vis-cap { margin-top: 12px; }
+
+    @media (max-width: 1100px) {
+      #ea-roadmap { --rm-lab: 120px; }
+      .ea-rm-bar { white-space: normal; }
+    }
+
+    @media (max-width: 900px) {
+      .ea-rm-vis-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 1000px) {
+      .ea-rm-ov-art { aspect-ratio: auto; }
+      .ea-rm-ov-labels {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-top: 24px;
+        border-top: 1px solid var(--pr-line);
+      }
+      .ea-rm-ov-label { padding: 18px 0; border-bottom: 1px solid var(--pr-line); }
+    }
+
+    @media (max-width: 760px) {
+
+      .ea-rm-tac { display: none; }
+      .ea-rm-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 40px;
+      }
+    }
+
+    /* ── Tablet / mobile ───────────────────────────── */
+    @media (max-width: 900px) {
+      .pr-split { grid-template-columns: 1fr; }
+
+      .pr-col-l { padding-right: 0; }
+
+      .pr-col-r {
+        margin-top: 28px;
+        padding-left: 0;
+        padding-top: 28px;
+        border-left: 0;
+        border-top: 1px solid var(--pr-line);
+      }
+
+      .ea-quote { position: static; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .pr-mode-ring { display: none; }
+      .pr-fnav, .pr-fnav-list { transition: none; animation: none; }
+      .ea-net-viz.is-armed .ea-dot,
+      .ea-net-viz.is-armed .ea-ring { opacity: 1; transition: none; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE HEADER (fixed)
+       Identical to the landing page header
+       ══════════════════════════════════════════════════════════ -->
+  <header class="header" id="header" role="banner">
+    <div class="header-inner">
+
+
+      <!-- Same header as the landing page: logo, navigation, theme switch -->
+      <a href="../index.html" class="logo" aria-label="Ayan — home">A<em>.</em></a>
+
+      <ul class="nav" role="list" aria-label="Main navigation">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#contact">Let's Talk</a></li>
+      </ul>
+
+      <div class="header-right">
+        <button class="icon-btn theme-btn" id="themeToggle" aria-label="Switch colour scheme">
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1"  x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1"  y1="12" x2="3"  y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+            <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       01 · HERO
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-01">
+    <div class="pr-hero">
+
+      <div class="pr-hero-l">
+        <span class="pr-hero-title">Everyday<br />Allies</span>
+        <p class="pr-hero-sub">Building a culture of collective responsibility and mutual support for a more resilient society.</p>
+        <hr class="pr-hr pr-hero-rule" />
+        <div class="pr-meta">
+          <span><span class="pr-meta-k">Timeline</span>Oct 2025 – Nov 2025</span>
+          <span><span class="pr-meta-k">Context</span>Group · Academic · Client</span>
+          <span><span class="pr-meta-k">With</span>Ministerie van Defensie · TU Delft</span>
+          <span><span class="pr-meta-k">My role</span>Ecosystem mapping · roadmap concept · incentive design · trend research</span>
+        </div>
+      </div>
+
+      <!-- Placeholder: ../images/projects/everyday-allies/hero-today.jpg + hero-2040.jpg -->
+      <div class="pr-ph pr-hero-stage pr-stage" id="heroStage">
+        <img class="pr-layer pr-layer--day"
+             src="../images/projects/everyday-allies/hero-today.jpg"
+             alt="NWT alumni running a first-aid session at a regional hub" />
+        <img class="pr-layer pr-layer--night"
+             src="../images/projects/everyday-allies/hero-2040.jpg"
+             alt="The 2040 vision: alumni coordinating a crisis response with holographic support" />
+        <span class="pr-ph-label">Today: regional hub<br />(crosses to the 2040 vision when toggled)</span>
+        <span class="pr-mode-cap">Today / 2040</span>
+        <button class="pr-mode" type="button" role="switch" aria-checked="false"
+                aria-label="Show the 2040 vision">
+          <svg class="pr-mode-ring" aria-hidden="true"><rect x="0" y="0" width="100%" height="100%" rx="19" pathLength="1"/></svg>
+          <span class="pr-mode-knob" aria-hidden="true"></span>
+          <span class="pr-mode-ico pr-mode-ico--day" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+          <span class="pr-mode-ico pr-mode-ico--night" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/></svg></span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       CONTEXT
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-context">
+    <div class="pr-band">
+      <span class="pr-band-title">Context</span>
+    </div>
+
+    <div class="pr-body">
+     <div class="pr-split">
+      <div class="pr-col-l pr-stack">
+        <p class="pr-lead">With cyberattacks, disinformation and geopolitical tensions increasingly threatening national security, the Ministry of Defence’s NWT prepares citizens aged 18 - 54 to <strong class="cs-key">support national defence and resilience</strong>.</p>
+        <p class="pr-p"><b>What the training covers.</b> Over 10 weeks of Initial Military Training, participants learn first aid, fieldcraft and safe weapon handling, along with how to work as a team under pressure. Students can take it as a minor; employees can join alongside work.</p>
+        <p class="pr-p"><b>But what happens after training?</b> Graduates remain reservists, but there is little to sustain their connection with Defence or with one another. Without continued engagement, the skills, connections and collective potential developed during training risk going untapped.</p>
+        <p class="pr-ref">Source: <a href="https://www.defensie.nl/nieuws/20251112-nationale-weerbaarheidstraining-laat-defensie-sneller-groeien" target="_blank" rel="noopener">Defensie.nl, 12 November 2025 ↗</a></p>
+        <p class="pr-lead pr-ctx-close">This project explores how NWT alumni can turn their training into <strong class="cs-key">lasting contributions to society</strong>, supporting community resilience in peacetime while <strong>maintaining their connection with Defence</strong> and readiness to respond in a crisis.</p>
+      </div>
+
+      <div class="pr-col-r">
+        <!-- News board: each headline is placed by hand (x, y, width, rotation, stack order)
+             on a 1000 × 570 grid; hover or focus brings one to the front, click opens the article -->
+        <ul class="ea-board" role="list" aria-label="News headlines on hybrid threats, reservists and civilian readiness, 2024–2026" style="--board-h:570;">
+          <li class="ea-clip" style="--x:0%; --y:2.46%; --w:50%; --r:-2.0deg; --z:4;">
+            <a href="https://nos.nl/l/2564540" target="_blank" rel="noopener" aria-label="NOS, 22 April 2025: MIVD: the Netherlands in a grey area between peace and war (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-nos-grey-zone.png" width="669" height="153" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:5.5%; --y:29.82%; --w:42.9%; --r:1.6deg; --z:3;">
+            <a href="https://www.dutchnews.nl/2025/11/not-enough-people-are-signing-up-to-boost-army-reservist-total" target="_blank" rel="noopener" aria-label="DutchNews, 10 November 2025: Not enough people are signing up to boost army reservist total (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-dutchnews-reservists.png" width="658" height="132" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:0%; --y:51.93%; --w:50%; --r:-1.2deg; --z:5;">
+            <a href="https://nos.nl/l/2583656" target="_blank" rel="noopener" aria-label="NOS, 22 September 2025: Voluntary Defence survey of all 17-year-olds, possibly mandatory later (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-nos-survey-17.png" width="667" height="135" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:6%; --y:79.30%; --w:49.8%; --r:1.8deg; --z:4;">
+            <a href="https://www.euronews.com/my-europe/2025/03/25/the-netherlands-confirms-it-wants-to-more-than-double-its-military-personnel-by-2030" target="_blank" rel="noopener" aria-label="Euronews, 25 March 2025: The Netherlands confirms it wants to more than double its military personnel by 2030 (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-euronews-personnel.png" width="826" height="107" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:50.5%; --y:0.00%; --w:49.5%; --r:1.4deg; --z:5;">
+            <a href="https://nos.nl/l/2603149" target="_blank" rel="noopener" aria-label="NOS, 19 February 2026: Intelligence services are seeing an increasing number of hybrid attacks by Russia (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-nos-hybrid.png" width="648" height="137" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:54.5%; --y:26.14%; --w:42.7%; --r:-1.8deg; --z:4;">
+            <a href="https://www.dutchnews.nl/2026/10/mps-want-130000-trained-civilians-ready-for-national-crises/" target="_blank" rel="noopener" aria-label="DutchNews, 7 October 2026: MPs want 130,000 trained civilians ready for national crises (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-dutchnews-130000.png" width="642" height="133" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:50.5%; --y:47.54%; --w:49.5%; --r:1.0deg; --z:3;">
+            <a href="https://www.government.nl/latest/news/2024/12/06/government-works-to-increase-resilience-against-military-and-hybrid-threats" target="_blank" rel="noopener" aria-label="Government of the Netherlands, 6 December 2024: Cabinet works to increase resilience to military and hybrid threats (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-govnl-resilience.png" width="1170" height="349" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+          <li class="ea-clip" style="--x:58.4%; --y:73.68%; --w:41.6%; --r:-1.5deg; --z:6;">
+            <a href="https://www.binnenlandsbestuur.nl/bestuur-en-organisatie/kamer-wil-groot-netwerk-van-burgerreservisten" target="_blank" rel="noopener" aria-label="Binnenlands Bestuur, 9 October 2026: Parliament wants large network of civilian reservists for local crisis response (opens in a new tab)">
+              <img src="../images/projects/everyday-allies/news-bb-reservists.png" width="925" height="291" alt="" loading="lazy" decoding="async" />
+            </a>
+          </li>
+        </ul>
+
+        <figure class="ea-quote">
+          <blockquote lang="nl">
+            <p>“We leven in Nederland niet in oorlog, maar ook niet meer in vrede. […] In tijden van vrede is de vraag wat Defensie kan doen voor de samenleving, maar nu vragen we ook wat de samenleving kan doen voor Defensie.”</p>
+          </blockquote>
+          <p class="ea-quote-en">“In the Netherlands, we are not at war, but we are no longer at peace either. […] In peacetime, the question is what Defence can do for society. Now we are also asking what society can do for Defence.”</p>
+          <figcaption class="pr-cap ea-quote-src">
+            — Ruben Brekelmans, Minister of Defence<br />
+            Source: <a href="https://www.rijksoverheid.nl/actueel/nieuws/2024/12/06/kabinet-werkt-aan-verhogen-weerbaarheid-tegen-militaire-en-hybride-dreigingen" target="_blank" rel="noopener">Rijksoverheid, 6 December 2024 ↗</a>
+          </figcaption>
+        </figure>
+      </div>
+     </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       WHO WE DESIGN FOR
+       ══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-who">
+    <div class="pr-band">
+      <span class="pr-band-title">Who we design for</span>
+    </div>
+
+    <div class="pr-body">
+      <div class="pr-stack ea-who-intro">
+        <p class="pr-lead pr-lead--lg">Gen Z, the generation the NWT needs most, values autonomy, inclusivity and self-expression. At first glance, military service seems to <strong class="cs-key">pull against all three</strong>.</p>
+        <p class="pr-p">We mapped what Gen Z values from our foresight research, then set each value against what joining Defence asks of it, and what a network could offer instead.</p>
+      </div>
+
+      <ul class="ea-cards" role="list">
+        <li class="ea-card">
+          <h3 class="ea-card-v">Autonomy</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Making your own choices about your life and time</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Following orders through a chain of command</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Pick your own learning path, and how much time you give</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Self-expression</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Showing who you are through what you wear, post and stand for</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Wearing the same uniform and doing the same drills as everyone</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Unlock skill badges that reflect your interests and specialisms</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Inclusivity</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Believing everyone belongs, whatever their body or mind</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Passing psychological and physical tests to get in</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Train for other non-combat roles, such as cybersecurity and first aid</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Empathy &amp; care</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Caring for others without ever causing harm</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Learning to handle a weapon as part of protecting others</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Local missions about care, like first-aid lessons at your old school</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Mental wellbeing</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Keeping a calm, low-stress everyday life</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Training that deliberately puts you under pressure</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Wellbeing advisors and psychologists in the network's team</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Accessibility</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Knowledge and support you can reach whenever you need it</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Training that stops after 10 weeks, with little to return to</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>An app and local hubs that keep learning and expert support open long after the training</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Transparency</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Knowing how and why decisions are made</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Accepting that much of what Defence does can't be shared</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Open hubs: approachable places anyone can walk into</p>
+        </li>
+        <li class="ea-card">
+          <h3 class="ea-card-v">Privacy</h3>
+          <p class="ea-card-g"><span class="visually-hidden">Gen Z values: </span>Keeping control over your own personal data</p>
+          <span class="ea-card-vs" aria-hidden="true">vs</span>
+          <p class="ea-card-d"><span class="visually-hidden">Joining Defence means: </span>Being on a register of your skills and availability</p>
+          <p class="ea-card-n"><span class="visually-hidden">The network offers: </span>Data trust: alumni see and control what's shared</p>
+        </li>
+      </ul>
+
+      <div class="ea-legend" aria-hidden="true">
+        <span class="ea-legend-g"><i></i>What Gen Z values</span>
+        <span class="ea-legend-d"><i></i>What joining Defence means</span>
+        <span class="ea-legend-n"><i></i>What the network offers</span>
+      </div>
+
+      <p class="pr-lead pr-lead--lg ea-who-close">Each tension points to <strong class="cs-key">something the network can do differently</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       THE NETWORK
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-network">
+    <div class="pr-band">
+      <span class="pr-band-title">The Network</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead pr-lead--lg ea-net-lead">As more people graduate from the NWT, they form a growing network that acts as <strong class="cs-key">the connection between citizens and Defence</strong>.</p>
+
+      <div class="ea-net-panels">
+        <div class="ea-net-panel">
+          <p class="ea-net-head"><span>01</span><span>The network grows</span></p>
+          <div class="ea-net-viz ea-net-viz--grow" data-viz="grow" role="img" aria-label="Four grids showing the number of alumni growing with each cohort"></div>
+          <div class="ea-net-legend" aria-hidden="true">
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--al" cx="6" cy="6" r="4.5"/></svg>Alumnus</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--cit" cx="6" cy="6" r="3"/></svg>Citizen</span>
+          </div>
+          <div class="ea-net-copy">
+            <h3>Every cohort counts</h3>
+            <p>Each graduating cohort adds to the network, and each new alumnus extends its reach.</p>
+            <p class="ea-net-gain"><b>Benefit for Defence:</b> A trained reserve that grows in every region, with every cohort.</p>
+          </div>
+        </div>
+
+        <div class="ea-net-panel">
+          <p class="ea-net-head"><span>02</span><span>The network during peacetime</span></p>
+          <div class="ea-net-viz" data-viz="peace" role="img" aria-label="Alumni spread across a grid, each sharing knowledge with the people around them; a few of those people join the NWT"></div>
+          <div class="ea-net-legend" aria-hidden="true">
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--al" cx="6" cy="6" r="4.5"/></svg>Alumnus</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--reach" cx="6" cy="6" r="3"/></svg>Learned from a peer</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--join" cx="6" cy="6" r="3"/><circle class="ea-dot--halo" cx="6" cy="6" r="5.5"/></svg>Joins the NWT</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--cit" cx="6" cy="6" r="3"/></svg>Citizen</span>
+          </div>
+          <div class="ea-net-copy">
+            <h3>Skills spread through people</h3>
+            <p><b>Learn.</b> Alumni keep developing through further NWT courses, which keeps them engaged after graduating.</p>
+            <p><b>Share.</b> They pass what they know, like first aid, CPR, blackout preparation and emergency drills, to the people around them: friends and family first, then their neighbourhood. Seeing a peer do this motivates others to join the NWT.</p>
+            <p class="ea-net-gain"><b>Benefit for the NWT programme:</b> Continued learning keeps alumni engaged, and their example draws in new recruits.</p>
+          </div>
+        </div>
+
+        <div class="ea-net-panel">
+          <p class="ea-net-head"><span>03</span><span>The network assisting in crisis</span></p>
+          <div class="ea-net-viz" data-viz="crisis" role="img" aria-label="Alumni grouped in overlapping circles of care, covering most people nearby"></div>
+          <div class="ea-net-legend" aria-hidden="true">
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--al" cx="6" cy="6" r="4.5"/></svg>Alumnus</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-dot--reach" cx="6" cy="6" r="3"/></svg>Looked after</span>
+            <span><svg viewBox="0 0 12 12"><circle class="ea-ring--key" cx="6" cy="6" r="5"/></svg>Shared by several alumni</span>
+          </div>
+          <div class="ea-net-copy">
+            <h3>Help is already close by</h3>
+            <p><b>Look after.</b> Alumni make sure friends, family and neighbours are safe and taken care of until emergency services arrive.</p>
+            <p class="ea-net-gain"><b>Benefit for citizens:</b> Practical help from someone they know, close by when it matters.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="pr-lead pr-lead--lg ea-net-end">With citizens cared for locally, <strong class="cs-key">the military can focus on the frontline</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ECOSYSTEM
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-eco">
+    <div class="pr-band">
+      <span class="pr-band-title">Ecosystem</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead pr-lead--lg ea-eco-lead">The NWT can't build this network alone. Three partners each <strong class="cs-key">bring something that draws more people into it</strong>.</p>
+
+      <div class="ea-map" id="eaMap">
+        <svg class="ea-map-lines" aria-hidden="true" focusable="false"></svg>
+
+        <div class="ea-map-nwt">
+          <span class="ea-map-k">Hub</span>
+          <h3 class="ea-map-t">National Resilience Training (NWT)</h3>
+          <p>Trains citizens and keeps alumni connected</p>
+        </div>
+        <span class="ea-map-hub" aria-hidden="true"></span>
+
+        <ul class="ea-map-partners" role="list">
+          <li class="ea-map-partner" style="--span: 2;">
+            <div class="ea-map-who">
+              <span class="ea-map-k">Education</span>
+              <h3 class="ea-map-t">Ministry of Education, Culture &amp; Science</h3>
+            </div>
+            <ul class="ea-map-chs" role="list">
+              <li class="ea-map-ch">
+                <div class="ea-map-ch-head">
+                  <span class="ea-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span>
+                  <h4 class="ea-map-ch-t">Universities</h4>
+                </div>
+                <p class="ea-map-offer">ECTS study credits for joining the NWT</p>
+                <ul class="ea-map-out">
+                  <li>More students sign up: trained, prepared graduates</li>
+                  <li>Access to scholarships after training</li>
+                  <li>Access to mentors and career counsellors</li>
+                </ul>
+              </li>
+              <li class="ea-map-ch">
+                <div class="ea-map-ch-head">
+                  <span class="ea-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M18 5v16"/><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6"/><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11"/><path d="M6 5v16"/><circle cx="12" cy="9" r="2"/></svg></span>
+                  <h4 class="ea-map-ch-t">Schools</h4>
+                </div>
+                <p class="ea-map-offer">Resilience education in the school curriculum</p>
+                <ul class="ea-map-out">
+                  <li>Students aware of basic resilience</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li class="ea-map-partner">
+            <div class="ea-map-who">
+              <span class="ea-map-k">Local government</span>
+              <h3 class="ea-map-t">Municipalities</h3>
+            </div>
+            <ul class="ea-map-chs" role="list">
+              <li class="ea-map-ch">
+                <div class="ea-map-ch-head">
+                  <span class="ea-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></svg></span>
+                  <h4 class="ea-map-ch-t">Local hubs and public buildings</h4>
+                </div>
+                <p class="ea-map-offer">Key infrastructure and data on citizens registered in the area</p>
+                <ul class="ea-map-out">
+                  <li>Buildings serve as gathering points in a crisis</li>
+                  <li>Alumni trained for specific crises, like flood relief, can be called on</li>
+                  <li>Local residents know the crisis protocol</li>
+                  <li>Preparedness can be measured by the number of trained reservists in each area</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li class="ea-map-partner">
+            <div class="ea-map-who">
+              <span class="ea-map-k">Employment</span>
+              <h3 class="ea-map-t">Ministry of Social Affairs &amp; Employment</h3>
+            </div>
+            <ul class="ea-map-chs" role="list">
+              <li class="ea-map-ch">
+                <div class="ea-map-ch-head">
+                  <span class="ea-map-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span>
+                  <h4 class="ea-map-ch-t">Corporates</h4>
+                </div>
+                <p class="ea-map-offer">Tax breaks and CSR recognition for companies whose employees train</p>
+                <ul class="ea-map-out">
+                  <li>Employees trained for a crisis, at work and at home</li>
+                  <li>Resilience becomes a workplace value</li>
+                  <li>Recognition by the MoD as an “NWT employer”</li>
+                  <li>Private–public partnerships</li>
+                  <li>The MoD sees where alumni are and what they specialise in</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       ROADMAP
+       The overview labels, the tactical grid and the phone cards are all
+       rendered from ROADMAP in the page script, so they can't drift apart.
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-roadmap">
+    <div class="pr-band">
+      <span class="pr-band-title">Roadmap</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead pr-lead--lg ea-rm-lead">Working back from 2040, our <strong class="cs-key">strategic roadmap</strong> plans how the network could grow over three horizons, each building on the last.</p>
+
+      <!-- Strategic roadmap -->
+      <p class="pr-p ea-rm-desc">First connecting alumni through specialised training and the app, then growing a network of local hubs, and finally a trusted, automated network of qualified responders.</p>
+      <figure class="ea-rm-ov">
+        <div class="ea-rm-ov-art">
+          <img src="../images/projects/everyday-allies/roadmap.webp" width="1800" height="1345"
+               alt="Strategic roadmap: three orange ribbons climbing from Horizon 1 in 2027 to Horizon 3 in 2040, each with an illustration of the network at that stage, its focus, key offerings and a short note"
+               loading="lazy" decoding="async" />
+          <div class="ea-rm-anim" id="eaRmAnim" aria-hidden="true"></div>
+          <span class="ea-rm-ov-ph" aria-hidden="true">roadmap.webp</span>
+          <div class="ea-rm-ov-labels" id="eaRmOv"></div>
+        </div>
+      </figure>
+
+      <!-- Tactical roadmap: desktop grid and phone cards -->
+      <p class="pr-lead pr-lead--lg ea-rm-sublead ea-rm-sublead--tac">The strategic roadmap sets the direction. The <strong class="cs-key">tactical roadmap</strong> looks at what getting there might take.</p>
+      <p class="pr-p ea-rm-desc">For each horizon: the values and trends we expect to shape it, what the network offers in response, and the partners and expertise needed to deliver it.</p>
+      <div class="ea-rm-tac" id="eaRmTac"></div>
+      <div class="ea-rm-cards" id="eaRmCards"></div>
+      <p class="pr-cap ea-rm-cap">Partner logos are shown for the purposes of this speculative roadmap only and do not imply any involvement or endorsement.</p>
+
+      <!-- Future vision 2040 -->
+      <div class="ea-rm-vis">
+        <div class="ea-rm-vis-grid">
+          <div class="ea-rm-vis-text">
+          <h3 class="ea-rm-h">Where the network might be by 2040</h3>
+          <div class="ea-rm-statement">
+            <p>By 2040, the NWT empowers alumni to become <strong class="cs-key">vital connectors</strong> between citizens and the Ministry of Defence.</p>
+            <p>Anchored in <strong class="cs-key">safety-region hubs</strong> and enhanced through <strong class="cs-key">holographic wearables</strong>, they orchestrate <strong class="cs-key">coordinated crisis responses</strong> with <strong class="cs-key">precision and trust</strong>.</p>
+            <p>Together, they form a <strong class="cs-key">decentralised network</strong> where <strong class="cs-key">human resilience and intelligent technology intertwine</strong>, creating a nation that stands prepared, adaptive and united in both peacetime and crisis.</p>
+          </div>
+          </div>
+          <figure class="ea-rm-film">
+            <!-- set data-src to the film's URL and a <video controls playsinline> replaces the placeholder -->
+            <div class="ea-rm-video" data-src="../images/projects/everyday-allies/vision-film.mp4" data-poster="../images/projects/everyday-allies/vision-film-cover.webp" data-label="Future vision film for the NWT, 2040">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+              <span>Vision film</span>
+            </div>
+            <figcaption class="pr-cap ea-rm-vis-cap">The vision images and film were generated with AI.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       REFLECTION
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="pr-sec" id="ea-refl">
+    <div class="pr-band">
+      <span class="pr-band-title">Reflection</span>
+    </div>
+
+    <div class="pr-body">
+     <div class="pr-split ea-refl-split">
+      <div class="pr-col-l ea-refl-l">
+        <figure class="ea-refl-fig">
+          <img src="../images/projects/everyday-allies/reflection-roadmap.webp" width="1770" height="1234" loading="lazy" decoding="async"
+               alt="The three horizons of the roadmap: orange ribbons climbing from 2027 to 2040, each carrying an illustration of the network at that stage, joined by flowing lines" />
+        </figure>
+      </div>
+
+      <div class="pr-col-r ea-refl-r">
+        <p class="pr-lead ea-refl-lead">By 2040, today's Gen Z will be the ones who need to step up in a crisis, so <strong class="cs-key">their values shaped the vision</strong>. People want to feel connected; the technology just helps them do it better.</p>
+
+        <div class="ea-refl">
+          <article class="ea-refl-i" style="--i: 0;">
+            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><h3 class="ea-refl-t">Keeping people engaged after the training ends</h3></div>
+            <p class="ea-refl-p">Ten weeks of training is easy to forget once normal life takes over. So we kept people learning after it ends, and made sharing what they know with friends and neighbours something that earns them badges and recognition.</p>
+          </article>
+          <article class="ea-refl-i" style="--i: 1;">
+            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg></span><h3 class="ea-refl-t">A future built on what already exists</h3></div>
+            <p class="ea-refl-p">A vision of 2040 only works if people can believe it. So we looked at where drones, wearables, AI and robotics are heading, and who's already building them, so each horizon rests on something real.</p>
+          </article>
+          <article class="ea-refl-i" style="--i: 2;">
+            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span><h3 class="ea-refl-t">Preparing people to act, not watch</h3></div>
+            <p class="ea-refl-p">Their biggest question was simple: in a real emergency, would people know what to do, or would they freeze and wait for someone else? We imagined a reservist kneeling next to a stranger, with a wearable talking them through CPR, step by step, until help arrives.</p>
+          </article>
+        </div>
+
+        <p class="pr-cap ea-refl-collab">In collaboration with the <a href="https://werkenbijdefensie.nl/nationale-weerbaarheidstraining" target="_blank" rel="noopener">Nationale Weerbaarheidstraining (NWT) ↗</a></p>
+      </div>
+     </div>
+
+      <nav class="pr-next ea-pn" aria-label="More projects">
+        <a href="practising-parity.html" class="pr-next-link ea-pn-prev">
+          <span class="pr-next-v">← Practising Parity</span>
+        </a>
+        <a href="indic-keyboard.html" class="pr-next-link ea-pn-next">
+          <span class="pr-next-v">Indic Keyboard →</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+
+
+  <!-- floating section nav: shows from Context until the next-project link -->
+  <nav class="pr-fnav" id="prFnav" aria-label="Jump to section">
+    <ul class="pr-fnav-list" id="prFnavList" hidden>
+      <li><a href="#ea-context">Context</a></li>
+      <li><a href="#ea-who">Who we design for</a></li>
+      <li><a href="#ea-network">The Network</a></li>
+      <li><a href="#ea-eco">Ecosystem</a></li>
+      <li><a href="#ea-roadmap">Roadmap</a></li>
+      <li><a href="#ea-refl">Reflection</a></li>
+    </ul>
+    <button class="pr-fnav-btn" type="button" aria-expanded="false" aria-controls="prFnavList">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>Sections</span>
+    </button>
+  </nav>
+
+  <!-- Zoom overlay for the news collage -->
+  <div class="pr-lightbox" id="prLightbox" hidden>
+    <button class="pr-lightbox-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="pr-lightbox-body" id="prLightboxBody"></div>
+  </div>
+
+  <script>
+    'use strict';
+
+    /* ── Theme ── */
+    const html        = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    html.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    themeToggle.addEventListener('click', () => {
+      const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    /* ── Skip loader when navigating back to index ── */
+    const navLinks = document.querySelectorAll('.header a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        sessionStorage.setItem('skipLoader', 'true');
+      });
+    });
+
+    /* ── Elements ── */
+    const headerEl = document.getElementById('header');
+
+    /* ═══════════════════════════════════════════════════════════
+       IMAGE PLACEHOLDERS
+       A .pr-ph keeps its dashed label box until its image loads;
+       drop the file into images/projects/everyday-allies/ and
+       it takes over automatically.
+       ═══════════════════════════════════════════════════════════ */
+    document.querySelectorAll('.pr-ph > img').forEach(img => {
+      const box = img.parentElement;
+      const ok  = () => box.classList.add('is-loaded');
+      const no  = () => img.remove();
+
+      if (img.complete) {
+        img.naturalWidth > 0 ? ok() : no();
+      } else {
+        img.addEventListener('load', ok,  { once: true });
+        img.addEventListener('error', no, { once: true });
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       01 · TODAY / 2040 TOGGLE
+       Drives the hero render.
+       ═══════════════════════════════════════════════════════════ */
+    const stages   = document.querySelectorAll('.pr-stage');
+    const modeSwitch = document.querySelector('.pr-mode');
+
+    // one switch: a click anywhere on it flips between the two modes
+    if (modeSwitch) {
+      modeSwitch.addEventListener('click', () => {
+        const night = modeSwitch.getAttribute('aria-checked') !== 'true';
+        modeSwitch.setAttribute('aria-checked', String(night));
+        stages.forEach(s => s.classList.toggle('is-night', night));
+      });
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CLICK TO ZOOM
+       ═══════════════════════════════════════════════════════════ */
+    const lightbox     = document.getElementById('prLightbox');
+    const lightboxBody = document.getElementById('prLightboxBody');
+
+    function openZoom(box) {
+      if (!lightbox || !lightboxBody) return;
+
+      const img = box.querySelector('img');
+      if (img && box.classList.contains('is-loaded')) {
+        const big = document.createElement('img');
+        big.src = img.currentSrc || img.src;
+        big.alt = img.alt;
+        lightboxBody.replaceChildren(big);
+      } else {
+        const note = document.createElement('div');
+        note.className = 'pr-lightbox-note';
+        note.textContent = box.dataset.zoomLabel || '';
+        lightboxBody.replaceChildren(note);
+      }
+
+      lightbox.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeZoom() {
+      if (!lightbox) return;
+      lightbox.hidden = true;
+      lightboxBody.replaceChildren();
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.pr-zoom').forEach(box => {
+      box.addEventListener('click', () => openZoom(box));
+      box.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openZoom(box);
+        }
+      });
+    });
+
+    if (lightbox) lightbox.addEventListener('click', closeZoom);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && lightbox && !lightbox.hidden) closeZoom();
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       SINGLE SCROLL HANDLER
+       ═══════════════════════════════════════════════════════════ */
+    let ticking = false;
+
+    function onScroll() {
+      const scrollY = window.scrollY;
+
+      /* 1. Header border once the page has moved */
+      if (headerEl) headerEl.classList.toggle('scrolled', scrollY > 8);
+    }
+
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        onScroll();
+        ticking = false;
+      });
+    }, { passive: true });
+
+    window.addEventListener('resize', onScroll);
+    onScroll(); /* initialise on load */
+
+
+    /* ═══════════════════════════════════════════════════════════
+       FLOATING SECTION NAV
+       Visible from Context until the next-project link comes into view;
+       the button opens a list of every section.
+       ═══════════════════════════════════════════════════════════ */
+    const fnav = document.getElementById('prFnav');
+
+    if (fnav) {
+      const btn   = fnav.querySelector('.pr-fnav-btn');
+      const list  = document.getElementById('prFnavList');
+      const links = Array.from(list.querySelectorAll('a'));
+      const first = document.getElementById('ea-context');
+      const next  = document.querySelector('.pr-next');
+
+      const setOpen = open => {
+        list.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+      };
+
+      btn.addEventListener('click', () => setOpen(list.hidden));
+      links.forEach(a => a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('click', e => { if (!fnav.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !list.hidden) { setOpen(false); btn.focus(); } });
+
+      const update = () => {
+        const vh = window.innerHeight;
+        const on = first.getBoundingClientRect().top < vh * 0.5 && (!next || next.getBoundingClientRect().top > vh - 24);
+        fnav.classList.toggle('is-on', on);
+        if (!on) setOpen(false);
+        // mark the section currently under the middle of the screen
+        let cur = null;
+        links.forEach(a => {
+          const t = document.querySelector(a.getAttribute('href'));
+          if (t && t.getBoundingClientRect().top < vh * 0.5) cur = a;
+        });
+        links.forEach(a => a.toggleAttribute('aria-current', a === cur));
+        if (cur) cur.setAttribute('aria-current', 'true');
+      };
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SMALL TEXT MATCHES THE MAIN TEXT
+       The small paragraphs under a main line wrap no wider than the
+       main line's longest rendered line, so both share one right edge.
+       ═══════════════════════════════════════════════════════════ */
+    const matchLeads = () => {
+      document.querySelectorAll('.pr-lead').forEach(lead => {
+        const small = [];
+        for (let el = lead.nextElementSibling; el && !el.classList.contains('pr-lead'); el = el.nextElementSibling) {
+          if (el.matches('.pr-p, .pr-ref')) small.push(el);
+        }
+        if (!small.length) return;
+        small.forEach(el => { el.style.maxWidth = ''; });
+        const range = document.createRange();
+        range.selectNodeContents(lead);
+        const left = lead.getBoundingClientRect().left;
+        let right = 0;
+        Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+        if (right > left) small.forEach(el => { el.style.maxWidth = Math.ceil(right - left) + 'px'; });
+      });
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       THE NETWORK · DOT GRIDS
+       Each visual is drawn from a fixed spec, so dots always land in
+       the same place. Grid cells are 20 units; [x, y] are cell indices.
+       ═══════════════════════════════════════════════════════════ */
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const CELL  = 20;
+    const at    = i => i * CELL + CELL / 2;
+
+    function dotGrid({ n, alumni, rings = [], joins = [], pad = 0 }) {
+      const svg = document.createElementNS(SVGNS, 'svg');
+      const size = n * CELL;
+      svg.setAttribute('viewBox', `${-pad} ${-pad} ${size + pad * 2} ${size + pad * 2}`);
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+
+      const add = (cls, cx, cy, r, d) => {
+        const c = document.createElementNS(SVGNS, 'circle');
+        c.setAttribute('class', cls);
+        c.setAttribute('cx', cx);
+        c.setAttribute('cy', cy);
+        c.setAttribute('r', r);
+        c.setAttribute('vector-effect', 'non-scaling-stroke');
+        c.dataset.d = d;
+        svg.appendChild(c);
+      };
+
+      const has = (list, x, y) => list.some(([a, b]) => a === x && b === y);
+      const near = (x, y) => Math.min(...alumni.map(([a, b]) => Math.hypot(x - a, y - b)));
+
+      rings.forEach(({ c: [x, y], r, kind }) => add('ea-ring ea-ring--' + kind, at(x), at(y), r * CELL, 0));
+
+      for (let y = 0; y < n; y++) {
+        for (let x = 0; x < n; x++) {
+          let type = 'cit';
+          if (has(alumni, x, y)) type = 'al';
+          else if (has(joins, x, y)) type = 'join';
+          else if (rings.some(({ c: [a, b], r }) => Math.hypot(x - a, y - b) <= r)) type = 'reach';
+          const d = near(x, y).toFixed(2);
+          add('ea-dot ea-dot--' + type, at(x), at(y), type === 'al' ? 4.5 : 3, d);
+          // someone joining the NWT gets a ring, so they read apart from "learned from a peer"
+          if (type === 'join') add('ea-dot ea-dot--halo', at(x), at(y), 7.5, d);
+        }
+      }
+      return svg;
+    }
+
+    // 01 · each cohort keeps the alumni before it: 3, 5, 8, 12
+    const GROW = [[1,1],[5,2],[2,5], [3,3],[6,5], [3,0],[0,4],[4,6], [6,0],[0,6],[1,3],[6,3]];
+    const COHORTS = [3, 5, 8, 12];
+
+    // 02 · seven alumni, each with a dashed circle of people they share with
+    const PEACE_AL = [[2,2],[7,1],[10,4],[4,6],[1,9],[8,8],[5,10]];
+    const PEACE = {
+      n: 12, pad: 6,
+      alumni: PEACE_AL,
+      rings: PEACE_AL.map(c => ({ c, r: 1.6, kind: 'dash' })),
+      joins: [[3,3],[9,7]],
+    };
+
+    // 03 · four overlapping circles of care, several alumni in each
+    const CRISIS = {
+      n: 12, pad: 6,
+      alumni: [[2,3],[4,2],[3,5], [7,1],[9,3],[6,4], [2,7],[5,9],[3,10], [8,6],[10,8],[7,9]],
+      rings: [[3,3.5],[7.5,3],[3.5,8],[8,7.5]].map(c => ({ c, r: 2.6, kind: 'care' })),
+    };
+
+    document.querySelectorAll('.ea-net-viz').forEach(box => {
+      const kind = box.dataset.viz;
+      if (kind === 'grow') {
+        COHORTS.forEach((count, i) => {
+          const cell = document.createElement('div');
+          cell.className = 'ea-net-cohort';
+          cell.appendChild(dotGrid({ n: 7, alumni: GROW.slice(0, count) }));
+          const label = document.createElement('span');
+          label.textContent = 'Cohort ' + (i + 1);
+          cell.appendChild(label);
+          box.appendChild(cell);
+        });
+      } else if (kind === 'peace') {
+        box.appendChild(dotGrid(PEACE));
+      } else if (kind === 'crisis') {
+        box.appendChild(dotGrid(CRISIS));
+      }
+    });
+
+    // fade the dots in from the alumni outward, once, when each visual comes into view
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!calm && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+        });
+      }, { threshold: 0.35 });
+
+      document.querySelectorAll('.ea-net-viz').forEach(box => {
+        box.querySelectorAll('svg').forEach(svg => {
+          const els = svg.querySelectorAll('.ea-dot, .ea-ring');
+          const max = Math.max(...Array.from(els, el => +el.dataset.d)) || 1;
+          els.forEach(el => { el.style.transitionDelay = Math.round(+el.dataset.d / max * 500) + 'ms'; });
+        });
+        box.classList.add('is-armed');
+        io.observe(box);
+      });
+    }
+
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(matchLeads);
+    window.addEventListener('load', matchLeads);
+    window.addEventListener('resize', matchLeads);
+
+    /* ═══════════════════════════════════════════════════════════
+       ROADMAP
+       One source for the overview labels, the desktop grid and the phone
+       cards. Trend spans are [first horizon, last horizon], 1-based.
+       A trend that starts after H1 fades in (emerging); one that ends before
+       H3 fades out. On the cards, "from 2025" / "until 2034" mark spans.
+       ═══════════════════════════════════════════════════════════ */
+    const ROADMAP = {
+      ticks: ['2025', '2028', '2035', '2040'],
+      horizons: [
+        {
+          name: 'Horizon 1', from: '2025', to: '2027', x: '21.6%', y: '31.9%',
+          focus: 'Keep alumni engaged after training',
+          img: 'roadmap-h1.png', alumni: '2,000',
+          products: [
+            'Launch of the NWT app as a post-training engagement platform',
+            'Specialised learning paths',
+            'Digital badges that make verified skills visible',
+          ],
+          partners: [['red-cross', 'The Netherlands Red Cross'], ['stan', 'Stan'], ['tno', 'TNO']],
+          expertise: [
+            ['Keep alumni well and motivated', ['Psychologist', 'Behavioural scientist', 'Well-being advisor']],
+            ['Provide specialised training', ['Technologist', 'Cyber security specialist']],
+            ['Build and run the alumni community', ['Community designer', 'Alumni volunteer coordinator']],
+            ['Build the app', ['Platform engineer', 'Data scientist', 'UX/UI designer']],
+          ],
+        },
+        {
+          name: 'Horizon 2', from: '2028', to: '2034', x: '40.4%', y: '21.5%',
+          focus: 'Grow a regional network of hubs',
+          img: 'roadmap-h2.png', alumni: '14,000',
+          products: [
+            '25 regional hubs for hybrid learning and coordination',
+            'Active in peacetime training; mobilised as crisis response nodes',
+            'App learns from community data and trends',
+            'Experience-based rewards build a skills passport',
+          ],
+          partners: [['gemeente-nu', 'Gemeente.nu'], ['heijmans', 'Heijmans'], ['bam-wonen', 'BAM Wonen'],
+                     ['lockheed-martin', 'Lockheed Martin'], ['veon', 'VEON'], ['elysian', 'Elysian'], ['artec', 'ARTEC']],
+          expertise: [
+            ['Design learning at the hubs', ['Learning experience designer']],
+            ['Set up hubs with partners', ['Project planner', 'Partnership director']],
+            ['Run the hubs and grow the network', ['Hub coordinator', 'Network builder']],
+            ['Help the app learn from community data', ['AI analytics engineer']],
+          ],
+        },
+        {
+          name: 'Horizon 3', from: '2035', to: '2040', x: '59.1%', y: '12%',
+          focus: 'Coordinate crisis response with intelligent technology',
+          img: 'roadmap-h3.png', alumni: '25,000+',
+          products: [
+            'AI-scaled alerts: local incidents go to nearby responders; national crises trigger hub coordination',
+            'Holographic assistants and watches for real-time connection',
+            'Autonomous drones assist in crises, reducing human risk',
+          ],
+          partners: [['elbit-systems', 'Elbit Systems'], ['dutch-holographic-lab', 'Dutch Holographic Laboratory'],
+                     ['holofil', 'Holofil'], ['stmicroelectronics', 'STMicroelectronics']],
+          expertise: [
+            ['Match alumni skills to where they are needed', ['Talent mobility strategist']],
+            ['Design the holographic assistants', ['Holographic designer']],
+          ],
+        },
+      ],
+      trends: [
+        { cls: 'ea-rm-v', label: 'Target group values', legend: 'Values', items: [
+          ['Autonomy', 1, 1], ['Social responsibility', 1, 1], ['Self-expression', 1, 2],
+          ['Sense of belonging', 2, 3], ['Social engagement', 2, 3],
+        ] },
+        { cls: 'ea-rm-m', label: 'Market trends', legend: 'Market trends', items: [
+          ['Supply chains as political tools', 1, 1], ['New warfare tech, e.g. fibre-optic drones', 1, 1],
+          ['The world trending towards isolationism', 1, 2], ['Europe dominates the global defence market', 1, 3],
+          ['Commercial players provide the foundations of modern warfare', 1, 3],
+        ] },
+        { cls: 'ea-rm-t', label: 'Technology trends', legend: 'Technology trends', items: [
+          ['Adaptive AI & cognitive technologies', 1, 3], ['Data trust & digital identity ecosystems', 1, 3],
+          ['Decentralised communication', 2, 3], ['Wearable tech', 2, 3],
+          ['Extended reality (XR)', 2, 3], ['Autonomous & intelligent systems', 2, 3],
+        ] },
+      ],
+    };
+
+    (() => {
+      const ov = document.getElementById('eaRmOv');
+      const tac = document.getElementById('eaRmTac');
+      const cards = document.getElementById('eaRmCards');
+      if (!ov || !tac || !cards) return;
+
+      const IMG = '../images/projects/everyday-allies/';
+      const H = ROADMAP.horizons;
+      const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+      const focus  = h => `<p class="ea-rm-focus">${esc(h.focus)}</p>`;
+      const core   = h => `<div class="ea-rm-core">${focus(h)}
+          <p class="ea-rm-num"><b>${esc(h.alumni)}</b><span>alumni</span></p></div>`;
+      const list   = h => `<ul class="ea-rm-list" role="list">${h.products.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
+      const logos  = h => `<ul class="ea-rm-logos" role="list">${h.partners.map(([f, n]) =>
+          `<li><img src="${IMG}partners/${f}.png" alt="${esc(n)}" loading="lazy" decoding="async" /></li>`).join('')}</ul>`;
+      const grps   = h => `<div class="ea-rm-grps">${h.expertise.map(([why, who]) =>
+          `<div class="ea-rm-grp"><p>${esc(why)}</p><p>${who.map(esc).join(' · ')}</p></div>`).join('')}</div>`;
+      const years  = h => `<span class="ea-rm-years">${h.from}–${h.to}</span>`;
+
+      // strategic roadmap as text: read by screen readers on desktop, shown as a list on small screens
+      const STRAT = [
+        { sub: 'Connection', year: '2027',
+          focus: 'Building towards an integrated network using <b>specialised training</b> and the <b>NWT app</b>',
+          tags: ['Digital badges', 'NWT app', 'Specialised learning paths'],
+          note: 'The NWT app allows alumni to connect and specialise in subjects (e.g. first aid, cybersecurity) of their choice, earning badges for their efforts.' },
+        { sub: 'Visibility', year: '2034',
+          focus: 'Building onto the network through <b>decentralised hubs</b>',
+          tags: ['Richer alumni pool', 'App integrated with local data and communities', 'Regional hubs', 'Experience points (XP) rewards'],
+          note: 'As alumni upgrade their skills and join resilience-building programmes at hubs, they collect digital reward points redeemable for everyday essentials like groceries.' },
+        { sub: 'Trust', year: '2040',
+          focus: 'Fully <b>automated, data-driven</b> network of <b>qualified responders</b>',
+          tags: ['Mature alumni pool', 'AI-driven scaling of alerts', 'Holographic assistants', 'Autonomous drones'],
+          note: 'AI-powered holographic assistants ensure real-time guidance and significantly improve crisis response time for alumni.' },
+      ];
+      ov.innerHTML = H.map((h, i) => { const s = STRAT[i]; return `<div class="ea-rm-ov-label">
+          <div class="ea-rm-ov-hd"><span class="ea-rm-name">${esc(h.name)}</span><span class="ea-rm-ov-sub">${s.sub}</span><span class="ea-rm-ov-yr">${s.year}</span></div>
+          <p class="ea-rm-ov-focus">${s.focus}</p>
+          <ul class="ea-rm-ov-tags" role="list">${s.tags.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+          <p class="ea-rm-ov-note">${esc(s.note)}</p></div>`; }).join('');
+
+      // reflection: the artwork settles in, then the three cards rise one after another
+      (() => {
+        const els = document.querySelectorAll('.ea-refl-fig, .ea-refl');
+        if (!els.length) return;
+        if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('is-in')); return; }
+        const io = new IntersectionObserver(es => es.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+        }), { threshold: 0.2 });
+        els.forEach(e => io.observe(e));
+      })();
+
+      // roadmap build-up animation (desktop and tablet, motion allowed)
+      (() => {
+        const art = document.querySelector('.ea-rm-ov-art');
+        const box = document.getElementById('eaRmAnim');
+        if (!art || !box) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!matchMedia('(min-width: 1001px)').matches) return;
+        if (!('IntersectionObserver' in window)) return;
+        const L = IMG + 'roadmap-layers/rm-';
+        // [file, x, y, w, kind, horizon] in Figma frame pixels (1800 × 1345)
+        const layers = [
+          ['waves', 420, 478, 1078, 'wave', 0],
+          ['rib1', 178, 414, 242, 'rib', 0], ['rib2', 561, 263, 480, 'rib', 1], ['rib3', 1180, 126, 479, 'rib', 2],
+          ['ill1', 44, 630, 458, 'ill', 0],  ['ill2', 663, 532, 501, 'ill', 1], ['ill3', 1247, 431, 519, 'ill', 2],
+          ['box1', 197, 298, 338, 'box', 0], ['box2', 822, 190, 338, 'box', 1], ['box3', 1440, 30, 338, 'box', 2],
+        ];
+        box.innerHTML = layers.map(([f, x, y, w, k, h]) =>
+          `<img class="is-${k}" src="${L}${f}.webp" alt="" decoding="async" style="--x:${x};--y:${y};--w:${w};--d:${h * 0.7}s" />`).join('');
+        const imgs = [...box.querySelectorAll('img')];
+        Promise.all(imgs.map(i => i.decode ? i.decode().catch(() => {}) : null)).then(() => {
+          art.classList.add('is-anim');
+          const io = new IntersectionObserver(es => {
+            if (es.some(e => e.isIntersecting)) { requestAnimationFrame(() => art.classList.add('is-in')); io.disconnect(); }
+          }, { threshold: 0.3 });
+          io.observe(art);
+        });
+      })();
+
+      // the artwork's placeholder if the file is missing
+      const art = document.querySelector('.ea-rm-ov-art');
+      const artImg = art.querySelector('img');
+      const missing = () => art.classList.add('is-missing');
+      artImg.addEventListener('error', missing);
+      if (artImg.complete && !artImg.naturalWidth) missing();
+
+      // desktop grid
+      const rowOf = (label, fn) => `<div class="ea-rm-lab">${esc(label)}</div>` +
+          H.map(h => `<div class="ea-rm-cell">${fn(h)}</div>`).join('');
+
+      tac.innerHTML =
+        `<div class="ea-rm-cols" aria-hidden="true"><i></i><i></i><i></i></div>` +
+        `<div class="ea-rm-head"><div></div>` + H.map(h => `<div class="ea-rm-hz">${years(h)}<h3 class="ea-rm-name">${esc(h.name)}</h3></div>`).join('') +
+        `<div></div><div class="ea-rm-axis" aria-hidden="true">${ROADMAP.ticks.map((t, i) =>
+          `<span class="ea-rm-tick" style="--x:${(i / 3 * 100).toFixed(3)}%">${t}</span>`).join('')}</div></div>` +
+        ROADMAP.trends.map(t => `<div class="ea-rm-lab">${esc(t.label)}</div>` +
+          `<ul class="ea-rm-bars" role="list">${t.items.map(([n, s, e]) =>
+            `<li class="ea-rm-bar ${t.cls}${s > 1 ? ' is-in' : ''}${e < 3 ? ' is-out' : ''}" style="--s:${s};--e:${e + 1}" title="${esc(n)} (${H[s - 1].from}–${H[e - 1].to})">${esc(n)}</li>`
+          ).join('')}</ul>`).join('') +
+        rowOf('Core focus', core) +
+        rowOf('Products & services', list) +
+        rowOf('Partners', logos) +
+        rowOf('Expertise', grps) +
+        `<div class="ea-rm-lab ea-rm-lab--end"></div><div class="ea-rm-legend" aria-hidden="true">${ROADMAP.trends.map(t =>
+          `<span class="${t.cls}"><i></i>${esc(t.legend)}</span>`).join('')}</div>`;
+
+      // the horizon header sticks under the section band while the grid scrolls past
+      const band = document.querySelector('#ea-roadmap .pr-band');
+      const setTop = () => document.getElementById('ea-roadmap').style.setProperty('--rm-top', band.offsetHeight + 'px');
+      setTop();
+      window.addEventListener('resize', setTop);
+
+      // phone cards
+      const span = (s, e, i) => {
+        if (s < i && e > i) return `${H[s - 1].from}–${H[e - 1].to}`;
+        if (s < i) return `from ${H[s - 1].from}`;
+        if (e > i) return `until ${H[e - 1].to}`;
+        return '';
+      };
+      cards.innerHTML = H.map((h, idx) => {
+        const i = idx + 1;
+        const trends = ROADMAP.trends.map(t => {
+          const items = t.items.filter(([, s, e]) => s <= i && e >= i);
+          if (!items.length) return '';
+          return `<h4 class="ea-rm-k">${esc(t.label)}</h4><ul class="ea-rm-pills" role="list">${items.map(([n, s, e]) => {
+            const note = span(s, e, i);
+            return `<li class="ea-rm-pill ${t.cls}">${esc(n)}${note ? ` <small>· ${note}</small>` : ''}</li>`;
+          }).join('')}</ul>`;
+        }).join('');
+        return `<article class="ea-rm-card">
+          <header class="ea-rm-card-head"><h3 class="ea-rm-name">${esc(h.name)}</h3>${years(h)}</header>
+          ${core(h)}${trends}
+          <h4 class="ea-rm-k">Products &amp; services</h4>${list(h)}
+          <h4 class="ea-rm-k">Partners</h4>${logos(h)}
+          <h4 class="ea-rm-k">Expertise</h4>${grps(h)}
+        </article>`;
+      }).join('');
+
+      // vision film: a URL in data-src swaps the placeholder for a native player
+      document.querySelectorAll('.ea-rm-video[data-src]').forEach(box => {
+        const src = box.dataset.src.trim();
+        if (!src) return;
+        const v = document.createElement('video');
+        v.src = src;
+        v.controls = true;
+        v.playsInline = true;
+        v.preload = 'none';
+        if (box.dataset.poster) v.poster = box.dataset.poster;
+        if (box.dataset.label) v.setAttribute('aria-label', box.dataset.label);
+        box.replaceChildren(v);
+      });
+    })();
+
+    /* ═══════════════════════════════════════════════════════════
+       ECOSYSTEM MAP
+       One SVG over the whole map, measured from the DOM: a dotted fan from
+       the NWT dot to each partner, dotted lines from each partner to its
+       channel circles, a pink dotted spine through the circles, and thin
+       arrows channel → offer → outcomes. Lines leaving text start after the
+       text's real right edge. Hidden below 1100px, where the map stacks.
+       ═══════════════════════════════════════════════════════════ */
+    (() => {
+      const map = document.getElementById('eaMap');
+      if (!map) return;
+      const NS  = 'http://www.w3.org/2000/svg';
+      const svg = map.querySelector('.ea-map-lines');
+      const hub = map.querySelector('.ea-map-hub');
+
+      // right edge of an element's text (not its box)
+      const textRight = el => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        let right = 0;
+        Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+        return right || el.getBoundingClientRect().right;
+      };
+
+      // gentle S-curve, horizontal at both ends
+      const curve = (x1, y1, x2, y2) => {
+        const mx = x1 + (x2 - x1) / 2;
+        return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+      };
+      const arrow = (x1, y1, x2, y2) =>
+        curve(x1, y1, x2, y2) + ` M${x2 - 5},${y2 - 3.5} L${x2},${y2} L${x2 - 5},${y2 + 3.5}`;
+
+      const add = (cls, d) => {
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('class', cls);
+        p.setAttribute('d', d);
+        svg.appendChild(p);
+      };
+
+      const draw = () => {
+        svg.replaceChildren();
+        if (getComputedStyle(svg).display === 'none') return;
+        const o = map.getBoundingClientRect();
+        if (!o.width) return;
+        svg.setAttribute('viewBox', `0 0 ${o.width} ${o.height}`);
+
+        const box = el => {
+          const r = el.getBoundingClientRect();
+          return { l: r.left - o.left, r: r.right - o.left, y: r.top - o.top + r.height / 2 };
+        };
+
+        const h = box(hub);
+        const hx = (h.l + h.r) / 2;
+        const nodes = [];
+
+        map.querySelectorAll('.ea-map-partner').forEach(partner => {
+          const who  = partner.querySelector('.ea-map-who');
+          const name = who.querySelector('.ea-map-t');
+          const w    = box(who);
+          add('ea-map-fan', `M${hx},${h.y} L${w.l - 10},${w.y}`);
+          const sx = textRight(name) - o.left + 12;
+
+          partner.querySelectorAll('.ea-map-ch').forEach(ch => {
+            const n   = box(ch.querySelector('.ea-map-node'));
+            const t   = ch.querySelector('.ea-map-ch-t');
+            const off = box(ch.querySelector('.ea-map-offer'));
+            const out = box(ch.querySelector('.ea-map-out'));
+            nodes.push({ x: (n.l + n.r) / 2, y: n.y });
+            add('ea-map-fan', curve(sx, w.y, n.l - 8, n.y));
+            add('ea-map-arrow', arrow(textRight(t) - o.left + 10, n.y, off.l - 3, off.y));
+            add('ea-map-arrow', arrow(off.r + 3, off.y, out.l - 8, out.y));
+          });
+        });
+
+        if (nodes.length > 1) {
+          const a = nodes[0], b = nodes[nodes.length - 1];
+          const spine = document.createElementNS(NS, 'path');
+          spine.setAttribute('class', 'ea-map-spine');
+          spine.setAttribute('d', `M${a.x},${a.y} L${b.x},${b.y}`);
+          svg.insertBefore(spine, svg.firstChild);
+        }
+      };
+
+      if ('ResizeObserver' in window) new ResizeObserver(draw).observe(map);
+      window.addEventListener('load', draw);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+      draw();
+    })();
+  </script>
+
+  <script src="../case-study.js"></script>
+</body>
+</html>
