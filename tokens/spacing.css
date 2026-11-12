@@ -17,6 +17,7 @@
   --nav-pad-y: 32px;
   --grid-columns: 12;
   --hero-text-width: 560px;
+  --spine-w: clamp(96px, 8.5vw, 132px);   /* landing Work shelf: one closed project spine */
 
   --radius-none: 0;
   --radius-s: 4px;

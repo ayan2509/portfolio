@@ -377,6 +377,206 @@
     @media (prefers-reduced-motion: reduce) { .work-card { transform: none !important; } }
 
     /* ═══════════════════════════════════════════════════════════════
+       SELECTED WORK — shelf (data-work-layout="shelf", 1280px and up)
+       A row of project cards. A closed card is a spine (the card
+       compressed); the open one widens into the full card. One is open
+       at a time, driven by scroll. Below 1280px, or with
+       data-work-layout="stack", the stacking cards above are used
+       instead and this markup is display:none.
+       Brick colours appear only as card strokes, never as text,
+       fills or texture.
+       ═══════════════════════════════════════════════════════════════ */
+    .work-shelf { display: none; }
+    @media (min-width: 1280px) {
+      .work-section[data-work-layout="shelf"] .work-stack,
+      .work-section[data-work-layout="shelf"] .work-all-wrap { display: none; }
+      .work-section[data-work-layout="shelf"] .work-shelf { display: block; }
+    }
+    .work-shelf {
+      --shelf-gap: 12px;
+      --shelf-step: 50vh;
+      --shelf-dur: 0.5s;                 /* width change */
+      --shelf-ease: var(--ease-scene);   /* ease-in-out: no snap, no creep */
+      --shelf-out: 0.12s;                /* closing card's body fade-out */
+      --shelf-stroke: 2px;
+      --shelf-pad: 12px;                 /* closed spine: side padding */
+      --shelf-pad-top: 16px;             /* closed spine: top padding */
+      --shelf-pad-open: 28px;            /* open card: padding on every side of the text */
+      --shelf-band: 56px;                /* stud band height */
+      position: relative; z-index: 1;
+      /* pinned row + four steps of scroll (01 at the start, 05 at the end).
+         Sized off the label bar only, not the header, so the row never
+         resizes when the header slides away */
+      height: calc(100vh - var(--label-bar-h, 134px) + 4 * var(--shelf-step));
+    }
+    .shelf-pin {
+      position: sticky; top: var(--sidebar-top, 168px);
+      height: calc(100vh - var(--label-bar-h, 134px)); box-sizing: border-box;
+      padding: 16px var(--page-gutter) 32px;
+    }
+    .shelf-row { display: flex; height: 100%; container-type: inline-size; }
+
+    /* The project: one stroked card, clipped to its current width */
+    .shelf-item {
+      position: relative; flex: 0 0 var(--spine-w); min-width: 0; overflow: hidden; box-sizing: border-box;
+      border: var(--shelf-stroke) solid var(--brick); border-radius: var(--radius-s);
+      background: var(--surface); color: var(--text);
+      transition: flex-grow var(--shelf-dur) var(--shelf-ease);
+    }
+    .shelf-item + .shelf-item { margin-left: var(--shelf-gap); }
+    .shelf-item.is-open { flex-grow: 1; }
+    /* the item clips its content, so the focus ring is drawn on the item */
+    .shelf-item:has(.shelf-spine:focus-visible) { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+    .shelf-spine:focus-visible { outline: none; }
+
+    /* Fixed at the open width: the card is revealed, never squashed */
+    .shelf-card {
+      display: grid; grid-template-columns: max(42%, 330px) 1fr; height: 100%;
+      /* the open card = the row minus the four closed spines and their gaps, inside its stroke */
+      width: calc(100cqw - 4 * var(--spine-w) - 4 * var(--shelf-gap) - 2 * var(--shelf-stroke));
+    }
+    /* last step: the "All projects" spine takes one more spine and gap */
+    .shelf-row[data-step="4"] .shelf-card { width: calc(100cqw - 5 * var(--spine-w) - 5 * var(--shelf-gap) - 2 * var(--shelf-stroke)); }
+    .shelf-col { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+    /* Head: number, title, year. Same elements and padding in both states */
+    .shelf-head { margin: 0; font-size: inherit; font-weight: inherit; }
+    .shelf-spine {
+      display: flex; flex-direction: column; align-items: flex-start; width: 100%; box-sizing: border-box;
+      margin: 0; padding: var(--shelf-pad-top) var(--shelf-pad) 0; appearance: none; border: 0; background: none;
+      color: inherit; font: inherit; text-align: left; cursor: pointer;
+      transition: padding var(--shelf-dur) var(--shelf-ease);
+    }
+    /* closed: the whole spine is the button */
+    .shelf-item:not(.is-open) .shelf-spine::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+    /* open: the head breathes out to the card's padding as the card widens */
+    .shelf-item.is-open .shelf-spine { cursor: default; padding: var(--shelf-pad-open) var(--shelf-pad-open) 0; }
+    .shelf-num {
+      font-family: var(--font-sans); font-weight: 700; font-stretch: var(--stretch-condensed);
+      font-size: var(--type-spine-num); line-height: 0.9; letter-spacing: var(--tracking-display);
+    }
+    /* Two copies of the title in one cell, crossfading; the box height
+       follows the visible copy (measured by the shelf script), so the year
+       glides down with it */
+    .shelf-title {
+      display: grid; grid-template-columns: 100%; align-items: start; width: 100%; margin-top: 12px;
+      height: var(--title-s-h, auto);
+      transition: height var(--shelf-dur) var(--shelf-ease), margin-top var(--shelf-dur) var(--shelf-ease);
+    }
+    .shelf-item.is-open .shelf-title { height: var(--title-l-h, auto); margin-top: 20px; }
+    .shelf-title > span {
+      grid-area: 1 / 1; font-family: var(--font-sans); font-weight: 700; font-stretch: var(--stretch-condensed);
+      transition: opacity calc(var(--shelf-dur) * 0.5) ease;
+    }
+    /* Closed title: one word per line (min-content breaks at every space), two lines */
+    .shelf-title-s { width: min-content; font-size: var(--type-spine-title); line-height: 1.05; }
+    /* the large copy keeps the open width in both states, so the height measured while closed is its open height */
+    .shelf-title-l { width: calc(100% - 2 * (var(--shelf-pad-open) - var(--shelf-pad))); }
+    .shelf-item.is-open .shelf-title-l { width: 100%; }
+    .shelf-title-l { font-size: var(--type-display-m); line-height: 0.86; letter-spacing: var(--tracking-display); opacity: 0; }
+    .shelf-item.is-open .shelf-title-s { opacity: 0; }
+    .shelf-item.is-open .shelf-title-l { opacity: 1; }
+    .shelf-year { margin-top: 10px; font-family: var(--font-mono); font-size: var(--type-caption); line-height: 1.4; letter-spacing: var(--tracking-caption); color: var(--text-muted); transition: margin-top var(--shelf-dur) var(--shelf-ease); }
+    .shelf-item.is-open .shelf-year { margin-top: 16px; }
+
+    /* Body: one-liner, themes, link. Fades out quickly as the card starts
+       closing; fades in ~40% into the width change when opening */
+    .shelf-body {
+      margin-top: auto; padding: 24px var(--shelf-pad-open) 0;
+      opacity: 0; visibility: hidden;
+      transition: opacity var(--shelf-out) linear, visibility 0s linear var(--shelf-out);
+    }
+    .shelf-item.is-open .shelf-body {
+      opacity: 1; visibility: visible;
+      transition: opacity 0.3s ease calc(var(--shelf-dur) * 0.4), visibility 0s;
+    }
+    .shelf-line { margin: 0; font-size: var(--type-body-l); line-height: 1.5; }
+    .shelf-themes-label {
+      margin: 20px 0 0; font-family: var(--font-mono); font-size: var(--type-caption); font-weight: 500;
+      line-height: 1.4; letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--text-muted);
+    }
+    .shelf-chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+    .shelf-chips li {
+      padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-s);
+      font-family: var(--font-mono); font-size: var(--type-caption); font-weight: 500; line-height: 1.4;
+      letter-spacing: var(--tracking-caption); text-transform: uppercase; color: var(--text-muted);
+    }
+    /* The site's text link (.work-all) with the arrow nudging right */
+    .shelf-link { margin-top: 22px; }
+    .shelf-link span { display: inline-block; transition: transform var(--dur-fast) var(--ease-spring); }
+    .shelf-link:hover span { transform: translateX(4px); }
+
+    /* Stud band: the site's stud texture in its own neutral colour.
+       --stud-pattern is redeclared here (same formula as tokens/effects.css)
+       because the token resolves --stud-line at :root */
+    .shelf-studs {
+      flex: none; height: var(--shelf-band); margin-top: 28px;
+      --stud-pattern: radial-gradient(circle at center,
+        transparent calc(var(--stud-size) * 0.255),
+        var(--stud-line) calc(var(--stud-size) * 0.255),
+        var(--stud-line) calc(var(--stud-size) * 0.345),
+        transparent calc(var(--stud-size) * 0.345));
+      background-image: var(--stud-pattern); background-size: var(--stud-size) var(--stud-size);
+    }
+
+    /* Image: full bleed to the card's stroke on top, right and bottom */
+    .shelf-media {
+      position: relative; min-width: 0; overflow: hidden; visibility: hidden;
+      background-color: var(--surface-sunken);
+      background-image: repeating-linear-gradient(135deg, var(--stud-line) 0 1px, transparent 1px 12px);
+      transition: visibility 0s linear var(--shelf-dur);
+    }
+    .shelf-item.is-open .shelf-media { visibility: visible; transition-delay: 0s; }
+    .shelf-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Missing image: striped placeholder and a note instead of a broken-image icon */
+    .shelf-media.is-missing img { display: none; }
+    .shelf-media.is-missing::after {
+      content: 'Image coming soon'; position: absolute; inset: 0; display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: var(--type-caption); letter-spacing: var(--tracking-caption);
+      text-transform: uppercase; color: var(--text-muted);
+    }
+
+    /* "All projects": the same spine model with the faintest stroke.
+       A link to work.html; slides in when project 05 opens */
+    .shelf-all {
+      flex: 0 0 0; min-width: 0; margin-left: 0; overflow: hidden; visibility: hidden; color: var(--text);
+      transition: flex-basis var(--shelf-dur) var(--shelf-ease),
+                  margin-left var(--shelf-dur) var(--shelf-ease),
+                  visibility 0s linear var(--shelf-dur);
+    }
+    .shelf-row[data-step="4"] .shelf-all { flex-basis: var(--spine-w); margin-left: var(--shelf-gap); visibility: visible; transition-delay: 0s; }
+    .shelf-all:hover { color: var(--text); }
+    .shelf-all-inner {
+      display: flex; flex-direction: column; width: var(--spine-w); height: 100%; box-sizing: border-box;
+      /* 1px stroke + 17px = the project cards' 2px stroke + 16px */
+      padding-top: 17px; border: 1px solid var(--border); border-radius: var(--radius-s); background: var(--surface);
+    }
+    .shelf-all-inner > .shelf-all-arrow, .shelf-all-inner > .shelf-title-s { margin-left: calc(var(--shelf-pad) + 1px); }
+    /* the old work cards' arrow, in the number's box so the title lines up with the project titles */
+    .shelf-all-arrow { display: flex; align-items: center; height: calc(var(--type-spine-num) * 0.9); }
+    .shelf-all:hover .shelf-all-arrow { transform: translateX(8px); }
+    .shelf-all-inner > .shelf-title-s { margin-top: 12px; }
+    .shelf-all-inner > .shelf-studs { margin-top: auto; }
+
+    /* Short windows: a shorter stud band and a tighter card, so the text column fits */
+    @media (max-height: 760px) {
+      .work-shelf { --shelf-band: 32px; }
+      .shelf-body { padding-top: 12px; }
+      .shelf-line { font-size: var(--type-body); line-height: 1.45; }
+      .shelf-themes-label { margin-top: 12px; }
+      .shelf-link { margin-top: 14px; }
+      .shelf-studs { margin-top: 10px; }
+      /* a wider text column: the one-liner and chips wrap less */
+      .shelf-card { grid-template-columns: max(50%, 380px) 1fr; }
+    }
+    /* Laptop viewports with browser chrome (~650–700px tall): the open title steps down one size */
+    @media (max-height: 700px) { .shelf-title-l { font-size: var(--type-display-s); } }
+    @media (prefers-reduced-motion: reduce) {
+      .shelf-item, .shelf-title, .shelf-title > span, .shelf-body, .shelf-item.is-open .shelf-body,
+      .shelf-media, .shelf-all, .shelf-link span, .shelf-all-arrow, .shelf-spine, .shelf-year { transition: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
        ABOUT SECTION
        ═══════════════════════════════════════════════════════════════ */
     .about-section { position: relative; } .about-section {
@@ -612,7 +812,10 @@
   <!-- ══════════════════════════════════════════════════════════
        SELECTED WORK
        ══════════════════════════════════════════════════════════ -->
-  <section class="work-section" id="work" aria-label="Selected Work">
+  <!-- Layout switch: data-work-layout="shelf" (spines, 1280px and up) or "stack" (stacking cards).
+       Below 1280px the stack is always used. -->
+  <section class="work-section" id="work" aria-label="Selected Work" data-work-layout="shelf">
+    <!-- Project content lives in both layouts; update both when projects change. -->
     <div class="work-stack" id="workStack">
       <a class="work-card" href="projects/powering-resilience.html" style="--i: 0; --card-accent: var(--brick-green)" aria-label="View Powering Resilience case study">
         <div class="work-card-strip"><span>2025</span><ul class="work-card-tags"><li>Energy Resilience</li><li>Green Energy Transition</li><li>Crisis Preparedness</li></ul></div>
@@ -661,6 +864,126 @@
       </a>
       <div class="work-stack-end" aria-hidden="true"></div>
     </div>
+
+    <div class="work-shelf" id="workShelf">
+      <div class="shelf-pin">
+        <div class="shelf-row" data-step="0">
+          <div class="shelf-item is-open" style="--brick: var(--brick-green)">
+            <div class="shelf-card">
+              <div class="shelf-col">
+                <h3 class="shelf-head">
+                  <button class="shelf-spine" type="button" aria-label="Powering Resilience" aria-controls="shelfBody1" aria-expanded="true">
+                    <span class="shelf-num">01</span>
+                    <span class="shelf-title"><span class="shelf-title-s">Powering Resilience</span><span class="shelf-title-l" aria-hidden="true">Powering Resilience</span></span>
+                    <span class="shelf-year">2025</span>
+                  </button>
+                </h3>
+                <div class="shelf-body" id="shelfBody1">
+                  <p class="shelf-line">Community batteries as a strategic asset during a 72-hour power outage.</p>
+                  <p class="shelf-themes-label">Project themes</p>
+                  <ul class="shelf-chips"><li>Energy Resilience</li><li>Green Energy Transition</li><li>Crisis Preparedness</li></ul>
+                  <a class="work-all shelf-link" href="projects/powering-resilience.html">View project <span aria-hidden="true">→</span></a>
+                </div>
+                <span class="shelf-studs" aria-hidden="true"></span>
+              </div>
+              <div class="shelf-media"><img src="images/projects/powering-resilience/hero-night.jpg" alt="Powering Resilience: the community battery lighting a neighbourhood support point during a blackout" draggable="false" /></div>
+            </div>
+          </div>
+          <div class="shelf-item" style="--brick: var(--brick-white)">
+            <div class="shelf-card">
+              <div class="shelf-col">
+                <h3 class="shelf-head">
+                  <button class="shelf-spine" type="button" aria-label="Practising Parity" aria-controls="shelfBody2" aria-expanded="false">
+                    <span class="shelf-num">02</span>
+                    <span class="shelf-title"><span class="shelf-title-s">Practising Parity</span><span class="shelf-title-l" aria-hidden="true">Practising Parity</span></span>
+                    <span class="shelf-year">2026</span>
+                  </button>
+                </h3>
+                <div class="shelf-body" id="shelfBody2">
+                  <p class="shelf-line">Turning frontline experiences into collective input for national labour agreements.</p>
+                  <p class="shelf-themes-label">Project themes</p>
+                  <ul class="shelf-chips"><li>Public-sector</li><li>Inclusive Participation</li><li>Design for Trust</li></ul>
+                  <a class="work-all shelf-link" href="projects/practising-parity.html">View project <span aria-hidden="true">→</span></a>
+                </div>
+                <span class="shelf-studs" aria-hidden="true"></span>
+              </div>
+              <div class="shelf-media"><img src="images/projects/frontline-voices/thumbnail.jpg" alt="Practising Parity" draggable="false" /></div>
+            </div>
+          </div>
+          <div class="shelf-item" style="--brick: var(--brick-orange)">
+            <div class="shelf-card">
+              <div class="shelf-col">
+                <h3 class="shelf-head">
+                  <button class="shelf-spine" type="button" aria-label="Everyday Allies" aria-controls="shelfBody3" aria-expanded="false">
+                    <span class="shelf-num">03</span>
+                    <span class="shelf-title"><span class="shelf-title-s">Everyday Allies</span><span class="shelf-title-l" aria-hidden="true">Everyday Allies</span></span>
+                    <span class="shelf-year">2025</span>
+                  </button>
+                </h3>
+                <div class="shelf-body" id="shelfBody3">
+                  <p class="shelf-line">Building a culture of collective responsibility and mutual support for a more resilient society.</p>
+                  <p class="shelf-themes-label">Project themes</p>
+                  <ul class="shelf-chips"><li>Strategic Foresight</li><li>Civic Engagement</li><li>Service Ecosystems</li></ul>
+                  <a class="work-all shelf-link" href="projects/everyday-allies.html">View project <span aria-hidden="true">→</span></a>
+                </div>
+                <span class="shelf-studs" aria-hidden="true"></span>
+              </div>
+              <div class="shelf-media"><img src="images/projects/everyday-allies/thumbnail.jpg" alt="Everyday Allies" draggable="false" /></div>
+            </div>
+          </div>
+          <div class="shelf-item" style="--brick: var(--brick-yellow)">
+            <div class="shelf-card">
+              <div class="shelf-col">
+                <h3 class="shelf-head">
+                  <button class="shelf-spine" type="button" aria-label="Indic Keyboard" aria-controls="shelfBody4" aria-expanded="false">
+                    <span class="shelf-num">04</span>
+                    <span class="shelf-title"><span class="shelf-title-s">Indic Keyboard</span><span class="shelf-title-l" aria-hidden="true">Indic Keyboard</span></span>
+                    <span class="shelf-year">2020</span>
+                  </button>
+                </h3>
+                <div class="shelf-body" id="shelfBody4">
+                  <p class="shelf-line">Reimagining the typing experience in Indic languages for the next billion smartphone users.</p>
+                  <p class="shelf-themes-label">Project themes</p>
+                  <ul class="shelf-chips"><li>Next-billion Users</li><li>Language Accessibility</li><li>Interface Design</li></ul>
+                  <a class="work-all shelf-link" href="projects/indic-keyboard.html">View project <span aria-hidden="true">→</span></a>
+                </div>
+                <span class="shelf-studs" aria-hidden="true"></span>
+              </div>
+              <div class="shelf-media"><img src="images/projects/indic-keyboard/thumbnail.jpg" alt="Indic Keyboard" draggable="false" /></div>
+            </div>
+          </div>
+          <div class="shelf-item" style="--brick: var(--brick-pink)">
+            <div class="shelf-card">
+              <div class="shelf-col">
+                <h3 class="shelf-head">
+                  <button class="shelf-spine" type="button" aria-label="Crafting Conviviality" aria-controls="shelfBody5" aria-expanded="false">
+                    <span class="shelf-num">05</span>
+                    <span class="shelf-title"><span class="shelf-title-s">Crafting Conviviality</span><span class="shelf-title-l" aria-hidden="true">Crafting Conviviality</span></span>
+                    <span class="shelf-year">2019</span>
+                  </button>
+                </h3>
+                <div class="shelf-body" id="shelfBody5">
+                  <p class="shelf-line">Transforming schools into vibrant learning centres through community-led participatory design.</p>
+                  <p class="shelf-themes-label">Project themes</p>
+                  <ul class="shelf-chips"><li>Participatory Design</li><li>Sustainability</li><li>Rural Infrastructure</li></ul>
+                  <a class="work-all shelf-link" href="projects/crafting-conviviality.html">View project <span aria-hidden="true">→</span></a>
+                </div>
+                <span class="shelf-studs" aria-hidden="true"></span>
+              </div>
+              <div class="shelf-media"><img src="images/projects/crafting-conviviality/thumbnail.jpg" alt="Crafting Conviviality" draggable="false" /></div>
+            </div>
+          </div>
+          <a class="shelf-all" href="work.html">
+            <span class="shelf-all-inner">
+              <span class="work-card-arrow shelf-all-arrow" aria-hidden="true">→</span>
+              <span class="shelf-title-s">All projects</span>
+              <span class="shelf-studs" aria-hidden="true"></span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <div class="work-all-wrap">
       <a class="work-all" href="work.html">See all work →</a>
     </div>
@@ -984,6 +1307,9 @@
       // follows --header-h, so the pinned cards and About panel rise
       // with the label bar when the header slides away
       document.documentElement.style.setProperty('--sidebar-top', `calc(var(--header-h) + ${sectionLabelBar.offsetHeight}px)`);
+      // the bar's own height, without the header: sizes the Work shelf row,
+      // so the row moves with the header but never resizes
+      document.documentElement.style.setProperty('--label-bar-h', sectionLabelBar.offsetHeight + 'px');
 
       // Contact must fill exactly the gap between the label bar and the footer,
       // or the tail of the About section shows through beneath the bar.
@@ -1120,11 +1446,23 @@
     /* ─────────────────────────────────────────────────────────
        WORK — stacking cards: covered cards shrink and dim
        ───────────────────────────────────────────────────────── */
+    // Which Work layout is live: "shelf" only when the section asks for it
+    // and the window is 1280px or wider; otherwise the stacking cards.
+    const workShelfMQ = window.matchMedia('(min-width: 1280px)');
+    function workMode() {
+      return workEl && workEl.dataset.workLayout === 'shelf' && workShelfMQ.matches ? 'shelf' : 'stack';
+    }
+    // Calls fn whenever the live layout may have changed (width, or the attribute)
+    function onWorkModeChange(fn) {
+      workShelfMQ.addEventListener('change', fn);
+      if (workEl) new MutationObserver(fn).observe(workEl, { attributes: true, attributeFilter: ['data-work-layout'] });
+    }
+
     (function () {
       const cards = Array.from(document.querySelectorAll('.work-card'));
       if (!cards.length) return;
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let ticking = false;
+      let ticking = false, active = false;
       function update() {
         ticking = false;
         if (reduce || window.innerWidth < 768) return;
@@ -1141,9 +1479,232 @@
         });
       }
       const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll);
-      update();
+      // runs only while the stack is the live layout
+      function sync() {
+        const on = workMode() === 'stack';
+        if (on === active) return;
+        active = on;
+        if (on) {
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('resize', onScroll);
+          update();
+        } else {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', onScroll);
+          cards.forEach(card => {
+            card.style.transform = '';
+            const dim = card.querySelector('.work-card-dim');
+            if (dim) dim.style.opacity = '';
+          });
+        }
+      }
+      onWorkModeChange(sync);
+      sync();
+    })();
+
+    /* ─────────────────────────────────────────────────────────
+       WORK — shelf: the row pins while four steps of scroll
+       (~50vh each) open projects 01 → 05; each project sits at the
+       start of its step, 05 at the end of the pinned range. Scroll
+       position is the source of truth: the script maps it to the open
+       project, and CSS does the width changes.
+       While the row is pinned, one wheel gesture, swipe or key press
+       moves exactly one project, by jumping the page to the next
+       step. Down on 05 and up on 01 are never held back, and nothing
+       outside the pinned range is ever prevented.
+       ───────────────────────────────────────────────────────── */
+    (function () {
+      const shelf = document.getElementById('workShelf');
+      if (!shelf) return;
+      const row    = shelf.querySelector('.shelf-row');
+      const items  = Array.from(row.querySelectorAll('.shelf-item'));
+      const spines = items.map(it => it.querySelector('.shelf-spine'));
+      const last   = items.length - 1;
+      const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const WHEEL_STEP = 30;      // px of wheel travel within a gesture that takes a step
+      const SWIPE_STEP = 40;      // px of finger travel that takes a step
+      const NEW_GAP    = 80;      // ms between wheel events that starts a new gesture
+      const NEW_RISE   = 1.3;     // a delta this much bigger than the last, after decay, is a fresh flick
+      let step = -1, ticking = false, active = false;
+
+      const stepPx = () => window.innerHeight * 0.5;
+      // Where the label bar's bottom settles while the row is pinned. The
+      // header has always left by then (it goes once the hero is past), so
+      // this is the bar's own height: never the --header-h value
+      // mid-animation, and never the header that is about to leave
+      const stuckBarBottom = () => sectionLabelBar ? sectionLabelBar.offsetHeight : 0;
+      // scroll travelled through the pinned range (negative before it starts)
+      const progress = () => stuckBarBottom() - shelf.getBoundingClientRect().top;
+      const stepAt = p => Math.max(0, Math.min(last, Math.round(p / stepPx())));
+      const isPinned = p => p > -1 && p < last * stepPx() + 1;
+
+      // Jump to the start of step n's range
+      function goTo(n) {
+        n = Math.max(0, Math.min(last, n));
+        window.scrollTo({ top: window.scrollY - progress() + n * stepPx(), behavior: 'instant' });
+      }
+
+      function setStep(n) {
+        if (n === step) return;
+        const widthChanges = (n === last) !== (step === last);
+        step = n;
+        row.dataset.step = n;
+        items.forEach((it, i) => {
+          it.classList.toggle('is-open', i === n);
+          spines[i].setAttribute('aria-expanded', i === n ? 'true' : 'false');
+        });
+        if (widthChanges) measureTitles();   // the card is one spine narrower at the last step
+      }
+
+      function update() {
+        ticking = false;
+        setStep(stepAt(progress()));
+      }
+
+      // Each title has a small (spine) and a large (card) copy in one cell;
+      // the cell's height animates between their measured heights
+      function measureTitles() {
+        items.forEach(it => {
+          const s = it.querySelector('.shelf-title-s'), l = it.querySelector('.shelf-title-l');
+          it.style.setProperty('--title-s-h', s.offsetHeight + 'px');
+          it.style.setProperty('--title-l-h', l.offsetHeight + 'px');
+        });
+      }
+
+      // A spine jumps the page to its project's step
+      spines.forEach((spine, i) => spine.addEventListener('click', () => goTo(i)));
+
+      // Missing image: hide it so the striped placeholder shows
+      shelf.querySelectorAll('.shelf-media img').forEach(img => {
+        const missing = () => img.parentElement.classList.add('is-missing');
+        if (img.complete && img.naturalWidth === 0) missing();
+        else img.addEventListener('error', missing);
+      });
+
+      /* ── One gesture = one project ──
+         After a step, a short minimum lock (transitions retarget smoothly
+         if the next step starts mid-way). After that, only a NEW gesture
+         can step: a gap of NEW_GAP ms since the last wheel event, or a
+         delta NEW_RISE× the last one right after three decaying events
+         (a fresh flick on top of momentum). The rest of a gesture that has
+         already stepped, including momentum, is swallowed while pinned. */
+      const minLock = () => reduceMQ.matches ? 200 : 350;
+      const releases = (p, dir) => (dir > 0 && stepAt(p) === last) || (dir < 0 && stepAt(p) === 0);
+      let lockEnd = 0, spent = false, acc = 0, lastWheel = -Infinity, lastPinned = false;
+      const recent = [];   // |deltaY| of the last three wheel events, oldest first
+
+      // Input is timed by the event's own timestamp (when the input happened),
+      // so a busy main thread can't stretch gaps into false new gestures
+      const timeOf = e => e.timeStamp || performance.now();
+
+      function take(dir, now) {
+        goTo(stepAt(progress()) + dir);
+        lockEnd = now + minLock();
+        spent = true; acc = 0;
+      }
+
+      function isNewGesture(now, mag) {
+        if (now - lastWheel >= NEW_GAP) return true;
+        if (recent.length < 3 || mag < 4) return false;
+        // three decaying events, then a rise of NEW_RISE× that also clears the
+        // start of the decay: a fresh flick, not the noise of a slow drag
+        const [a, b, c] = recent;
+        return a > b && b > c && mag >= NEW_RISE * c && mag > a;
+      }
+
+      function onWheel(e) {
+        if (e.ctrlKey) return;   // pinch zoom
+        const now = timeOf(e);
+        const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+        const mag = Math.abs(dy);
+        const fresh = isNewGesture(now, mag);
+        lastWheel = now;
+        recent.push(mag); if (recent.length > 3) recent.shift();
+
+        const p = progress(), pinned = isPinned(p);
+        const entered = pinned && !lastPinned;
+        lastPinned = pinned;
+        if (!pinned) { spent = false; acc = 0; return; }
+        if (!dy) return;
+        if (fresh) { spent = false; acc = 0; }
+        else if (entered) spent = true;          // momentum that carried the page in
+
+        if (spent || now < lockEnd) { e.preventDefault(); return; }
+        const dir = Math.sign(dy);
+        if (releases(p, dir)) { acc = 0; return; }
+        e.preventDefault();
+        if (Math.sign(acc) !== dir) acc = 0;     // direction change starts over
+        acc += dy;
+        if (Math.abs(acc) >= WHEEL_STEP) take(dir, now);
+      }
+
+      function onKey(e) {
+        if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+        const t = e.target instanceof Element ? e.target : null;
+        if (t && t.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
+        let dir = 0;
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') dir = 1;
+        else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;
+        else if (e.key === ' ') {
+          if (t && t.closest('button, a')) return;   // Space still activates a focused spine or link
+          dir = e.shiftKey ? -1 : 1;
+        } else return;
+        const p = progress();
+        if (!isPinned(p)) return;
+        // one step per press; a held key's repeats wait for the lock
+        if (e.repeat && timeOf(e) < lockEnd) { e.preventDefault(); return; }
+        if (releases(p, dir)) return;
+        e.preventDefault();
+        take(dir, timeOf(e));
+      }
+
+      // Touch: the first move decides. Inside the pinned range (and not a
+      // release at an end) the whole swipe is held and steps once at 40px
+      let touchY = null, touchMode = null, touchDone = false;
+      function onTouchStart(e) {
+        touchY = e.touches.length === 1 ? e.touches[0].clientY : null;
+        touchMode = null; touchDone = false;
+      }
+      function onTouchMove(e) {
+        if (touchY === null) return;
+        const dy = touchY - e.touches[0].clientY;   // finger up = scroll down
+        if (touchMode === null) {
+          if (!dy) return;
+          const p = progress();
+          touchMode = isPinned(p) && !releases(p, Math.sign(dy)) ? 'step' : 'pass';
+        }
+        if (touchMode === 'pass') return;
+        e.preventDefault();
+        if (touchDone || Math.abs(dy) < SWIPE_STEP) return;
+        touchDone = true;
+        if (timeOf(e) < lockEnd) return;
+        take(Math.sign(dy), timeOf(e));
+      }
+      function onTouchEnd() { touchY = null; }
+
+      const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+      const onResize = () => { measureTitles(); onScroll(); };
+      const listeners = [
+        ['scroll', onScroll, { passive: true }],
+        ['resize', onResize, undefined],
+        ['wheel', onWheel, { passive: false }],
+        ['keydown', onKey, undefined],
+        ['touchstart', onTouchStart, { passive: true }],
+        ['touchmove', onTouchMove, { passive: false }],
+        ['touchend', onTouchEnd, { passive: true }],
+        ['touchcancel', onTouchEnd, { passive: true }],
+      ];
+      // runs only while the shelf is the live layout
+      function sync() {
+        const on = workMode() === 'shelf';
+        if (on === active) return;
+        active = on;
+        listeners.forEach(([type, fn, opts]) => on ? window.addEventListener(type, fn, opts) : window.removeEventListener(type, fn, opts));
+        if (on) { measureTitles(); update(); }
+      }
+      onWorkModeChange(sync);
+      sync();
+      if (document.fonts) document.fonts.ready.then(() => { if (active) measureTitles(); });
     })();
   </script>
 

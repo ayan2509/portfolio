@@ -18,6 +18,8 @@
   --type-display-l: clamp(3.85rem, 8.4vw, 7rem);   /* 62 → 112: section labels, the work page head */
   --type-display-m: clamp(44px, 5.2vw, 68px);      /* work card titles */
   --type-display-s: clamp(32px, 3.4vw, 46px);      /* work page archive titles */
+  --type-spine-num: calc(var(--spine-w) * 0.78);   /* shelf spine number: two condensed digits filling the spine */
+  --type-spine-title: calc(var(--spine-w) * 0.17); /* shelf spine title: one word per line, two lines */
   --leading-display: 0.8;
   --tracking-display: -0.02em;
 
