@@ -301,13 +301,6 @@
        SELECTED WORK — stacking cards
        ═══════════════════════════════════════════════════════════════ */
     .work-section { position: relative; background: var(--bg); }
-    /* Stud field — radiates from the section centre, fades at every edge */
-    .work-section::before {
-      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-      background-image: var(--stud-pattern); background-size: var(--stud-size) var(--stud-size);
-      -webkit-mask-image: var(--stud-mask);
-      mask-image: var(--stud-mask);
-    }
     .work-stack { position: relative; z-index: 1; max-width: var(--page-max); margin: 0 auto; padding: 16px var(--page-gutter) 0; }
     .work-card {
       --i: 0;

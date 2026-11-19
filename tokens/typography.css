@@ -1,7 +1,7 @@
 /* ── Type tokens ─────────────────────────────────────────── */
 :root {
   --font-sans: 'Instrument Sans', system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-serif: 'Fraunces', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   /* Name only — the one deliberate deviation. Big Shoulders Display 900 with a pink offset copy. */
   --font-name: 'Big Shoulders Display', 'Instrument Sans', sans-serif;
@@ -23,7 +23,7 @@
   --leading-display: 0.8;
   --tracking-display: -0.02em;
 
-  /* Note — Instrument Serif italic, the sticky section-label aside */
+  /* Note — Fraunces italic, the sticky section-label aside */
   --type-note: 22px;
   --leading-note: 1.25;
 
