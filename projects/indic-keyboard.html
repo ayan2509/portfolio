@@ -347,6 +347,31 @@
       object-fit: contain;
     }
 
+    /* step 02: the consonant groups (vargas), one row per place in the mouth */
+    .pr-step .ik-varga { container-type: inline-size; padding: 0; }
+    .ik-varga-grid {
+      display: grid;
+      grid-template-columns: auto repeat(5, 1fr);
+      align-items: center;
+      column-gap: 3.4cqw;
+      row-gap: 1.2cqw;
+      width: 88%;
+    }
+    .ik-varga-k {
+      font-family: var(--font-mono);
+      font-size: max(9px, 2.6cqw);  /* ds-ignore: scales with the thumbnail */
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: right;
+      color: #8a8478;  /* ds-ignore: sits on the white thumbnail card */
+    }
+    .ik-varga-g {
+      font-size: max(14px, 5.2cqw);  /* ds-ignore: scales with the thumbnail */
+      line-height: 1.25;
+      text-align: center;
+      color: #1d1b18;  /* ds-ignore: sits on the white thumbnail card */
+    }
+
     .pr-step:hover .pr-ph {
       transform: scale(1.04);
       border-color: var(--accent);
@@ -1926,10 +1951,15 @@
         <div class="pr-step">
           <span class="pr-step-num">02</span>
           <span class="pr-step-t">Phonetic nature</span>
-          <!-- Placeholder: ../images/projects/indic-keyboard/process-02-articulation.png -->
-          <div class="pr-ph">
-            <img src="../images/projects/indic-keyboard/process-02-articulation.png" alt="Articulation diagram showing where each consonant is formed in the mouth" />
-            <span class="pr-ph-label">Articulation diagram</span>
+          <!-- the consonant groups, drawn in code: each row is one place in the mouth, from the throat to the lips -->
+          <div class="pr-ph is-loaded ik-varga" role="img" aria-label="The Devanagari consonants grouped by where they are formed in the mouth: velar (throat), palatal (palate), retroflex (roof of the mouth), dental (teeth) and labial (lips), five letters in each row">
+            <div class="ik-varga-grid" aria-hidden="true">
+              <span class="ik-varga-k">Velar (throat)</span><span class="ik-varga-g ik-deva" lang="hi">क</span><span class="ik-varga-g ik-deva" lang="hi">ख</span><span class="ik-varga-g ik-deva" lang="hi">ग</span><span class="ik-varga-g ik-deva" lang="hi">घ</span><span class="ik-varga-g ik-deva" lang="hi">ङ</span>
+              <span class="ik-varga-k">Palatal (palate)</span><span class="ik-varga-g ik-deva" lang="hi">च</span><span class="ik-varga-g ik-deva" lang="hi">छ</span><span class="ik-varga-g ik-deva" lang="hi">ज</span><span class="ik-varga-g ik-deva" lang="hi">झ</span><span class="ik-varga-g ik-deva" lang="hi">ञ</span>
+              <span class="ik-varga-k">Retroflex (roof)</span><span class="ik-varga-g ik-deva" lang="hi">ट</span><span class="ik-varga-g ik-deva" lang="hi">ठ</span><span class="ik-varga-g ik-deva" lang="hi">ड</span><span class="ik-varga-g ik-deva" lang="hi">ढ</span><span class="ik-varga-g ik-deva" lang="hi">ण</span>
+              <span class="ik-varga-k">Dental (teeth)</span><span class="ik-varga-g ik-deva" lang="hi">त</span><span class="ik-varga-g ik-deva" lang="hi">थ</span><span class="ik-varga-g ik-deva" lang="hi">द</span><span class="ik-varga-g ik-deva" lang="hi">ध</span><span class="ik-varga-g ik-deva" lang="hi">न</span>
+              <span class="ik-varga-k">Labial (lips)</span><span class="ik-varga-g ik-deva" lang="hi">प</span><span class="ik-varga-g ik-deva" lang="hi">फ</span><span class="ik-varga-g ik-deva" lang="hi">ब</span><span class="ik-varga-g ik-deva" lang="hi">भ</span><span class="ik-varga-g ik-deva" lang="hi">म</span>
+            </div>
           </div>
           <span class="pr-step-c">How the position of a sound in the mouth sets the order of the consonants.</span>
         </div>
@@ -1945,13 +1975,13 @@
         </div>
         <div class="pr-step">
           <span class="pr-step-num">04</span>
-          <span class="pr-step-t">Reviewing smartphone keyboards</span>
+          <span class="pr-step-t">Reviewing exisiting smartphone keyboards</span>
           <!-- Placeholder: ../images/projects/indic-keyboard/process-04-review.png -->
           <div class="pr-ph">
             <img src="../images/projects/indic-keyboard/process-04-review.png" alt="Gboard and Swarachakra keyboards side by side" />
             <span class="pr-ph-label">Gboard and Swarachakra</span>
           </div>
-          <span class="pr-step-c">Typing on Gboard, SwiftKey and Swarachakra, and noting every pain point.</span>
+          <span class="pr-step-c">Typing on Gboard, SwiftKey and Swarachakra, and documenting pain points and areas for improvement.</span>
         </div>
       </div>
 
@@ -1964,7 +1994,7 @@
             <img src="../images/projects/indic-keyboard/process-05-explorations.png" alt="Radial and grid keyboard layout prototypes" />
             <span class="pr-ph-label">Radial and grid prototypes</span>
           </div>
-          <span class="pr-step-c">Trying different layouts and interactions, first on paper, then in prototypes.</span>
+          <span class="pr-step-c">Testing the typing experience with different layouts and interactions.</span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">06</span>
@@ -1984,7 +2014,7 @@
             <img src="../images/projects/indic-keyboard/process-07-features.png" alt="Dynamic vowel keys and the language switch" />
             <span class="pr-ph-label">Dynamic vowels / language switch</span>
           </div>
-          <span class="pr-step-c">Vowels that change with the chosen consonant, and switching languages without relearning the keyboard.</span>
+          <span class="pr-step-c">Vowels that change with the chosen consonant, and switching languages effortlessly.</span>
         </div>
         <div class="pr-step">
           <span class="pr-step-num">08</span>
@@ -1994,7 +2024,7 @@
             <img src="../images/projects/indic-keyboard/process-08-app.png" alt="Screens from the Indic Keyboard Android app" />
             <span class="pr-ph-label">Android app screens</span>
           </div>
-          <span class="pr-step-c">Building the keyboard on an open-source Android codebase and putting it in people's hands.</span>
+          <span class="pr-step-c">Building the keyboard on an open-source Android codebase and testing it with real users.</span>
         </div>
       </div>
     </div>
