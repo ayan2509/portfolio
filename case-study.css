@@ -331,7 +331,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-display);
   line-height: 0.95;
-  color: var(--accent);
+  color: var(--text);   /* every case-study title in the text colour */
 }
 
 .pr-hero-sub {
