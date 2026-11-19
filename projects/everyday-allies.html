@@ -19,94 +19,6 @@
     /* this page's title is in the text colour, not pink */
     #ea-01 .pr-hero-title { color: var(--text); }
 
-    .pr-mode {
-      position: absolute;
-      left: 16px;
-      bottom: 16px;
-      z-index: 3;
-      display: flex;
-      gap: 2px;
-      padding: 3px;
-      border: 1px solid var(--pr-ph-bd);
-      border-radius: 999px;
-      background: var(--pr-chip);
-    }
-
-    .pr-mode { cursor: pointer; }
-
-    .pr-mode:focus-visible { outline: 2px solid var(--focus-ring, var(--accent)); outline-offset: 3px; }
-
-    /* the knob slides under whichever icon is the current mode */
-    .pr-mode-knob {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--pr-head);
-      transition: transform 0.35s var(--spring);
-    }
-
-    .pr-mode[aria-checked="true"] .pr-mode-knob { transform: translateX(32px); }
-
-    /* every 10 s a short pink stroke runs once around the switch, then fades */
-    .pr-mode-ring {
-      position: absolute;
-      inset: -1px;
-      width: calc(100% + 2px);
-      height: calc(100% + 2px);
-      overflow: visible;
-      pointer-events: none;
-    }
-
-    .pr-mode-ring rect {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-dasharray: 0.3 0.7;
-      stroke-dashoffset: 0;
-      opacity: 0;
-      animation: pr-mode-ring 10s linear 2s infinite;
-    }
-
-    @keyframes pr-mode-ring {
-      0%   { stroke-dashoffset: 0;  opacity: 0; }
-      2%   { opacity: 1; }
-      14%  { stroke-dashoffset: -1; opacity: 1; }
-      18%  { stroke-dashoffset: -1.15; opacity: 0; }
-      100% { stroke-dashoffset: -1.15; opacity: 0; }
-    }
-
-    .pr-mode-ico {
-      position: relative;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--pr-dim);
-      transition: color 0.3s ease;
-    }
-
-    .pr-mode-ico svg { width: 14px; height: 14px; }
-
-    .pr-mode[aria-checked="false"] .pr-mode-ico--day,
-    .pr-mode[aria-checked="true"]  .pr-mode-ico--night { color: var(--bg); }
-
-    .pr-mode-cap {
-      font-family: var(--font-mono);
-      position: absolute;
-      left: 16px;
-      bottom: 58px;
-      z-index: 3;
-      font-size: var(--cs-label);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--pr-dim);
-    }
-
     /* ── Context ───────────────────────────────────── */
     /* the section's takeaway, sitting at the foot of the text column so it
        lines up with the bottom of the quote */
@@ -188,12 +100,13 @@
     /* ── Reflection ─────────────────────────────────────
        Same layout as Powering Resilience's closing section: the roadmap
        artwork on the left, the lead and three cards stacked on the right. */
-    .ea-refl-split { grid-template-columns: 58% 42%; align-items: center; }
     .ea-refl-fig { margin: 0; }
+    /* the artwork fills the left column (see .pr-sec--close), contained */
     .ea-refl-fig img {
       display: block;
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: contain;
       transform: scale(1.04);
       opacity: 0;
       transition: opacity .8s ease, transform 1.6s cubic-bezier(.2, .7, .2, 1);
@@ -239,6 +152,7 @@
     .ea-refl-p { font-size: var(--cs-body-s); line-height: 1.6; color: var(--text); }
     @media (max-width: 900px) {
       .ea-refl-split { grid-template-columns: 1fr; }
+      .ea-refl-fig img { height: auto; }
     }
     @media (prefers-reduced-motion: reduce) {
       .ea-refl-i, .ea-refl-fig img { opacity: 1; transform: none; transition: none; }
@@ -689,14 +603,6 @@
       stroke-linecap: round;
     }
 
-    /* pink dotted spine through the channel circles */
-    .ea-map-spine {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 2;
-      stroke-dasharray: 0.1 6;
-      stroke-linecap: round;
-    }
 
     /* thin solid arrows: channel → offer → outcomes */
     .ea-map-arrow {
@@ -1321,7 +1227,9 @@
     .ea-rm-pill small { font-size: inherit; color: var(--pr-dim); }
 
     /* future vision 2040 */
-    .ea-rm-vis { margin-top: clamp(36px, 4vw, 56px); }
+    /* a full-width rule closes the tactical roadmap before the 2040 vision,
+       the same as Practising Parity's .fv-sub-rule */
+    .ea-sub-rule { margin-block: clamp(40px, 5vw, 64px); margin-inline: calc(-1 * var(--pr-gut)); }
     .ea-rm-sublead--tac { margin-top: clamp(56px, 7vw, 96px); }
     .ea-rm-desc { margin-top: 12px; }
     .ea-rm-h {
@@ -1426,7 +1334,6 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
 
-      .pr-mode-ring { display: none; }
       .pr-fnav, .pr-fnav-list { transition: none; animation: none; }
       .ea-net-viz.is-armed .ea-dot,
       .ea-net-viz.is-armed .ea-ring { opacity: 1; transition: none; }
@@ -1497,23 +1404,11 @@
         </div>
       </div>
 
-      <!-- Placeholder: ../images/projects/everyday-allies/hero-today.jpg + hero-2040.jpg -->
-      <div class="pr-ph pr-hero-stage pr-stage" id="heroStage">
-        <img class="pr-layer pr-layer--day"
-             src="../images/projects/everyday-allies/hero-today.jpg"
-             alt="NWT alumni running a first-aid session at a regional hub" />
-        <img class="pr-layer pr-layer--night"
-             src="../images/projects/everyday-allies/hero-2040.jpg"
-             alt="The 2040 vision: alumni coordinating a crisis response with holographic support" />
-        <span class="pr-ph-label">Today: regional hub<br />(crosses to the 2040 vision when toggled)</span>
-        <span class="pr-mode-cap">Today / 2040</span>
-        <button class="pr-mode" type="button" role="switch" aria-checked="false"
-                aria-label="Show the 2040 vision">
-          <svg class="pr-mode-ring" aria-hidden="true"><rect x="0" y="0" width="100%" height="100%" rx="19" pathLength="1"/></svg>
-          <span class="pr-mode-knob" aria-hidden="true"></span>
-          <span class="pr-mode-ico pr-mode-ico--day" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
-          <span class="pr-mode-ico pr-mode-ico--night" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/></svg></span>
-        </button>
+      <!-- Hero: the strategic roadmap with only the horizon names and years -->
+      <div class="pr-ph pr-hero-stage" id="heroStage">
+        <img src="../images/projects/everyday-allies/hero.jpg"
+             alt="The strategic roadmap: three orange ribbons climbing from Horizon 1 in 2027 through Horizon 2 in 2034 to Horizon 3 in 2040, each carrying an illustration of the network at that stage" />
+        <span class="pr-ph-label">Strategic roadmap</span>
       </div>
 
     </div>
@@ -1590,8 +1485,8 @@
           </blockquote>
           <p class="ea-quote-en">“In the Netherlands, we are not at war, but we are no longer at peace either. […] In peacetime, the question is what Defence can do for society. Now we are also asking what society can do for Defence.”</p>
           <figcaption class="pr-cap ea-quote-src">
-            — Ruben Brekelmans, Minister of Defence<br />
-            Source: <a href="https://www.rijksoverheid.nl/actueel/nieuws/2024/12/06/kabinet-werkt-aan-verhogen-weerbaarheid-tegen-militaire-en-hybride-dreigingen" target="_blank" rel="noopener">Rijksoverheid, 6 December 2024 ↗</a>
+            — Ruben Brekelmans, Minister of Defence
+            <span class="pr-cap-src">Source: <a href="https://www.rijksoverheid.nl/actueel/nieuws/2024/12/06/kabinet-werkt-aan-verhogen-weerbaarheid-tegen-militaire-en-hybride-dreigingen" target="_blank" rel="noopener">Rijksoverheid, 6 December 2024 ↗</a></span>
           </figcaption>
         </figure>
       </div>
@@ -1761,9 +1656,8 @@
         <svg class="ea-map-lines" aria-hidden="true" focusable="false"></svg>
 
         <div class="ea-map-nwt">
-          <span class="ea-map-k">Hub</span>
           <h3 class="ea-map-t">National Resilience Training (NWT)</h3>
-          <p>Trains citizens and keeps alumni connected</p>
+          <p>Can leverage partnerships with various ministries and institutions to ensure citizens are well trained and gives back to society</p>
         </div>
         <span class="ea-map-hub" aria-hidden="true"></span>
 
@@ -1881,11 +1775,13 @@
       <div class="ea-rm-cards" id="eaRmCards"></div>
       <p class="pr-cap ea-rm-cap">Partner logos are shown for the purposes of this speculative roadmap only and do not imply any involvement or endorsement.</p>
 
+      <hr class="pr-hr ea-sub-rule" />
+
       <!-- Future vision 2040 -->
       <div class="ea-rm-vis">
         <div class="ea-rm-vis-grid">
           <div class="ea-rm-vis-text">
-          <h3 class="ea-rm-h">Where the network might be by 2040</h3>
+          <h3 class="ea-rm-h">The NWT in 2040</h3>
           <div class="ea-rm-statement">
             <p>By 2040, the NWT empowers alumni to become <strong class="cs-key">vital connectors</strong> between citizens and the Ministry of Defence.</p>
             <p>Anchored in <strong class="cs-key">safety-region hubs</strong> and enhanced through <strong class="cs-key">holographic wearables</strong>, they orchestrate <strong class="cs-key">coordinated crisis responses</strong> with <strong class="cs-key">precision and trust</strong>.</p>
@@ -1909,7 +1805,7 @@
   <!-- ═══════════════════════════════════════════════════════════
        REFLECTION
        ═══════════════════════════════════════════════════════════ -->
-  <section class="pr-sec" id="ea-refl">
+  <section class="pr-sec pr-sec--close" id="ea-refl">
     <div class="pr-band">
       <span class="pr-band-title">Reflection</span>
     </div>
@@ -1924,20 +1820,21 @@
       </div>
 
       <div class="pr-col-r ea-refl-r">
+        <span class="pr-eyebrow">Our vision</span>
         <p class="pr-lead ea-refl-lead">By 2040, today's Gen Z will be the ones who need to step up in a crisis, so <strong class="cs-key">their values shaped the vision</strong>. People want to feel connected; the technology just helps them do it better.</p>
 
         <div class="ea-refl">
           <article class="ea-refl-i" style="--i: 0;">
-            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><h3 class="ea-refl-t">Keeping people engaged after the training ends</h3></div>
-            <p class="ea-refl-p">Ten weeks of training is easy to forget once normal life takes over. So we kept people learning after it ends, and made sharing what they know with friends and neighbours something that earns them badges and recognition.</p>
+            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><h3 class="ea-refl-t">Keeping engagement alive beyond training</h3></div>
+            <p class="ea-refl-p">Ten weeks of training can quickly fade when everyday life takes over. We designed ways to keep people learning and sharing their skills with friends and neighbours, earning recognition along the way.</p>
           </article>
           <article class="ea-refl-i" style="--i: 1;">
             <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg></span><h3 class="ea-refl-t">A future built on what already exists</h3></div>
-            <p class="ea-refl-p">A vision of 2040 only works if people can believe it. So we looked at where drones, wearables, AI and robotics are heading, and who's already building them, so each horizon rests on something real.</p>
+            <p class="ea-refl-p">A vision for 2040 needs to feel achievable. We explored emerging technologies and the people already developing them, grounding each future step in real progress.</p>
           </article>
           <article class="ea-refl-i" style="--i: 2;">
-            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span><h3 class="ea-refl-t">Preparing people to act, not watch</h3></div>
-            <p class="ea-refl-p">Their biggest question was simple: in a real emergency, would people know what to do, or would they freeze and wait for someone else? We imagined a reservist kneeling next to a stranger, with a wearable talking them through CPR, step by step, until help arrives.</p>
+            <div class="ea-refl-h"><span class="ea-refl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></span><h3 class="ea-refl-t">Building capacity to act in a crisis</h3></div>
+            <p class="ea-refl-p">Would people know how to respond in an emergency, or freeze and wait for someone else to step in? We imagined a reservist helping a stranger through CPR, guided step by step by a wearable until help arrives.</p>
           </article>
         </div>
 
@@ -2022,22 +1919,6 @@
         img.addEventListener('error', no, { once: true });
       }
     });
-
-    /* ═══════════════════════════════════════════════════════════
-       01 · TODAY / 2040 TOGGLE
-       Drives the hero render.
-       ═══════════════════════════════════════════════════════════ */
-    const stages   = document.querySelectorAll('.pr-stage');
-    const modeSwitch = document.querySelector('.pr-mode');
-
-    // one switch: a click anywhere on it flips between the two modes
-    if (modeSwitch) {
-      modeSwitch.addEventListener('click', () => {
-        const night = modeSwitch.getAttribute('aria-checked') !== 'true';
-        modeSwitch.setAttribute('aria-checked', String(night));
-        stages.forEach(s => s.classList.toggle('is-night', night));
-      });
-    }
 
     /* ═══════════════════════════════════════════════════════════
        CLICK TO ZOOM
@@ -2529,7 +2410,7 @@
        ECOSYSTEM MAP
        One SVG over the whole map, measured from the DOM: a dotted fan from
        the NWT dot to each partner, dotted lines from each partner to its
-       channel circles, a pink dotted spine through the circles, and thin
+       channel circles, and thin
        arrows channel → offer → outcomes. Lines leaving text start after the
        text's real right edge. Hidden below 1100px, where the map stacks.
        ═══════════════════════════════════════════════════════════ */
@@ -2578,7 +2459,6 @@
 
         const h = box(hub);
         const hx = (h.l + h.r) / 2;
-        const nodes = [];
 
         map.querySelectorAll('.ea-map-partner').forEach(partner => {
           const who  = partner.querySelector('.ea-map-who');
@@ -2592,20 +2472,12 @@
             const t   = ch.querySelector('.ea-map-ch-t');
             const off = box(ch.querySelector('.ea-map-offer'));
             const out = box(ch.querySelector('.ea-map-out'));
-            nodes.push({ x: (n.l + n.r) / 2, y: n.y });
             add('ea-map-fan', curve(sx, w.y, n.l - 8, n.y));
             add('ea-map-arrow', arrow(textRight(t) - o.left + 10, n.y, off.l - 3, off.y));
             add('ea-map-arrow', arrow(off.r + 3, off.y, out.l - 8, out.y));
           });
         });
 
-        if (nodes.length > 1) {
-          const a = nodes[0], b = nodes[nodes.length - 1];
-          const spine = document.createElementNS(NS, 'path');
-          spine.setAttribute('class', 'ea-map-spine');
-          spine.setAttribute('d', `M${a.x},${a.y} L${b.x},${b.y}`);
-          svg.insertBefore(spine, svg.firstChild);
-        }
       };
 
       if ('ResizeObserver' in window) new ResizeObserver(draw).observe(map);

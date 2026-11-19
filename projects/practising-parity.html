@@ -698,23 +698,22 @@
 
     /* ── Strategic directions ──────────────────────── */
     /* Three boxes, after Powering Resilience's operating modes (.pr-op):
-       each header is a dot, the number, then a rule running to the box
-       edge, with the level of the system under it */
+       each header is a dot, then the number and the level of the system */
     .fv-dir-intro { max-width: var(--pr-measure); margin-bottom: clamp(32px, 4vw, 48px); text-wrap: balance; }
 
-    /* six shared rows (header, level, title, description, tags, interventions):
+    /* five shared rows (header, title, description, tags, interventions):
        each column sits on them through subgrid, so every block lines up
        across the three columns whatever its length */
     .fv-dirs {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      grid-template-rows: repeat(6, auto);
+      grid-template-rows: repeat(5, auto);
       column-gap: 14px;
       list-style: none;
     }
 
     .fv-dir {
-      grid-row: 1 / span 6;
+      grid-row: 1 / span 5;
       min-width: 0;
       display: grid;
       grid-template-rows: subgrid;
@@ -748,26 +747,7 @@
       background: var(--accent);
     }
 
-    .fv-dir-k::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      margin-left: 4px;
-      background: var(--pr-line);
-      transform-origin: left;
-    }
 
-    /* the level of the system, under the header, so every header is just
-       dot, number and rule: the three read as evenly spaced */
-    .fv-dir-lvl {
-      margin-top: -4px;
-      font-family: var(--font-mono);
-      font-size: var(--cs-label);
-      font-weight: 400;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--pr-dim);
-    }
 
     .fv-dir-t {
       font-family: var(--font-h);
@@ -815,13 +795,11 @@
 
     .fv-dir-out .pr-eyebrow { color: var(--accent-text); }
 
-    /* ── Motion: each header's rule draws across, then the column rises ── */
-    .fv-anim .fv-dir-k::after   { scale: 0 1; transition: scale 0.7s var(--ease-snap); transition-delay: calc(var(--i) * 0.25s); }
-    .fv-anim .fv-dir-k::before  { opacity: 0; transition: opacity 0.4s ease; transition-delay: calc(var(--i) * 0.25s); }
+    /* ── Motion: each header fades in, then the column rises ── */
+    .fv-anim .fv-dir-k          { opacity: 0; transition: opacity 0.4s ease; transition-delay: calc(var(--i) * 0.25s); }
     .fv-anim .fv-dir > :not(.fv-dir-k) { opacity: 0; translate: 0 12px; transition: opacity 0.6s ease, translate 0.7s var(--spring); transition-delay: calc(0.3s + var(--i) * 0.25s); }
 
-    .fv-anim.is-in .fv-dir-k::after  { scale: 1 1; }
-    .fv-anim.is-in .fv-dir-k::before { opacity: 1; }
+    .fv-anim.is-in .fv-dir-k         { opacity: 1; }
     .fv-anim.is-in .fv-dir > :not(.fv-dir-k) { opacity: 1; translate: 0 0; }
 
     /* ── Testing & Iteration ───────────────────────── */
@@ -842,7 +820,7 @@
     .fv-stages {
       --rail: 56px;
       --rail-rule:  color-mix(in oklch, var(--text) 25%, transparent);
-      --stage-rule: color-mix(in oklch, var(--text) 45%, transparent);
+      --stage-rule: var(--pr-line);   /* same faint line as between rounds */
       --rnd-gap: 16px;   /* between paired images, and between the two text columns */
     }
 
@@ -2653,15 +2631,7 @@
 
     .flg-stage:not(:last-child) .flg-seg { margin-right: calc(0px - var(--flg-gap)); }
 
-    .flg-cap {
-      margin-top: 12px;
-      font-family: var(--font-mono);
-      font-size: var(--cs-label);
-      letter-spacing: var(--cs-tracking-label);
-      text-transform: uppercase;
-      line-height: 1.4;
-      color: var(--pr-dim);
-    }
+    .flg-cap { margin-top: 12px; }
 
     /* sources as a caption line, as under the COM-B model */
     .flg-src { margin-top: clamp(24px, 2.4vw, 32px); }
@@ -3016,14 +2986,6 @@
       object-position: center center;
       border-radius: 2px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-    }
-
-    .flf-cap {
-      font-family: var(--font-mono);
-      font-size: var(--cs-label);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--pr-dim);
     }
 
     .flf-cap[hidden] { display: block; visibility: hidden; }
@@ -3417,7 +3379,7 @@
     .fvi-fig { flex: 1; margin: 0; }
     .fvi-frame {
       padding: 0;
-      height: clamp(320px, calc(100svh - 290px), 640px);
+      height: 100%;  /* fills the left column, see .pr-sec--close */
     }
     .fvi-frame > img {
       object-position: 50% 60%;
@@ -3426,34 +3388,7 @@
     }
     .fvi-fig.is-in .fvi-frame > img { transform: none; }
 
-    #fv-impact { min-height: 100svh; display: flex; flex-direction: column; }
-    #fv-impact .pr-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding-top: clamp(24px, 4svh, 48px);
-      padding-bottom: clamp(20px, 3svh, 40px);
-    }
-    /* this text column runs taller than Powering Resilience's, so the
-       split keeps PR's ~60px clearance above the project links itself */
-    #fv-impact .pr-split { margin-bottom: clamp(48px, 6.6svh, 72px); }
-    #fv-impact .pr-next { margin-top: auto; }
 
-    /* short laptop screens: tighten the text column so it still fits */
-    @media (min-width: 901px) and (max-height: 820px) {
-      #fv-impact .pr-stack { gap: 6px; }
-      #fv-impact .pr-body { padding-top: 18px; padding-bottom: 14px; }
-      #fv-impact .pr-next { padding-top: 14px; }
-      .fvi-split { grid-template-columns: 54% 46%; }
-      .fvi-ops { gap: 6px; margin-top: 0; }
-      .fvi-op { gap: 4px; padding: 8px 14px; }
-      .fvi-ico { width: 30px; height: 30px; }
-      .fvi-ico svg { width: 15px; height: 15px; }
-      .fvi-op-p { line-height: 1.5; }
-      .fvi-collab { padding-top: 4px; }
-    }
-
-    .fvi-lead { text-wrap: pretty; }
 
     .fvi-ops { display: grid; gap: 12px; margin-top: 6px; }
     .fvi-op {
@@ -3653,10 +3588,10 @@
             <figcaption class="fv-key">
               <span class="fv-key-grp fv-key-low">
                 <span class="fv-voices">Small voices</span>
-                <span class="pr-cap">Scales 1–6</span>
+                <span class="pr-cap pr-cap--label">Scales 1–6</span>
               </span>
               <span class="fv-key-grp fv-key-rest">
-                <span class="pr-cap">Salary scales 7–18</span>
+                <span class="pr-cap pr-cap--label">Salary scales 7–18</span>
               </span>
             </figcaption>
           </figure>
@@ -3756,8 +3691,8 @@
       </div>
 
       <div class="fv-dd-key">
-        <span class="pr-cap">Research and definition</span>
-        <span class="pr-cap fv-key-dv">Design and validation</span>
+        <span class="pr-cap pr-cap--label">Research and definition</span>
+        <span class="pr-cap pr-cap--label fv-key-dv">Design and validation</span>
       </div>
     </div>
   </section>
@@ -3774,7 +3709,6 @@
     <!-- Field research: what came back through the existing channels -->
     <div class="pr-body fv-field">
       <div class="pr-stack fv-field-intro">
-        <span class="pr-eyebrow">Field research</span>
         <p class="pr-lead">We tried the channels the system already uses. <strong>Almost nothing came back.</strong></p>
       </div>
 
@@ -3918,7 +3852,7 @@
             <p class="fv-quote-nl" lang="nl">Ik kan me echt niet herinneren dat ik ooit zo'n vragenlijst heb ingevuld.</p>
             <p class="fv-quote-en">“I can't recall whether I ever filled in such a survey.”</p>
           </blockquote>
-          <figcaption class="pr-cap">Scale 1 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
+          <figcaption class="pr-cap pr-cap--label">Scale 1 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
         </figure>
         <span class="fv-comb-op" style="--c:2; --i:1" aria-hidden="true"></span>
         <div class="fv-comb-card" style="--c:3; --i:1">
@@ -3930,7 +3864,7 @@
             <p class="fv-quote-nl" lang="nl">Ik krijg probleem dan kom ik X of Y (collega's).</p>
             <p class="fv-quote-en">“When I get a problem, then I go to X or Y” (co-workers).</p>
           </blockquote>
-          <figcaption class="pr-cap">Scale 1 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
+          <figcaption class="pr-cap pr-cap--label">Scale 1 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
         </figure>
         <span class="fv-comb-op" style="--c:4; --i:2" aria-hidden="true"></span>
         <div class="fv-comb-card" style="--c:5; --i:2">
@@ -3942,7 +3876,7 @@
             <p class="fv-quote-nl" lang="nl">Ze zeggen het is anoniem maar dan sturen ze toch een vervolg email van vul het eens in. Dan denk ik van hè: er klopt hier iets niet.</p>
             <p class="fv-quote-en">“They say that it's anonymous, but then you receive a follow-up email reminding you to ‘fill in the survey’. That's where I think: something's not right here.”</p>
           </blockquote>
-          <figcaption class="pr-cap">Scale 3 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
+          <figcaption class="pr-cap pr-cap--label">Scale 3 employee, Rijksschoonmaakorganisatie (RSO)</figcaption>
         </figure>
         <span class="fv-comb-op fv-comb-op--to" style="--c:6; --i:3" aria-hidden="true"></span>
         <div class="fv-comb-card fv-comb-beh" style="--c:7; --i:3">
@@ -3974,8 +3908,7 @@
 
       <ol class="fv-dirs fv-anim">
         <li class="fv-dir" style="--i:0">
-          <span class="fv-dir-k">01</span>
-          <span class="fv-dir-lvl">Work floor</span>
+          <span class="fv-dir-k">01. Work Floor</span>
           <h3 class="fv-dir-t">Rebuild the feedback experience</h3>
           <p class="pr-p fv-dir-d">Rebuild the way employees give feedback.</p>
           <ul class="fv-dir-tags">
@@ -3987,8 +3920,7 @@
         </li>
 
         <li class="fv-dir" style="--i:1">
-          <span class="fv-dir-k">02</span>
-          <span class="fv-dir-lvl">Discussion table</span>
+          <span class="fv-dir-k">02. Discussion Table</span>
           <h3 class="fv-dir-t">Manage and apply feedback in a new discussion format</h3>
           <p class="pr-p fv-dir-d">Design beyond gathering data: shape how feedback is used at the discussion table.</p>
           <ul class="fv-dir-tags">
@@ -3999,8 +3931,7 @@
         </li>
 
         <li class="fv-dir" style="--i:2">
-          <span class="fv-dir-k">03</span>
-          <span class="fv-dir-lvl">Ministry</span>
+          <span class="fv-dir-k">03. Ministry Communication</span>
           <h3 class="fv-dir-t">Ministry ↔ employee communication</h3>
           <p class="pr-p fv-dir-d">Build the shared institutional voice that doesn't exist yet.</p>
           <ul class="fv-dir-tags">
@@ -4690,7 +4621,7 @@
                 <div class="flf-shot" aria-hidden="true"><img src="../images/projects/frontline-voices/loop/loop-06-quarterly-session.jpg" alt="The quarterly session: employees, People Partners, managers and employee reps prioritising the voted issues together" loading="lazy" /></div>
                 <div class="flf-shot flf-shot--cut" aria-hidden="true"><img src="../images/projects/frontline-voices/loop/loop-07-dashboard-flyer.webp" alt="The dashboard with each issue’s status, beside the printed results flyer" loading="lazy" /></div>
               </div>
-              <span class="flf-cap" hidden>Concept visual</span>
+              <span class="pr-cap pr-cap--label flf-cap" hidden>Concept visual</span>
             </div>
             </div>
 
@@ -5123,15 +5054,15 @@
             <div class="flg-card">
               <div class="flg-item">
                 <span class="flg-chip">GDPR · Data minimisation (Art. 5)</span>
-                <p>Nobody is asked for their name. Mentions of health, race or union membership are removed as soon as a note comes in.</p>
+                <p>Names are never collected. Mentions of health, religion or union membership are removed as soon as a note is received.</p>
               </div>
               <div class="flg-item">
                 <span class="flg-chip">AI Act · Transparency (Art. 50)</span>
-                <p>Alex, the chatbot, tells people it’s an AI. The People Partner and managers say so too.</p>
+                <p>Alex, the chatbot, clearly identifies itself as AI. The People Partner and managers do the same.</p>
               </div>
               <div class="flg-item">
                 <span class="flg-chip">Whistleblower Protection Act</span>
-                <p>The People Partner explains up front that fraud or safety risks have to be reported, so nobody is promised secrecy that can’t be kept.</p>
+                <p>The People Partner explains upfront that fraud and safety risks must be reported. No promises of secrecy that cannot be kept.</p>
               </div>
             </div>
             <span class="flg-seg" aria-hidden="true"></span>
@@ -5142,7 +5073,7 @@
             <div class="flg-card">
               <div class="flg-item">
                 <span class="flg-chip">GDPR · No automated decisions (Art. 22)</span>
-                <p>An employee representative reads every note before the AI does. Nothing reaches the board without a person signing it off.</p>
+                <p>An employee representative reviews every note before AI processing. Nothing reaches the board without human sign-off.</p>
               </div>
             </div>
             <span class="flg-seg" aria-hidden="true"></span>
@@ -5153,7 +5084,7 @@
             <div class="flg-card">
               <div class="flg-item">
                 <span class="flg-chip">GDPR · Storage limitation (Art. 5)</span>
-                <p>The AI turns handwriting into text, then deletes the photo of the note, because handwriting can identify someone.</p>
+                <p>Handwritten notes are converted into text, then their photos are deleted to prevent identification through handwriting.</p>
               </div>
             </div>
             <span class="flg-seg" aria-hidden="true"></span>
@@ -5164,11 +5095,11 @@
             <div class="flg-card">
               <div class="flg-item">
                 <span class="flg-chip">AI Act · Not high-risk (Art. 6(3))</span>
-                <p>The AI sorts notes into shared topics, like break-room seating. It never scores, ranks or builds a profile of any one employee.</p>
+                <p>AI groups notes into shared themes, such as break-room seating. It never scores, ranks or profiles individual employees.</p>
               </div>
               <div class="flg-item">
                 <span class="flg-chip">AI Act · No emotion recognition (Art. 5)</span>
-                <p>The AI doesn’t try to judge how upset someone is. Its themes are drafts that reps check against the original notes.</p>
+                <p>AI doesn’t assess how someone feels. Its themes are only drafts, checked by representatives against the original notes.</p>
               </div>
             </div>
             <span class="flg-seg" aria-hidden="true"></span>
@@ -5179,17 +5110,17 @@
             <div class="flg-card">
               <div class="flg-item">
                 <span class="flg-chip">GDPR · Identifiability (Recital 26)</span>
-                <p>Vote counts update every 30 minutes, not live, so colleagues in a small team can’t tell who just voted. Added after Round 4.</p>
+                <p>Vote counts update every 30 minutes, not live, preventing colleagues in small teams from identifying individual votes. Added after Round 4.</p>
               </div>
               <div class="flg-item">
                 <span class="flg-chip">GDPR · Storage limitation (Art. 5)</span>
-                <p>Themes are deleted after one full CLA cycle.</p>
+                <p>Themes are deleted after one complete CLA cycle.</p>
               </div>
             </div>
             <span class="flg-seg" aria-hidden="true"></span>
           </li>
         </ol>
-        <figcaption class="flg-cap">What the system keeps gets smaller at every step.</figcaption>
+        <figcaption class="pr-cap flg-cap">What the system keeps gets smaller at every step.</figcaption>
       </figure>
 
       <p class="pr-cap flg-src fv-anim fv-rise">Sources: <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener">Regulation (EU) 2024/1689 (AI Act) ↗</a><span class="flg-src-sep" aria-hidden="true">·</span><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener">Regulation (EU) 2016/679 (GDPR) ↗</a><span class="flg-src-sep" aria-hidden="true">·</span><a href="https://www.wetbeschermingklokkenluiders.nl/" target="_blank" rel="noopener">Wet bescherming klokkenluiders ↗</a></p>
@@ -5203,7 +5134,7 @@
        Mirrors Powering Resilience's #pr-impact: the loop ring on the
        left, the recommendation and three outcomes on the right
        ══════════════════════════════════════════════════════════ -->
-  <section class="pr-sec" id="fv-impact">
+  <section class="pr-sec pr-sec--close" id="fv-impact">
     <div class="pr-band">
       <span class="pr-band-title">Impact &amp; Outcomes</span>
     </div>
@@ -5222,22 +5153,22 @@
 
       <div class="pr-col-r pr-stack">
         <span class="pr-eyebrow fv-anim fv-rise">Our recommendation</span>
-        <p class="pr-lead fvi-lead fv-anim fv-rise">Scale 1–6 employees need <strong class="cs-key">a trusted contact independent of HR</strong> to feel safe speaking up. The government must build on that trust by demonstrating its commitment to an inclusive workplace, where these voices are <strong>meaningfully represented at the negotiation table</strong>.</p>
+        <p class="pr-lead fvi-lead fv-anim fv-rise">Scale 1–6 employees need <strong class="cs-key">a trusted contact independent of HR</strong> to feel safe speaking up, and proof that their voices are <strong>represented at the negotiation table</strong>.</p>
 
         <div class="fvi-ops fv-anim">
           <article class="fvi-op" style="--i: 0;">
             <div class="fvi-op-h"><span class="fvi-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><h3 class="fvi-op-t">Meet them where they are</h3></div>
-            <p class="fvi-op-p">The first step is making the feedback process effortless to take part in. That means meeting the employees where they work, not expecting surveys to reach them.</p>
+            <p class="fvi-op-p">Make taking part effortless by meeting employees where they work, not waiting for surveys to reach them.</p>
           </article>
 
           <article class="fvi-op" style="--i: 1;">
             <div class="fvi-op-h"><span class="fvi-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></svg></span><h3 class="fvi-op-t">From silence to trust</h3></div>
-            <p class="fvi-op-p">Trust isn’t built in a day, or by launching a new interface. A human face, the People Partner, shows employees that the employer is genuinely willing to listen.</p>
+            <p class="fvi-op-p">Trust takes time. A human face, the People Partner, shows the employer is genuinely willing to listen.</p>
           </article>
 
           <article class="fvi-op" style="--i: 2;">
             <div class="fvi-op-h"><span class="fvi-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></span><h3 class="fvi-op-t">Beyond one ministry</h3></div>
-            <p class="fvi-op-p">Scale 1–6 employees work across many ministries. Starting in one, and carrying its lessons to the next, lets the loop grow without losing what made it work.</p>
+            <p class="fvi-op-p">Start in one ministry, then carry its lessons to the next, so the loop grows without losing what made it work.</p>
           </article>
         </div>
 

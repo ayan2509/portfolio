@@ -450,7 +450,8 @@
     /* closed: the whole spine is the button */
     .shelf-item:not(.is-open) .shelf-spine::after { content: ''; position: absolute; inset: 0; z-index: 1; }
     /* open: the head breathes out to the card's padding as the card widens */
-    .shelf-item.is-open .shelf-spine { cursor: default; padding: var(--shelf-pad-open) var(--shelf-pad-open) 0; }
+    .shelf-item.is-open { cursor: pointer; }
+    .shelf-item.is-open .shelf-spine { cursor: pointer; padding: var(--shelf-pad-open) var(--shelf-pad-open) 0; }
     .shelf-num {
       font-family: var(--font-sans); font-weight: 700; font-stretch: var(--stretch-condensed);
       font-size: var(--type-spine-num); line-height: 0.9; letter-spacing: var(--tracking-display);
@@ -504,7 +505,8 @@
     /* The site's text link (.work-all) with the arrow nudging right */
     .shelf-link { margin-top: 22px; }
     .shelf-link span { display: inline-block; transition: transform var(--dur-fast) var(--ease-spring); }
-    .shelf-link:hover span { transform: translateX(4px); }
+    .shelf-link:hover span,
+    .shelf-item.is-open:hover .shelf-link span { transform: translateX(4px); }
 
     /* Stud band: the site's stud texture in its own neutral colour.
        --stud-pattern is redeclared here (same formula as tokens/effects.css)
@@ -841,7 +843,7 @@
           <div><h3 class="work-card-title">Everyday Allies</h3><p class="work-card-line">Building a culture of collective responsibility and mutual support for a more resilient society.</p></div>
           <span class="work-card-arrow" aria-hidden="true">→</span>
         </div>
-        <div class="work-card-media"><img src="images/projects/everyday-allies/thumbnail.jpg" alt="Everyday Allies" draggable="false" /></div>
+        <div class="work-card-media"><img src="images/projects/everyday-allies/thumbnail.jpg" alt="Everyday Allies: the strategic roadmap, three orange ribbons climbing towards 2040 with an illustration of the network on each" draggable="false" /></div>
         <div class="work-card-dim" aria-hidden="true"></div>
       </a>
       <a class="work-card" href="projects/indic-keyboard.html" style="--i: 3; --card-accent: var(--brick-yellow)" aria-label="View Indic Keyboard case study">
@@ -928,7 +930,7 @@
                 </div>
                 <span class="shelf-studs" aria-hidden="true"></span>
               </div>
-              <div class="shelf-media"><img src="images/projects/everyday-allies/thumbnail.jpg" alt="Everyday Allies" draggable="false" /></div>
+              <div class="shelf-media"><img src="images/projects/everyday-allies/thumbnail.jpg" alt="Everyday Allies: the strategic roadmap, three orange ribbons climbing towards 2040 with an illustration of the network on each" draggable="false" /></div>
             </div>
           </div>
           <div class="shelf-item" style="--brick: var(--brick-yellow)">
@@ -1196,15 +1198,21 @@
     const navLinks = document.querySelectorAll('.nav a');
     const sections = document.querySelectorAll('#work, #about, #contact');
 
+    const setActiveNav = id => {
+      navLinks.forEach(a => {
+        a.classList.toggle('active', id !== null && a.getAttribute('href') === '#' + id);
+      });
+    };
+
     const navIO = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        navLinks.forEach(a => {
-          a.classList.toggle(
-            'active',
-            a.getAttribute('href') === '#' + entry.target.id
-          );
-        });
+        if (entry.isIntersecting) {
+          setActiveNav(entry.target.id);
+        } else if (entry.target.id === 'work' &&
+                   entry.boundingClientRect.top > entry.rootBounds.top) {
+          // Work has dropped below the detection band — we're back in the hero
+          setActiveNav(null);
+        }
       });
     }, {
       threshold: 0,
@@ -1573,6 +1581,17 @@
 
       // A spine jumps the page to its project's step
       spines.forEach((spine, i) => spine.addEventListener('click', () => goTo(i)));
+
+      // An open card is one big link: a click anywhere on it opens the
+      // project (the "View project" link still handles its own clicks)
+      items.forEach(it => it.addEventListener('click', e => {
+        if (!it.classList.contains('is-open') || e.target.closest('a')) return;
+        if (String(window.getSelection())) return;   // let people select text
+        const link = it.querySelector('.shelf-link');
+        if (!link) return;
+        if (e.metaKey || e.ctrlKey || e.button === 1) window.open(link.href, '_blank', 'noopener');
+        else window.location.href = link.href;
+      }));
 
       // Missing image: hide it so the striped placeholder shows
       shelf.querySelectorAll('.shelf-media img').forEach(img => {

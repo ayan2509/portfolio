@@ -10,8 +10,1754 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../case-study.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&display=swap" />
   <!-- Built on the shared case-study layer. Add page-only styles in a <style>
        block here, using the --cs-* type roles and the colour tokens. -->
+  <style>
+    /* ── Context ───────────────────────────────────────
+       Mirrors the page-only Context rules on everyday-allies.html so the
+       two sections share type and spacing. */
+
+    /* the section's takeaway sits at the foot of the text column */
+    .pr-ctx-close { margin-top: auto; padding-top: 24px; }
+
+    /* band, both columns and the closing lead fill one screen */
+    @media (min-width: 901px) {
+      #ik-context { min-height: 100svh; display: flex; flex-direction: column; }
+      #ik-context .pr-body { flex: 1; display: flex; flex-direction: column; }
+      #ik-context .pr-split { flex: 1; }
+    }
+
+    /* a plain <strong> in a lead is bold only; .cs-key carries the pink */
+    #ik-context .pr-lead strong:not(.cs-key) { color: inherit; }
+
+    .pr-cap a,
+    .pr-ref a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      word-break: break-word;
+      transition: color 0.2s ease;
+    }
+
+    .pr-cap a:hover,
+    .pr-ref a:hover { color: var(--accent-text); }
+
+    /* ── Chart: internet users by language ─────────── */
+    /* English is the neutral baseline. Light mode takes the darker neutral so
+       it stays apart from the pink in lightness (colour-blind separation). */
+    :root             { --ik-en: var(--text-muted); --ik-in: var(--accent); }
+    [data-theme="dark"] { --ik-en: var(--text-faint); }
+
+    #ik-context .pr-col-r { display: flex; flex-direction: column; }
+
+    .ik-fig {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 0;
+    }
+
+    .ik-chart-title {
+      font-family: var(--font-sans);
+      font-size: var(--cs-card-title);
+      font-weight: 600;
+      line-height: var(--cs-leading-head);
+      letter-spacing: var(--cs-tracking-head);
+      color: var(--pr-head);
+    }
+
+    .ik-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    .ik-legend li { display: flex; align-items: center; gap: 8px; }
+
+    .ik-swatch { width: 12px; height: 12px; border-radius: 2px; }
+    .ik-swatch--en { background: var(--ik-en); }
+    .ik-swatch--in { background: var(--ik-in); }
+
+    /* the plot grows to fill the column; the clamp is its floor on phones */
+    /* grid: y title | y tick labels | plot; year labels and x title under the plot */
+    .ik-chart {
+      flex: 1;
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      grid-template-rows: 1fr auto auto;
+      column-gap: 10px;
+      margin-top: 20px;
+    }
+
+    .ik-axis-t {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    .ik-axis-t--y {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+
+    .ik-axis-t--x {
+      grid-column: 3;
+      grid-row: 3;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .ik-yaxis {
+      position: relative;
+      grid-column: 2;
+      grid-row: 1;
+      width: 3.5ch;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-index);
+      font-variant-numeric: tabular-nums;
+      color: var(--pr-dim);
+    }
+
+    .ik-yaxis span {
+      position: absolute;
+      right: 0;
+      bottom: calc(var(--t) / 6 * 1%);
+      transform: translateY(50%);
+      line-height: 1;
+    }
+
+    /* tick mark reaching across the gap to the axis */
+    .ik-yaxis span::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: calc(100% + 4px);
+      width: 6px;
+      height: 1px;
+      background: var(--pr-dim);
+    }
+
+    .ik-plot   { grid-column: 3; grid-row: 1; }
+    .ik-years  { grid-column: 3; grid-row: 2; }
+
+    /* each year's combined total, under its label */
+    .ik-total {
+      display: block;
+      margin-top: 4px;
+      font-size: var(--cs-ref);
+      letter-spacing: var(--cs-tracking-index);
+      text-transform: none;
+      font-variant-numeric: tabular-nums;
+      color: var(--pr-head);
+    }
+
+    .ik-plot {
+      position: relative;
+      flex: 1;
+      min-height: clamp(240px, 26vw, 360px);
+    }
+
+    .ik-bars {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .ik-bar {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+    }
+
+    /* solid bars take no stroke: in a stretched viewBox it would scale and
+       hang below the x-axis */
+    .ik-bar--en { fill: var(--ik-en); }
+    .ik-bar--in { fill: var(--ik-in); }
+
+    /* projected: lighter fill inside a dashed outline (non-scaling stroke) */
+    .ik-bar--en.ik-bar--proj { stroke: var(--ik-en); }
+    .ik-bar--in.ik-bar--proj { stroke: var(--ik-in); }
+    .ik-bar--proj {
+      fill-opacity: 0.55;
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+    }
+
+    .ik-axis { stroke: var(--pr-dim); stroke-width: 1; }
+
+    .ik-val {
+      position: absolute;
+      left: calc(var(--x) * 1%);
+      bottom: calc(var(--h) * 1% + 6px);
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: var(--cs-ref);
+      letter-spacing: var(--cs-tracking-index);
+      font-variant-numeric: tabular-nums;
+      color: var(--pr-head);
+      white-space: nowrap;
+    }
+
+    .ik-years {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      text-align: center;
+      color: var(--pr-dim);
+    }
+
+    /* the caption sits just under the chart's year axis, so it reads as part of the figure */
+    .ik-cap { margin-top: -4px; }
+
+    /* image captions that describe the keyboards are read, not skimmed:
+       full text colour instead of the dimmed caption grey */
+    .ik-ex-cap, .ik-evo-cap { color: var(--text); }
+
+    /* grow once on entry; the script adds .is-pending only when motion is allowed */
+    .ik-chart.is-pending .ik-bar { transform: scaleY(0); }
+    .ik-chart.is-pending .ik-val { opacity: 0; }
+    .ik-chart.is-in .ik-bar {
+      transform: scaleY(1);
+      transition: transform 600ms var(--ease-spring);
+    }
+    .ik-chart.is-in .ik-val {
+      opacity: 1;
+      transition: opacity 300ms ease 400ms;
+    }
+
+    /* ── My Process ──────────────────────────────────
+       Copied unchanged from powering-resilience.html (#pr-03). */
+    .pr-proc-intro { margin-bottom: 26px; }
+
+    .pr-proc-note {
+      font-size: var(--cs-body-s);
+      line-height: 1.7;
+      color: var(--pr-dim);
+    }
+
+    /* every step keeps the same side padding so the columns (and their
+       thumbnails) come out identical; the outer padding is pulled back
+       into the gutter instead of trimmed off the first and last step */
+    .pr-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-inline: -16px;
+    }
+
+    .pr-step {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 18px 16px;
+      border-right: 1px solid var(--pr-line);
+    }
+
+    .pr-step:last-child { border-right: 0; }
+
+    /* timeline look: a dot, the number, then a rule running to the next step */
+    .pr-steps .pr-step { border: 0; padding-block: 14px 26px; }
+
+    .pr-steps .pr-step-num {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: -16px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-index);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .pr-steps .pr-step-num::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .pr-steps .pr-step-num::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      margin-left: 4px;
+      background: var(--pr-line);
+    }
+
+    .pr-step-num {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: var(--cs-index);
+      letter-spacing: var(--cs-tracking-index);
+      color: var(--accent-text);
+    }
+
+    .pr-step-t {
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--pr-head);
+    }
+
+    /* extra room under the thumbnail, which also scales up on hover */
+    .pr-step .pr-ph + .pr-step-c { margin-top: 10px; }
+
+    .pr-step-c b { font-weight: 600; color: var(--pr-head); }
+
+    .pr-step-c {
+      font-size: var(--cs-body);
+      line-height: 1.5;
+      color: var(--pr-dim);
+    }
+
+    /* wider than any thumbnail, so each one is fitted to the same height */
+    .pr-step .pr-ph {
+      aspect-ratio: 16 / 9;
+      padding: 6px;
+      transition: transform 0.4s var(--spring), border-color 0.3s ease, box-shadow 0.4s ease;
+    }
+
+    .pr-step .pr-ph-label { font-size: var(--cs-label); letter-spacing: 0.1em; }
+
+    /* thumbnails show the whole artefact on a white card, never cropped */
+    .pr-step .pr-ph.is-loaded { background: #fff; }
+    .pr-step .pr-ph > img {
+      inset: 8px;
+      width: calc(100% - 16px);
+      height: calc(100% - 16px);
+      object-fit: contain;
+    }
+
+    .pr-step:hover .pr-ph {
+      transform: scale(1.04);
+      border-color: var(--accent);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    /* ── The Script ──────────────────────────────────── */
+    .ik-deva { font-family: 'Noto Sans Devanagari', var(--font-sans); }
+    .ik-beng { font-family: 'Noto Sans Bengali', var(--font-sans); }
+    .ik-taml { font-family: 'Noto Sans Tamil', var(--font-sans); }
+
+    /* a plain <strong> in a lead is bold only; .cs-key carries the pink */
+    #ik-script .pr-lead strong:not(.cs-key) { color: inherit; }
+
+    #ik-script .pr-lead { max-width: var(--pr-measure); }
+
+    .ik-label {
+      display: block;
+      margin: 32px 0 16px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+    }
+
+    .ik-bridge,
+    .ik-close { margin-top: clamp(40px, 5vw, 64px); }
+
+    /* cards follow .ea-card (Everyday Allies); a shared subgrid keeps each
+       card's rows (pill, panel, text) level across the row */
+    .ik-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .ik-card {
+      grid-row: span 3;
+      display: grid;
+      grid-template-rows: subgrid;
+      row-gap: 14px;
+      min-width: 0;
+      padding: 22px 22px 20px;
+      border: 1px solid var(--pr-line);
+      border-radius: 16px;
+      background: var(--surface);
+      transition: border-color 0.2s ease;
+    }
+
+    .ik-card:hover { border-color: color-mix(in srgb, var(--pr-head) 24%, transparent); }
+
+    .ik-card-t {
+      align-self: start;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    /* inset panel for the glyphs or the illustration; the page background
+       sits a step below --surface in both themes */
+    .ik-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 20px;
+      border-radius: 10px;
+      background: var(--bg);
+      text-align: center;
+    }
+
+    .ik-card-d {
+      align-self: start;
+      font-size: var(--cs-body);
+      line-height: var(--cs-leading-body-s);
+      color: var(--pr-dim);
+    }
+
+    .ik-card-d em { font-style: italic; color: var(--text); }
+
+    /* key phrases in card text are bold only, in the text's own colour */
+    .ik-card-d strong { font-weight: 600; color: inherit; }
+    .ik-card-d strong em { color: inherit; }
+
+    /* Indic glyphs inside running text sit a touch larger so matras read */
+    .ik-card-d [lang] { font-size: 1.1em; color: var(--text); }
+
+    .ik-glyphs {
+      font-size: var(--cs-statement);
+      line-height: 1.3;
+      color: var(--pr-head);
+    }
+
+    .ik-op { color: var(--pr-faint); }
+
+    /* ── Challenge illustrations: HTML/CSS only ──────── */
+    /* --k is the key size: 44px, or less when the card is narrow, so a
+       sequence always stays on one line */
+    .ik-ill {
+      container-type: inline-size;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 128px;
+    }
+
+    /* a full key sequence is about 5.7 keys wide, so 16cqi keeps it inside */
+    .ik-seq,
+    .ik-rows,
+    .ik-dots {
+      --k: min(44px, 16cqi);
+    }
+
+    .ik-seq {
+      display: flex;
+      align-items: center;
+      gap: calc(var(--k) * 0.2);
+      white-space: nowrap;
+    }
+
+    .ik-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--k);
+      height: var(--k);
+      flex: none;
+      border: 1px solid var(--pr-line);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: min(var(--cs-intro), calc(var(--k) * 0.45));
+      line-height: 1;
+      color: var(--pr-head);
+    }
+
+    .ik-seq .ik-op { font-size: min(var(--cs-intro), calc(var(--k) * 0.45)); color: var(--pr-dim); }
+
+    /* a label under each key in a sequence; it hangs below the key so the
+       + and = stay level with the keys, and the sequence reserves the room */
+    /* wider spacing than a plain sequence, so the uppercase labels under
+       neighbouring keys keep clear of each other */
+    .ik-seq--labelled {
+      --k: min(44px, 15cqi);
+      gap: max(calc(var(--k) * 0.2), 12px);
+      padding-bottom: 30px;
+    }
+
+    .ik-seq--labelled .ik-key { position: relative; }
+
+    .ik-key-l {
+      position: absolute;
+      top: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--pr-dim);
+      white-space: nowrap;
+    }
+
+    .ik-key-l em { font-style: italic; }
+
+    .ik-result {
+      font-size: min(calc(var(--cs-intro) * 1.5), calc(var(--k) * 0.68));
+      font-weight: 600;
+      line-height: 1;
+      color: var(--accent-text);
+    }
+
+    /* six keys a row (the consonants on each InScript row): 6 keys and
+       5 gaps come to 6.8 keys wide, so 14cqi keeps the grid inside */
+    .ik-rows {
+      --k: min(44px, 14cqi);
+      display: grid;
+      grid-template-columns: repeat(6, var(--k));
+      gap: calc(var(--k) * 0.16);
+    }
+
+    /* dot grids: same dot and gap on both sides, so area compares honestly */
+    .ik-dots {
+      --dot: calc(var(--k) * 0.18);
+      display: flex;
+      align-items: flex-end;
+      gap: calc(var(--k) * 0.7);
+    }
+
+    .ik-dot-set {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;                     /* dots to number; the label sits 8px under the number */
+    }
+
+    .ik-dot-grid {
+      display: grid;
+      grid-template-columns: repeat(7, var(--dot));
+      gap: calc(var(--dot) * 0.5);
+    }
+
+    .ik-dot-grid i {
+      width: var(--dot);
+      height: var(--dot);
+      border-radius: 50%;
+      background: var(--ik-en);
+    }
+
+    .ik-dot-set--in .ik-dot-grid i { background: var(--ik-in); }
+
+    .ik-dot-n {
+      font-family: var(--font-mono);
+      font-size: var(--cs-ref);
+      font-weight: 600;
+      letter-spacing: var(--cs-tracking-index);
+      color: var(--pr-head);
+      line-height: 1;
+    }
+
+    .ik-dot-k {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--pr-dim);
+      line-height: 1;
+      margin-top: -8px;
+    }
+
+    /* four across only from 1420px: narrower than that, the uppercase key
+       labels under the challenge sequences run into each other */
+    @media (max-width: 1419px) {
+      .ik-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .ik-cards { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* ── Tablet / mobile ─────────────────────────────── */
+    @media (max-width: 900px) {
+      .pr-steps { grid-template-columns: 1fr 1fr; margin-inline: 0; }
+
+      .pr-step {
+        padding: 18px 16px 18px 0;
+        border-right: 1px solid var(--pr-line);
+        border-bottom: 1px solid var(--pr-line);
+      }
+
+      .pr-step:nth-child(2n) {
+        padding-right: 0;
+        padding-left: 16px;
+        border-right: 0;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .pr-steps { grid-template-columns: 1fr; }
+
+      .pr-step,
+      .pr-step:nth-child(2n) {
+        padding: 18px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--pr-line);
+      }
+
+      .pr-steps .pr-step:last-child { border-bottom: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pr-step:hover .pr-ph { transform: none; }
+    }
+
+    @media (max-width: 900px) {
+      .pr-split { grid-template-columns: 1fr; }
+
+      .pr-col-l { padding-right: 0; }
+
+      .pr-col-r {
+        margin-top: 28px;
+        padding-left: 0;
+        padding-top: 28px;
+        border-left: 0;
+        border-top: 1px solid var(--pr-line);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ik-chart .ik-bar,
+      .ik-chart .ik-val { transform: none; opacity: 1; transition: none; }
+    }
+
+    /* ── Evolution of Indic Keyboards ────────────────── */
+    /* frequency = --data-2 (orange), phonetic = --data-1 (blue). The two
+       colours only label a principle; nothing steps from one to the other. */
+    #ik-evolution .pr-lead { max-width: var(--pr-measure); }
+
+    .ik-evo-close { margin-top: clamp(28px, 3vw, 40px); }
+
+    /* comparison: two equal cards; a shared subgrid keeps pill, title,
+       text, figure and caption level across both */
+    .ik-evo-compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: clamp(28px, 3vw, 40px);
+    }
+
+    .ik-evo-card {
+      grid-row: span 4;
+      display: grid;
+      grid-template-rows: subgrid;
+      row-gap: 12px;
+      min-width: 0;
+      padding: clamp(22px, 2.4vw, 40px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .ik-evo-card-t {
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ik-evo-card-d {
+      font-size: var(--cs-body);
+      line-height: var(--cs-leading-body-s);
+      color: var(--text-muted);
+    }
+
+    /* fixed rhythm in both cards: pill 12 title 12 text 32 visual 20 caption
+       (32 = the 12px row gap + 20px). The keyboard and the varnamala grid
+       are the same height, so the captions line up across the cards. */
+    .ik-evo-fig {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+      margin: 20px 0 0;
+    }
+
+    .ik-evo-vis {
+      display: flex;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    /* pills: principle colour on the border, the dot and the word */
+    .ik-evo-pill {
+      justify-self: start;
+      align-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-sizing: border-box;
+      height: 24px;                  /* fixed, so one- and two-dot pills match */
+      padding: 0 10px 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      line-height: 1;
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .ik-evo-dots { display: inline-flex; gap: 3px; }
+
+    .ik-evo-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .ik-evo-dot--freq { background: var(--data-2); }
+    .ik-evo-dot--phon { background: var(--data-1); }
+
+    .ik-evo-pill--freq { border-color: var(--data-2); color: var(--data-2-text); }
+    .ik-evo-pill--phon { border-color: var(--data-1); color: var(--data-1-text); }
+
+    /* ── Coded InScript keyboard ── */
+    /* the frame is the container: keys grow with the card up to 64px and
+       stop at 40px, below which the keyboard scrolls inside the frame.
+       The varnamala grid uses the same key size, so the two cards match. */
+    .ik-evo-kb-frame {
+      container-type: inline-size;
+      width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+
+    .ik-evo-kb {
+      --g: 5px;                      /* gap between keys */
+      --split: 14px;                 /* extra gap between vowel and consonant sides */
+      --k: clamp(40px, calc((100cqi - 11 * var(--g) - var(--split)) / 12), 64px);
+      display: flex;
+      flex-direction: column;
+      gap: var(--g);
+      width: max-content;
+    }
+
+    .ik-evo-kb-row { display: flex; gap: var(--g); }
+
+    /* stagger like a real keyboard: home row a quarter key in, bottom three quarters */
+    .ik-evo-kb-row--home   { padding-left: calc(var(--k) * 0.25); }
+    .ik-evo-kb-row--bottom { padding-left: calc(var(--k) * 0.75); }
+
+    /* vowel side (Q–T, A–G) | consonant side */
+    .ik-evo-kb-row .ik-evo-key--split { margin-right: var(--split); }
+
+    .ik-evo-key {
+      position: relative;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      width: var(--k);
+      height: calc(var(--k) * 1.36);
+      padding-bottom: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-sunken);
+      line-height: 1;
+    }
+
+    .ik-evo-key--home {
+      border-color: var(--data-2);
+      background: color-mix(in srgb, var(--data-2) var(--data-tint), transparent);
+    }
+
+    .ik-evo-base {
+      font-size: max(16px, calc(var(--k) * 0.4));
+      line-height: 1.15;
+      color: var(--pr-head);
+    }
+
+    .ik-evo-latin {
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      line-height: 1;
+      color: var(--text-muted);
+    }
+
+    .ik-evo-shift {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: var(--cs-ref);
+      line-height: 1.2;
+      color: var(--text-muted);
+    }
+
+    /* ── Varnamala grid ── */
+    /* keys sized from the keyboard's key (--kbk, same formula; both cards
+       and so both containers are the same width), so the 5-row grid is
+       exactly as tall as the 3-row keyboard:
+       keyboard = 3 × 1.36 × kbk + 2 × 5px;  grid = 5 × k + 4 × 5px */
+    .ik-evo-varna {
+      --kbk: clamp(40px, calc((100cqi - 11 * 5px - 14px) / 12), 64px);
+      --k: calc((3 * 1.36 * var(--kbk) + 10px - 20px) / 5);
+      display: grid;
+      grid-template-columns: repeat(5, var(--k));
+      gap: 5px;
+    }
+
+    .ik-evo-vis--varna { container-type: inline-size; }
+
+    /* vowels (2 × 5, short/long pairs) beside the consonants (5 × 5), with
+       clear space between so they read as two groups */
+    .ik-evo-varna-set {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 24px;
+    }
+
+    .ik-evo-varna--vowels { grid-template-columns: repeat(2, var(--k)); }
+
+    /* too narrow for both side by side (7 keys + gaps = about 263px at the
+       keyboard's 40px floor): vowels sit above as 5 × 2 */
+    @container (max-width: 270px) {
+      .ik-evo-varna-set { flex-direction: column; align-items: flex-start; }
+      .ik-evo-varna--vowels { grid-template-columns: repeat(5, var(--k)); }
+    }
+
+    .ik-evo-varna span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--k);
+      border: 1px solid var(--data-1);
+      border-radius: 6px;
+      background: var(--surface-sunken);
+      font-size: max(16px, calc(var(--k) * 0.42));
+      line-height: 1;
+      color: var(--pr-head);
+    }
+
+    /* ── Eras ── */
+    .ik-evo-label {
+      display: block;
+      margin: clamp(48px, 5vw, 72px) 0 16px;
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: var(--cs-tracking-label);
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* the timeline itself (dot, year, rule) comes from .pr-steps /
+       .pr-step-num, as in My Process. Each era spans five shared rows
+       (year, pill, image, title, bullets) so images and titles line up. */
+    .ik-evo-eras .ik-evo-era {
+      grid-row: span 5;
+      display: grid;
+      grid-template-rows: subgrid;
+      row-gap: 12px;
+      min-width: 0;
+    }
+
+    /* years: larger than the Process step numbers; the dot and rule from
+       .pr-steps stay, centred on the year by its flex row */
+    .ik-evo-era .pr-step-num {
+      font-family: var(--font-sans);
+      font-size: var(--cs-stat);
+      font-weight: 700;
+      line-height: var(--cs-leading-display);
+      letter-spacing: -0.01em;
+      color: var(--pr-head);
+    }
+
+    .ik-evo-era .pr-step-num::before {
+      width: 10px;
+      height: 10px;
+      flex: none;
+    }
+
+    /* era images keep their own frame: 4:3, cover, no thumbnail card or hover zoom */
+    .ik-evo-era .pr-ph {
+      aspect-ratio: 4 / 3;
+      margin-top: 4px;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .ik-evo-era .pr-ph > img {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ik-evo-era .pr-ph.is-loaded {
+      border: 1px solid var(--border);
+      background: var(--pr-ph-bg);
+    }
+
+    .ik-evo-era:hover .pr-ph {
+      transform: none;
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    .ik-evo-era-t {
+      margin-top: 6px;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ik-evo-list {
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: var(--cs-body);
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    /* a small neutral dot; the marker is the only indent */
+    .ik-evo-list li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .ik-evo-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: calc(0.8em - 2px);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    @media (max-width: 1100px) {
+      .ik-evo-eras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      .ik-evo-compare { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .ik-evo-eras { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* ═══════════ THE STATUS QUO ═══════════
+       One list in number order, screenshot then callout. At ≥1100px it
+       becomes a staggered board: five columns, even items flipped so the
+       callout sits on top. Each anchor's --ax / --ay is a point on its
+       image (percent of width / height); the dot centres on it and, on
+       the board, a line runs through the 40px gap to the callout. */
+    .ik-sq-list {
+      --ik-sq-gap: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      margin: clamp(32px, 4vw, 48px) 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ik-sq-item { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+    .ik-sq-shot { position: relative; margin: 0; }
+
+    /* the border is drawn on top, so the image fills the frame edge to
+       edge and the --ax / --ay percentages land exactly on it */
+    .ik-sq-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .ik-sq-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--border);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ik-sq-frame img { display: block; width: 100%; height: auto; }
+
+    #ik-status .pr-lead { max-width: var(--pr-measure); }
+
+    /* keyboard tags: a row below the paragraph */
+    .ik-sq-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ik-sq-tag {
+      display: inline-flex;
+      align-items: center;
+      box-sizing: border-box;
+      height: 22px;
+      padding: 3px 7px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* the anchor: a zero-width column whose left edge is the point */
+    .ik-sq-pin {
+      position: absolute;
+      left: var(--ax);
+      top: var(--ay);
+      z-index: 1;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .ik-sq-pin::after {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: -5px;
+      width: 10px;
+      height: 10px;
+      box-sizing: border-box;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px var(--bg);
+    }
+
+    .ik-sq-card {
+      padding: 18px 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .ik-sq-num {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--accent-text);
+    }
+
+    .ik-sq-title {
+      margin: 6px 0 0;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ik-sq-text {
+      margin: 8px 0 0;
+      font-size: var(--cs-body-s);
+      line-height: var(--cs-leading-body-s);
+      color: var(--text);
+    }
+
+    .ik-sq-close { margin-top: clamp(40px, 5vw, 64px); }
+
+    /* ═══════════ LAYOUT EXPLORATIONS ═══════════
+       Four image + caption pairs; each figure spans two shared rows
+       (image, caption) so the captions start on one line. */
+    #ik-explore .pr-lead { max-width: var(--pr-measure); }
+
+    .ik-ex-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 28px;
+      row-gap: 40px;
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+
+    .ik-ex-fig {
+      grid-row: span 2;
+      display: grid;
+      grid-template-rows: subgrid;
+      row-gap: 12px;
+      min-width: 0;
+      margin: 0;
+    }
+
+    /* 16:15 holds the placeholder; once loaded, the frame takes the
+       image's own proportions so nothing is cropped */
+    .ik-ex-ph {
+      align-self: start;
+      aspect-ratio: 16 / 15;
+      border-radius: 8px;
+    }
+
+    .ik-ex-ph.is-loaded {
+      display: block;
+      aspect-ratio: auto;
+      padding: 0;
+      border: 1px solid var(--border);
+    }
+
+    .ik-ex-ph.is-loaded > img {
+      position: static;
+      height: auto;
+    }
+
+    .ik-ex-ph.is-loaded .pr-ph-label { display: none; }
+
+    .ik-ex-close { margin-top: clamp(28px, 3vw, 40px); }
+
+    @media (max-width: 1100px) {
+      .ik-ex-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .ik-ex-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* ═══════════ THE FINAL LAYOUT ═══════════
+       The stage is a 1100 × 660 drawing: each element carries its raw
+       coordinates (--x, --y, --w, --h) and CSS turns them into percent,
+       so images, outline, lines and labels scale as one unit. */
+    #ik-principles .pr-lead { max-width: var(--pr-measure); }
+
+    /* left: lead → eyebrow → list, spaced as in Evolution (.ik-evo-label).
+       right: the stage, dropped so its top row of labels (y 31) sits on
+       the lead's second line. The percentage resolves against the
+       stage column's width, which is what the stage scales with. */
+    .ik-pr-layout {
+      display: grid;
+      /* the principles run about as wide as the lead's lines; the
+         stage takes everything else */
+      grid-template-columns: minmax(0, clamp(320px, 26vw, 32rem)) minmax(0, 1fr);
+      gap: 56px;
+      align-items: start;
+    }
+
+    .ik-evo-label.ik-pr-eyebrow { margin: clamp(48px, 5vw, 72px) 0 16px; }
+
+    .ik-pr-fig {
+      margin: calc(1.5 * 1.35 * var(--cs-lead) - 31 / 1100 * 100%) 0 0;
+    }
+
+    .ik-pr-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ik-pr-num {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--accent-text);
+    }
+
+    .ik-pr-title {
+      margin: 6px 0 0;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ik-pr-text {
+      margin: 8px 0 0;
+      font-size: var(--cs-body);
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .ik-pr-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1100 / 660;
+      container-type: inline-size;
+    }
+
+    .ik-pr-at {
+      position: absolute;
+      left: calc(var(--x) / 1100 * 100%);
+      top: calc(var(--y) / 660 * 100%);
+    }
+
+    .ik-pr-kb { width: calc(var(--w) / 1100 * 100%); height: auto; display: block; }
+
+    .ik-pr-pop {
+      box-sizing: border-box;
+      width: calc(var(--w) / 1100 * 100%);
+      height: auto;
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .ik-pr-sep {
+      box-sizing: border-box;
+      width: calc(var(--w) / 1100 * 100%);
+      height: calc(var(--h) / 660 * 100%);
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    .ik-pr-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .ik-pr-lines path {
+      fill: none;
+      stroke: var(--text-muted);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    /* dots match The Status Quo (.ik-sq-pin): 10px, a 2px --bg ring,
+       a fixed size at every stage width */
+    .ik-pr-dot {
+      width: 10px;
+      height: 10px;
+      margin: -5px 0 0 -5px;
+      box-sizing: border-box;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px var(--bg);
+      pointer-events: none;
+    }
+
+    /* labels scale with the drawing (14px at a 1100px-wide stage), never
+       below 11px or above the body-s role */
+    .ik-pr-label {
+      font-size: clamp(11px, calc(14 / 1100 * 100cqw), var(--cs-body-s));
+      line-height: 1.3;
+      color: var(--text);
+      white-space: nowrap;
+      transform: translateY(-50%);
+    }
+
+    .ik-pr-label--end { transform: translate(-100%, -50%); text-align: right; }
+    .ik-pr-label--mid { transform: translate(-50%, -50%); text-align: center; }
+
+    /* the popup label may wrap into the free space below it: its first
+       line stays centred on the anchor */
+    .ik-pr-label--wrap {
+      max-width: calc((1100 - var(--x)) / 1100 * 100%);
+      white-space: normal;
+      transform: translateY(-0.65em);
+    }
+
+    .ik-pr-future { color: var(--text-muted); }
+
+    /* the phone fallback list; hidden while the stage carries the labels */
+    .ik-pr-features { display: none; }
+
+    @media (max-width: 1279px) {   /* stacked until the stage has room for its labels */
+      .ik-pr-layout { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+      .ik-pr-fig { margin-top: 0; }
+      .ik-pr-col { max-width: var(--pr-measure); }
+    }
+
+    /* ═══════════ THE KEYBOARD IN USE ═══════════
+       Four phones; each column spans three shared rows (phone, title,
+       text) so the titles start on one line. Each column is as wide as
+       its phone, so titles and text start at the phone's left edge. */
+    #ik-use .pr-lead { max-width: var(--pr-measure); }
+
+    .ik-use-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 32px;
+      row-gap: 56px;
+      margin: clamp(32px, 4vw, 48px) 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ik-use-item {
+      grid-row: span 2;
+      display: grid;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      justify-self: center;
+      width: 100%;
+      max-width: 420px;
+      min-width: 0;
+    }
+
+    /* a generic Android phone: black in both themes */
+    .ik-use-phone {
+      position: relative;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 420px;
+      margin-inline: auto;
+      /* modelled on the Pixel 3 frame in the app recording: forehead with
+         two cameras, earpiece and sensor; chin with a speaker grille */
+      padding: 16% 4.5% 16%;
+      border: 1px solid var(--border);
+      border-radius: 13% / 6.5%;
+      background: #0B0B0B;
+      box-shadow: inset 0 0 0 2px #2A2A2A, inset 0 0 0 4px #0B0B0B, inset 0 0 0 5px #1C1C1C;
+    }
+
+    /* side buttons */
+    .ik-use-phone::before {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 24%;
+      width: 3px;
+      height: 8%;
+      border-radius: 0 2px 2px 0;
+      background: #232323;
+    }
+
+    /* earpiece grille in the forehead */
+    .ik-use-phone::after {
+      content: "";
+      position: absolute;
+      left: 39%;
+      top: 5.2%;
+      width: 22%;
+      height: 1.1%;
+      border-radius: 99px;
+      background: #1E1E1E;
+    }
+
+    .ik-use-screen {
+      position: relative;
+      aspect-ratio: 592 / 1040;
+      overflow: hidden;
+      border-radius: 4% / 2.3%;
+      background: #000;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    /* front camera beside the earpiece */
+    .ik-use-cam {
+      position: absolute;
+      left: 16%;
+      top: 4.4%;
+      width: 6.5%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #121418;
+      box-shadow: inset 0 0 0 2px #1F2226;
+    }
+    /* second front camera, proximity sensor, chin speaker, volume rocker */
+    .ik-use-cam + .ik-use-cam { left: 27%; }
+    .ik-use-sensor {
+      position: absolute;
+      left: 64%;
+      top: 5%;
+      width: 3.5%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #101010;
+    }
+    .ik-use-grille {
+      position: absolute;
+      left: 39%;
+      bottom: 5.2%;
+      width: 22%;
+      height: 1.1%;
+      border-radius: 99px;
+      background: #1E1E1E;
+    }
+    .ik-use-vol {
+      position: absolute;
+      right: -3px;
+      top: 36%;
+      width: 3px;
+      height: 14%;
+      border-radius: 0 2px 2px 0;
+      background: #232323;
+    }
+
+    .ik-use-screen video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* reduced motion: a play / pause button instead of autoplay */
+    .ik-use-toggle {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--bg) 80%, transparent);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .ik-use-screen { cursor: pointer; }
+    /* the corner button stays for keyboard users and reduced motion */
+    .ik-use-toggle { opacity: 0; transition: opacity 0.2s ease; }
+    .ik-use-toggle:focus-visible { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .ik-use-toggle { opacity: 1; transition: none; }
+    }
+
+    /* feedback after a click: a play / pause icon in the middle of the
+       screen. Pause flashes and fades; play stays while the clip is paused */
+    .ik-use-flash {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      margin: -32px 0 0 -32px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border: 1px solid var(--border);
+      color: var(--text);
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+    .ik-use-flash svg { width: 22px; height: 22px; fill: currentColor; }
+    .ik-use-flash.is-on { opacity: 1; transform: scale(1); }
+    @media (prefers-reduced-motion: reduce) {
+      .ik-use-flash { transition: none; }
+    }
+
+    .ik-use-toggle:focus-visible { outline: 2px solid var(--focus-ring, var(--accent)); outline-offset: 2px; }
+    .ik-use-toggle svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .ik-use-title {
+      margin: 20px 0 0;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: var(--cs-leading-head);
+      color: var(--pr-head);
+    }
+
+    .ik-use-text {
+      margin: 20px 0 0;
+      font-size: var(--cs-body);
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    /* below 1600px four phones would be too narrow to read the keys:
+       two per row instead, each up to 420px wide */
+    @media (max-width: 1599px) {
+      .ik-use-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 64px; }
+    }
+
+    @media (max-width: 560px) {
+      .ik-use-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* ═══════════ IMPACT & OUTCOMES ═══════════
+       Mirrors #pr-impact on Powering Resilience: a 60 / 40 split with the
+       app recording on the left and eyebrow, lead, three outcomes and a
+       link line on the right; the section fills the screen and ends on
+       the next-project link. */
+
+
+    /* the recording carries its own phone frame: no mockup, never
+       stretched, its black corners clipped to the phone's radius */
+    .ik-imp-l { display: flex; justify-content: center; align-items: flex-start; }
+
+    .ik-imp-screen {
+      position: relative;
+      border-radius: 11% / 5.2%;
+      cursor: pointer;
+    }
+
+    .ik-imp-screen video {
+      display: block;
+      height: 100%;  /* fills the left column, see .pr-sec--close */
+      width: auto;
+      aspect-ratio: 512 / 1080;
+      object-fit: cover;
+      border-radius: 11% / 5.2%;
+    }
+
+    /* keep the corner button inside the phone, clear of the rounded corner */
+    #ik-impact .ik-use-toggle { right: 12%; bottom: 6%; }
+
+    #ik-impact .pr-cap a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s ease;
+    }
+    #ik-impact .pr-cap a:hover { color: var(--accent-text); }
+
+    /* three outcomes: the same icon cards as Powering Resilience (.pr-op) */
+    .pr-ops { display: grid; gap: 12px; margin-top: 6px; }
+
+    .pr-op {
+      --mode: var(--pr-head);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--pr-line);
+    }
+
+    .pr-op-h { display: flex; align-items: center; gap: 12px; }
+
+    .pr-op-ico {
+      flex: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mode);
+      background: color-mix(in srgb, var(--mode) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--mode) 45%, transparent);
+    }
+
+    .pr-op-ico svg { width: 17px; height: 17px; }
+
+    .pr-op-t {
+      margin: 0;
+      font-family: var(--font-h);
+      font-size: var(--cs-card-title);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--mode);
+    }
+
+    .pr-op-p {
+      margin: 0;
+      font-size: var(--cs-body);
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+
+    /* the phone keeps its own width, centred in the column */
+    @media (min-width: 901px) {
+      #ik-impact .pr-col-l > .ik-imp-screen { left: 50%; right: auto; transform: translateX(calc(-50% - var(--pr-inner) / 2)); }
+    }
+
+    @media (max-width: 900px) {
+      .ik-imp-screen { width: min(100%, 300px); }
+      .ik-imp-screen video { height: auto; width: 100%; }
+    }
+
+    /* Phone: no lines or labels; keyboard and popup side by side, then
+       the feature names as a two-column list */
+    @media (max-width: 699px) {
+      .ik-pr-stage {
+        aspect-ratio: auto;
+        display: flex;
+        align-items: flex-start;
+        gap: 4%;
+      }
+
+      .ik-pr-stage .ik-pr-at { position: static; }
+      .ik-pr-kb { width: 76%; }
+      .ik-pr-pop { width: 20%; }
+      .ik-pr-sep, .ik-pr-lines, .ik-pr-label, .ik-pr-dot { display: none; }
+
+      .ik-pr-features {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 20px;
+        margin: 20px 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: var(--cs-body-s);
+        line-height: 1.4;
+        color: var(--text);
+      }
+    }
+
+    /* Tablet: each item a row, screenshot 55% left, callout right */
+    @media (min-width: 700px) and (max-width: 1099px) {
+      .ik-sq-item {
+        display: grid;
+        grid-template-columns: 55% minmax(0, 1fr);
+        gap: 28px;
+        align-items: center;
+      }
+    }
+
+    /* Desktop: the staggered board */
+    @media (min-width: 1100px) {
+      .ik-sq-list {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 28px;
+        align-items: start;
+      }
+
+      .ik-sq-item { gap: var(--ik-sq-gap); }
+      .ik-sq-item--even .ik-sq-card { order: -1; }
+
+      /* odd: from the dot down through the gap to the callout's top edge */
+      .ik-sq-pin {
+        bottom: calc(-1 * var(--ik-sq-gap));
+        height: auto;
+      }
+
+      .ik-sq-pin::before {
+        content: "";
+        position: absolute;
+        left: -0.5px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--text-muted);
+      }
+
+      /* even: from the callout's bottom edge down through the gap to the dot */
+      .ik-sq-item--even .ik-sq-pin {
+        top: calc(-1 * var(--ik-sq-gap));
+        bottom: calc(100% - var(--ay));
+      }
+
+      .ik-sq-item--even .ik-sq-pin::after { top: auto; bottom: -5px; }
+    }
+  
+    /* ── Floating section nav ──────────────────────── */
+    .pr-fnav {
+      position: fixed;
+      right: clamp(16px, 3vw, 32px);
+      bottom: clamp(16px, 3vw, 32px);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.45s var(--ease-scene);
+    }
+
+    .pr-fnav.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
+    .pr-fnav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--pr-line);
+      background: var(--pr-head);
+      color: var(--bg);
+      font-family: var(--font-mono);
+      font-size: var(--cs-label);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .pr-fnav-btn svg { width: 15px; height: 15px; }
+    .pr-fnav-btn:focus-visible,
+    .pr-fnav-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    .pr-fnav-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--pr-line);
+      background: var(--surface, var(--bg));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+      transform-origin: bottom right;
+      animation: pr-fnav-in 0.35s var(--ease-scene);
+    }
+
+    .pr-fnav-list[hidden] { display: none; }
+
+    @keyframes pr-fnav-in { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+
+    .pr-fnav-list a {
+      display: block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: var(--cs-body-s);
+      color: var(--pr-dim);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .pr-fnav-list a:hover { color: var(--pr-head); background: color-mix(in srgb, var(--pr-head) 7%, transparent); }
+    .pr-fnav-list a[aria-current="true"] { color: var(--accent-text); font-weight: 600; }
+
+    /* previous / next project links, as on Practising Parity and Everyday Allies */
+    .ik-pn { flex-wrap: wrap; }
+    .ik-pn-next { margin-left: auto; text-align: right; }
+    .ik-pn-prev:hover .pr-next-v { transform: translateX(-5px); }
+    @media (max-width: 600px) {
+      .ik-pn { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .ik-pn-next { margin-left: 0; text-align: left; }
+    }
+
+</style>
 </head>
 <body>
 
@@ -57,7 +1803,7 @@
   <main>
 
   <!-- ══════════ 01 · HERO ══════════ -->
-  <section class="pr-sec" id="cs-hero">
+  <section class="pr-sec" id="ik-01">
     <div class="pr-hero">
 
       <div class="pr-hero-l">
@@ -65,9 +1811,10 @@
         <p class="pr-hero-sub">Reimagining the typing experience in Indic languages for the next billion smartphone users.</p>
         <hr class="pr-hr pr-hero-rule" />
         <div class="pr-meta">
-          <span><span class="pr-meta-k">Year</span>2020</span>
+          <span><span class="pr-meta-k">Timeline</span>January 2020 – May 2020</span>
           <span><span class="pr-meta-k">Context</span>Solo · Academic</span>
-          <span><span class="pr-meta-k">Focus</span>Next-billion users · Language accessibility · Interface design</span>
+          <span><span class="pr-meta-k">With</span>Srishti Institute of Art, Design and Technology</span>
+          <span><span class="pr-meta-k">My role</span>Research · Interface design · Prototyping · Android build</span>
         </div>
       </div>
 
@@ -80,25 +1827,815 @@
     </div>
   </section>
 
-  <!-- ══════════ 02 · CASE STUDY (being written) ══════════ -->
-  <section class="pr-sec pr-sec--top" id="cs-body">
+  <!-- ══════════ CONTEXT ══════════ -->
+  <section class="pr-sec" id="ik-context">
     <div class="pr-band">
-      <span class="pr-band-title">Case Study</span>
+      <span class="pr-band-title">Context</span>
     </div>
+
     <div class="pr-body">
-      <div class="pr-stack">
-        <span class="pr-eyebrow">In progress</span>
-        <p class="pr-lead">The full case study for this project is being written.</p>
+     <div class="pr-split">
+      <div class="pr-col-l pr-stack">
+        <p class="pr-lead">By 2020, <strong class="cs-key">622 million Indians</strong> were online, nearly half of them in rural India, and <strong>every one of them on a mobile phone</strong>.</p>
+        <p class="pr-p"><b>Who's coming online?</b> Nine in ten new users prefer to read and write in their own language. For most of them, a low-cost smartphone is their first way onto the internet: to learn, to stream, to pay and to reach public services.</p>
+        <p class="pr-p"><b>Stuck on QWERTY.</b> Almost everything we do on a phone involves typing: a comment, a post, a search, a form. But the keyboard defaults to English, and English isn't everyone's first language. For first-time users from rural areas, that alone can shut them out of much of what the phone offers. Transliteration lets you type your own language in English letters, but only if you already know those letters well enough to spell it with them.</p>
+        <p class="pr-cap">Sources: <a href="https://www.iamai.in/sites/default/files/research/IAMAI-KANTAR-ICUBE-2020-Report.pdf" target="_blank" rel="noopener">IAMAI &amp; Kantar, ICUBE 2020 ↗</a> · <a href="https://assets.kpmg.com/content/dam/kpmg/in/pdf/2017/04/Indian-languages-Defining-Indias-Internet.pdf" target="_blank" rel="noopener">KPMG &amp; Google, 2017 ↗</a> · <a href="https://arxiv.org/abs/1912.01218" target="_blank" rel="noopener">Google, Gboard internationalization, 2019 ↗</a></p>
+        <p class="pr-lead pr-ctx-close">This project looks at how Indic scripts were written, mechanised and adapted to computers, reviews how people type in them today, and proposes <strong class="cs-key">an interface for text entry in Indic languages, suited to modern smartphones</strong>.</p>
       </div>
 
-      <a href="crafting-conviviality.html" class="pr-next pr-next-link">
-        <span class="pr-next-k">Next project</span>
-        <span class="pr-next-v">Crafting Conviviality →</span>
-      </a>
+      <div class="pr-col-r">
+        <figure class="ik-fig">
+          <p class="ik-chart-title">Internet users in India (millions)</p>
+
+          <ul class="ik-legend" role="list" aria-hidden="true">
+            <li><span class="ik-swatch ik-swatch--en"></span>English</li>
+            <li><span class="ik-swatch ik-swatch--in"></span>Indian languages</li>
+          </ul>
+
+          <!-- Bars live on a 600 × 100 grid (baseline at y = 100); the y-axis runs
+               0–600 million, so height = value / 6. Axis and value labels sit in
+               HTML over the same box so they keep their real type size. -->
+          <div class="ik-chart" id="ikChart" role="img"
+               aria-label="Grouped bar chart of internet users in India, in millions. 2011: English 68, Indian languages 42, total 110. 2016: English 175, Indian languages 234, total 409. 2021, projected: English 199, Indian languages 536, total 735.">
+            <div class="ik-yaxis">
+              <span style="--t:0;">0</span>
+              <span style="--t:100;">100</span>
+              <span style="--t:200;">200</span>
+              <span style="--t:300;">300</span>
+              <span style="--t:400;">400</span>
+              <span style="--t:500;">500</span>
+              <span style="--t:600;">600</span>
+            </div>
+            <div class="ik-plot">
+              <svg class="ik-bars" viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <rect class="ik-bar ik-bar--en" x="33"  y="88.67" width="64" height="11.33" />
+                <rect class="ik-bar ik-bar--in" x="103" y="93"    width="64" height="7" />
+                <rect class="ik-bar ik-bar--en" x="233" y="70.83" width="64" height="29.17" />
+                <rect class="ik-bar ik-bar--in" x="303" y="61"    width="64" height="39" />
+                <rect class="ik-bar ik-bar--en ik-bar--proj" x="433" y="66.83" width="64" height="33.17" vector-effect="non-scaling-stroke" />
+                <rect class="ik-bar ik-bar--in ik-bar--proj" x="503" y="10.67" width="64" height="89.33" vector-effect="non-scaling-stroke" />
+                <line class="ik-axis" x1="0" y1="0"   x2="0"   y2="100" vector-effect="non-scaling-stroke" />
+                <line class="ik-axis" x1="0" y1="100" x2="600" y2="100" vector-effect="non-scaling-stroke" />
+              </svg>
+              <span class="ik-val" style="--x:10.83; --h:11.33;">68</span>
+              <span class="ik-val" style="--x:22.5;  --h:7;">42</span>
+              <span class="ik-val" style="--x:44.17; --h:29.17;">175</span>
+              <span class="ik-val" style="--x:55.83; --h:39;">234</span>
+              <span class="ik-val" style="--x:77.5;  --h:33.17;">199</span>
+              <span class="ik-val" style="--x:89.17; --h:89.33;">536</span>
+            </div>
+            <div class="ik-years">
+              <span>2011<span class="ik-total">Total 110 million</span></span>
+              <span>2016<span class="ik-total">Total 409 million</span></span>
+              <span>2021 (proj.)<span class="ik-total">Total 735 million</span></span>
+            </div>
+            <span class="ik-axis-t ik-axis-t--y">Users (millions)</span>
+            <span class="ik-axis-t ik-axis-t--x">Year</span>
+          </div>
+
+          <figcaption class="pr-cap ik-cap">
+            Indian-language users overtook English users in 2016, and the gap was projected to keep widening.
+            <span class="pr-cap-src">Source: <a href="https://assets.kpmg.com/content/dam/kpmg/in/pdf/2017/04/Indian-languages-Defining-Indias-Internet.pdf" target="_blank" rel="noopener">KPMG &amp; Google, Indian Languages: Defining India's Internet, 2017 ↗</a></span>
+          </figcaption>
+        </figure>
+      </div>
+     </div>
+    </div>
+  </section>
+
+  <!-- ══════════ MY PROCESS ══════════ -->
+  <section class="pr-sec" id="ik-process">
+    <div class="pr-band">
+      <span class="pr-band-title">My Process</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead pr-proc-intro">From <strong>how the scripts work</strong> to a working keyboard app.</p>
+
+      <div class="pr-steps">
+        <div class="pr-step">
+          <span class="pr-step-num">01</span>
+          <span class="pr-step-t">Evolution of Indic scripts</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-01-brahmi.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-01-brahmi-landscape.png" alt="Brahmi family tree of modern Indic scripts" />
+            <span class="pr-ph-label">Brahmi family tree</span>
+          </div>
+          <span class="pr-step-c">Tracing modern Indic scripts back to Brahmi, and what they still share.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">02</span>
+          <span class="pr-step-t">Phonetic nature</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-02-articulation.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-02-articulation.png" alt="Articulation diagram showing where each consonant is formed in the mouth" />
+            <span class="pr-ph-label">Articulation diagram</span>
+          </div>
+          <span class="pr-step-c">How the position of a sound in the mouth sets the order of the consonants.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">03</span>
+          <span class="pr-step-t">History of Indic keyboards</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-03-typewriter.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-03-typewriter.png" alt="Godrej Indic typewriter and Google Input Tools" />
+            <span class="pr-ph-label">Godrej typewriter / Input Tools</span>
+          </div>
+          <span class="pr-step-c">From typewriters to QWERTY-adapted layouts to point-and-click keyboards.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">04</span>
+          <span class="pr-step-t">Reviewing smartphone keyboards</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-04-review.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-04-review.png" alt="Gboard and Swarachakra keyboards side by side" />
+            <span class="pr-ph-label">Gboard and Swarachakra</span>
+          </div>
+          <span class="pr-step-c">Typing on Gboard, SwiftKey and Swarachakra, and noting every pain point.</span>
+        </div>
+      </div>
+
+      <div class="pr-steps">
+        <div class="pr-step">
+          <span class="pr-step-num">05</span>
+          <span class="pr-step-t">Layout explorations</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-05-explorations.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-05-explorations.png" alt="Radial and grid keyboard layout prototypes" />
+            <span class="pr-ph-label">Radial and grid prototypes</span>
+          </div>
+          <span class="pr-step-c">Trying different layouts and interactions, first on paper, then in prototypes.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">06</span>
+          <span class="pr-step-t">Design principles</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-06-principles.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-06-principles.png" alt="Keyboard layout alongside its code" />
+            <span class="pr-ph-label">Layout and code</span>
+          </div>
+          <span class="pr-step-c">Turning the pain points into rules for the final layout.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">07</span>
+          <span class="pr-step-t">Key features</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-07-features.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-07-features.png" alt="Dynamic vowel keys and the language switch" />
+            <span class="pr-ph-label">Dynamic vowels / language switch</span>
+          </div>
+          <span class="pr-step-c">Vowels that change with the chosen consonant, and switching languages without relearning the keyboard.</span>
+        </div>
+        <div class="pr-step">
+          <span class="pr-step-num">08</span>
+          <span class="pr-step-t">A working app</span>
+          <!-- Placeholder: ../images/projects/indic-keyboard/process-08-app.png -->
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/process-08-app.png" alt="Screens from the Indic Keyboard Android app" />
+            <span class="pr-ph-label">Android app screens</span>
+          </div>
+          <span class="pr-step-c">Building the keyboard on an open-source Android codebase and putting it in people's hands.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ THE SCRIPT ══════════ -->
+  <section class="pr-sec" id="ik-script">
+    <div class="pr-band">
+      <span class="pr-band-title">The Script</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead">Designing a keyboard starts with understanding <strong class="cs-key">how the scripts work</strong>. Their letters look different, but most share <strong class="cs-key">the same underlying logic</strong>.</p>
+
+      <span class="ik-label">Characteristics of indic scripts</span>
+      <div class="ik-cards">
+        <div class="ik-card">
+          <div class="ik-panel"><p class="ik-glyphs"><span lang="hi" class="ik-deva">क</span> <span class="ik-op">·</span> <span lang="bn" class="ik-beng">ক</span></p></div>
+          <h3 class="ik-card-t">Abugida system</h3>
+          <p class="ik-card-d">Every consonant comes with an inherent vowel, and which vowel depends on the language. <span lang="hi" class="ik-deva">क</span> reads "ka" in Hindi, while <span lang="bn" class="ik-beng">ক</span> reads "kô" in Bengali.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><p class="ik-glyphs"><span lang="hi" class="ik-deva">कि</span> <span class="ik-op">·</span> <span lang="hi" class="ik-deva">की</span> <span class="ik-op">·</span> <span lang="hi" class="ik-deva">कु</span> <span class="ik-op">·</span> <span lang="hi" class="ik-deva">के</span></p></div>
+          <h3 class="ik-card-t">Vowel signs</h3>
+          <p class="ik-card-d">To change the vowel, you add a mark called a <em>matra</em>, not a new letter. It can sit before, after, above or below the consonant.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><p class="ik-glyphs"><span lang="hi" class="ik-deva">क्ष</span> <span class="ik-op">·</span> <span lang="bn" class="ik-beng">ক্ষ</span></p></div>
+          <h3 class="ik-card-t">Conjuncts</h3>
+          <p class="ik-card-d">Consonants can fuse into a single new shape, in Hindi, Bengali, Telugu and most other Indian languages. Some barely resemble their parts.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><p class="ik-glyphs"><span lang="hi" class="ik-deva">क ख ग घ ङ</span></p></div>
+          <h3 class="ik-card-t">Phonetic nature</h3>
+          <p class="ik-card-d">You write what you say. Consonants are grouped by where in the mouth the sound is made, and children learn them in that order: the <em>varnamala</em>.</p>
+        </div>
+      </div>
+
+      <p class="pr-lead ik-bridge">That logic is elegant on paper, but on a keyboard built around the English alphabet it shows up as <strong class="cs-key">four recurring problems</strong>.</p>
+
+      <span class="ik-label">Design challenges when building a keyboard layout</span>
+      <div class="ik-cards">
+        <div class="ik-card">
+          <div class="ik-panel"><div class="ik-ill">
+            <div class="ik-dots" role="img" aria-label="47 Indic base characters versus 26 English letters">
+              <div class="ik-dot-set ik-dot-set--in">
+                <div class="ik-dot-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <span class="ik-dot-n">47</span>
+                <span class="ik-dot-k">Indic</span>
+              </div>
+              <div class="ik-dot-set">
+                <div class="ik-dot-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <span class="ik-dot-n">26</span>
+                <span class="ik-dot-k">English</span>
+              </div>
+            </div>
+          </div></div>
+          <h3 class="ik-card-t">Large character sets</h3>
+          <p class="ik-card-d">Over 47 base characters won't fit on one small screen, so keyboards hide them behind <strong>shift screens</strong> and <strong>long presses</strong>.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><div class="ik-ill">
+            <div class="ik-seq ik-seq--labelled" role="img" aria-label="Typing की takes three taps: the consonant क, shift, then the matra ◌ी">
+              <span class="ik-key ik-deva" lang="hi">क<span class="ik-key-l" lang="en">Consonant</span></span>
+              <span class="ik-op">+</span>
+              <span class="ik-key">⇧<span class="ik-key-l">Shift</span></span>
+              <span class="ik-op">+</span>
+              <span class="ik-key ik-deva" lang="hi">◌ी<span class="ik-key-l" lang="en"><em>Matra</em></span></span>
+              <span class="ik-op">=</span>
+              <span class="ik-result ik-deva" lang="hi">की</span>
+            </div>
+          </div></div>
+          <h3 class="ik-card-t">Multistep input</h3>
+          <p class="ik-card-d">A single syllable can take <strong>three taps</strong>: the consonant, a <strong>shift key</strong> to find the <em>matra (vowel)</em>, then the <em>matra</em> itself.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><div class="ik-ill">
+            <div class="ik-seq ik-seq--labelled" role="img" aria-label="Typing क्ष takes three taps: the consonant क, the virama ◌्, then the consonant ष">
+              <span class="ik-key ik-deva" lang="hi">क<span class="ik-key-l" lang="en">Consonant</span></span>
+              <span class="ik-op">+</span>
+              <span class="ik-key ik-deva" lang="hi">◌्<span class="ik-key-l" lang="en"><em>Virama</em></span></span>
+              <span class="ik-op">+</span>
+              <span class="ik-key ik-deva" lang="hi">ष<span class="ik-key-l" lang="en">Consonant</span></span>
+              <span class="ik-op">=</span>
+              <span class="ik-result ik-deva" lang="hi">क्ष</span>
+            </div>
+          </div></div>
+          <h3 class="ik-card-t">Conjuncts</h3>
+          <p class="ik-card-d">Most keyboards build conjuncts with a <strong>silencing mark (<em>virama</em>)</strong>, so you have to know how a shape is made before you can type it.</p>
+        </div>
+        <div class="ik-card">
+          <div class="ik-panel"><div class="ik-ill">
+            <div class="ik-rows" role="img" aria-label="The consonants on each row of the InScript keyboard, out of varnamala order: ब ह ग द ज ड, then प र क त च ट, then म न व ल स य">
+              <span class="ik-key ik-deva" lang="hi">ब</span><span class="ik-key ik-deva" lang="hi">ह</span><span class="ik-key ik-deva" lang="hi">ग</span><span class="ik-key ik-deva" lang="hi">द</span><span class="ik-key ik-deva" lang="hi">ज</span><span class="ik-key ik-deva" lang="hi">ड</span>
+              <span class="ik-key ik-deva" lang="hi">प</span><span class="ik-key ik-deva" lang="hi">र</span><span class="ik-key ik-deva" lang="hi">क</span><span class="ik-key ik-deva" lang="hi">त</span><span class="ik-key ik-deva" lang="hi">च</span><span class="ik-key ik-deva" lang="hi">ट</span>
+              <span class="ik-key ik-deva" lang="hi">म</span><span class="ik-key ik-deva" lang="hi">न</span><span class="ik-key ik-deva" lang="hi">व</span><span class="ik-key ik-deva" lang="hi">ल</span><span class="ik-key ik-deva" lang="hi">स</span><span class="ik-key ik-deva" lang="hi">य</span>
+            </div>
+          </div></div>
+          <h3 class="ik-card-t">Unfamiliar layouts</h3>
+          <p class="ik-card-d">Every keyboard arranges the letters its own way, and few follow the <strong><em>varnamala</em></strong> people already know.</p>
+        </div>
+      </div>
+
+      <p class="pr-lead ik-close">None of these problems is new. Every generation of Indic keyboard, <strong class="cs-key">from the typewriter to the smartphone</strong>, has had to find its own way around them.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ EVOLUTION OF INDIC KEYBOARDS ══════════ -->
+  <section class="pr-sec" id="ik-evolution">
+    <div class="pr-band">
+      <span class="pr-band-title">Evolution of Indic Keyboards</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead">Every Indic keyboard has had to decide how to arrange its keys: by <strong class="cs-key">the phonetic nature of the script</strong>, or by <strong class="cs-key">how often each letter is used</strong>.</p>
+
+      <div class="ik-evo-compare">
+        <article class="ik-evo-card">
+          <span class="ik-evo-pill ik-evo-pill--freq"><span class="ik-evo-dot ik-evo-dot--freq" aria-hidden="true"></span>Frequency</span>
+          <h3 class="ik-evo-card-t">Frequency-based layout</h3>
+          <p class="ik-evo-card-d">The most-used characters go on the easiest keys to reach. Other characters are typed using the "Shift" key. Optimized for the QWERTY layout.</p>
+          <figure class="ik-evo-fig">
+          <div class="ik-evo-vis">
+            <div class="ik-evo-kb-frame">
+              <div class="ik-evo-kb" role="img" aria-label="InScript keyboard: vowels and matras on the left, consonants on the right, and the most-used characters on the home row">
+                <div class="ik-evo-kb-row ik-evo-kb-row--top">
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">औ</span><span lang="hi" class="ik-deva ik-evo-base">◌ौ</span><span class="ik-evo-latin">Q</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ऐ</span><span lang="hi" class="ik-deva ik-evo-base">◌ै</span><span class="ik-evo-latin">W</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">आ</span><span lang="hi" class="ik-deva ik-evo-base">◌ा</span><span class="ik-evo-latin">E</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ई</span><span lang="hi" class="ik-deva ik-evo-base">◌ी</span><span class="ik-evo-latin">R</span></span>
+                  <span class="ik-evo-key ik-evo-key--split"><span lang="hi" class="ik-deva ik-evo-shift">ऊ</span><span lang="hi" class="ik-deva ik-evo-base">◌ू</span><span class="ik-evo-latin">T</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">भ</span><span lang="hi" class="ik-deva ik-evo-base">ब</span><span class="ik-evo-latin">Y</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ङ</span><span lang="hi" class="ik-deva ik-evo-base">ह</span><span class="ik-evo-latin">U</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">घ</span><span lang="hi" class="ik-deva ik-evo-base">ग</span><span class="ik-evo-latin">I</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ध</span><span lang="hi" class="ik-deva ik-evo-base">द</span><span class="ik-evo-latin">O</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">झ</span><span lang="hi" class="ik-deva ik-evo-base">ज</span><span class="ik-evo-latin">P</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ढ</span><span lang="hi" class="ik-deva ik-evo-base">ड</span><span class="ik-evo-latin">[</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ञ</span><span lang="hi" class="ik-deva ik-evo-base">◌़</span><span class="ik-evo-latin">]</span></span>
+                </div>
+                <div class="ik-evo-kb-row ik-evo-kb-row--home">
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">ओ</span><span lang="hi" class="ik-deva ik-evo-base">◌ो</span><span class="ik-evo-latin">A</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">ए</span><span lang="hi" class="ik-deva ik-evo-base">◌े</span><span class="ik-evo-latin">S</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">अ</span><span lang="hi" class="ik-deva ik-evo-base">◌्</span><span class="ik-evo-latin">D</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">इ</span><span lang="hi" class="ik-deva ik-evo-base">◌ि</span><span class="ik-evo-latin">F</span></span>
+                  <span class="ik-evo-key ik-evo-key--home ik-evo-key--split"><span lang="hi" class="ik-deva ik-evo-shift">उ</span><span lang="hi" class="ik-deva ik-evo-base">◌ु</span><span class="ik-evo-latin">G</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">फ</span><span lang="hi" class="ik-deva ik-evo-base">प</span><span class="ik-evo-latin">H</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-base">र</span><span class="ik-evo-latin">J</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">ख</span><span lang="hi" class="ik-deva ik-evo-base">क</span><span class="ik-evo-latin">K</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">थ</span><span lang="hi" class="ik-deva ik-evo-base">त</span><span class="ik-evo-latin">L</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">छ</span><span lang="hi" class="ik-deva ik-evo-base">च</span><span class="ik-evo-latin">;</span></span>
+                  <span class="ik-evo-key ik-evo-key--home"><span lang="hi" class="ik-deva ik-evo-shift">ठ</span><span lang="hi" class="ik-deva ik-evo-base">ट</span><span class="ik-evo-latin">'</span></span>
+                </div>
+                <div class="ik-evo-kb-row ik-evo-kb-row--bottom">
+                  <span class="ik-evo-key"><span class="ik-evo-latin">Z</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">◌ँ</span><span lang="hi" class="ik-deva ik-evo-base">◌ं</span><span class="ik-evo-latin">X</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ण</span><span lang="hi" class="ik-deva ik-evo-base">म</span><span class="ik-evo-latin">C</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-base">न</span><span class="ik-evo-latin">V</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-base">व</span><span class="ik-evo-latin">B</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ळ</span><span lang="hi" class="ik-deva ik-evo-base">ल</span><span class="ik-evo-latin">N</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">श</span><span lang="hi" class="ik-deva ik-evo-base">स</span><span class="ik-evo-latin">M</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">ष</span><span class="ik-evo-base">,</span><span class="ik-evo-latin">,</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-shift">।</span><span class="ik-evo-base">.</span><span class="ik-evo-latin">.</span></span>
+                  <span class="ik-evo-key"><span lang="hi" class="ik-deva ik-evo-base">य</span><span class="ik-evo-latin">/</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="pr-cap ik-evo-cap">InScript · most-used characters on the home row</figcaption>
+          </figure>
+        </article>
+
+        <article class="ik-evo-card">
+          <span class="ik-evo-pill ik-evo-pill--phon"><span class="ik-evo-dot ik-evo-dot--phon" aria-hidden="true"></span>Phonetic</span>
+          <h3 class="ik-evo-card-t">Phonetic layout</h3>
+          <p class="ik-evo-card-d">Keys follow the script's own order, the varnamala, based on the phonetic structure of the language. Vowels and consonants are grouped separately.</p>
+          <figure class="ik-evo-fig">
+          <div class="ik-evo-vis ik-evo-vis--varna">
+            <div class="ik-evo-varna-set" role="img" aria-label="The varnamala: ten vowels grouped together in short and long pairs, beside the first 25 consonants in five rows of five">
+            <div class="ik-evo-varna ik-evo-varna--vowels">
+              <span lang="hi" class="ik-deva">अ</span><span lang="hi" class="ik-deva">आ</span>
+              <span lang="hi" class="ik-deva">इ</span><span lang="hi" class="ik-deva">ई</span>
+              <span lang="hi" class="ik-deva">उ</span><span lang="hi" class="ik-deva">ऊ</span>
+              <span lang="hi" class="ik-deva">ए</span><span lang="hi" class="ik-deva">ऐ</span>
+              <span lang="hi" class="ik-deva">ओ</span><span lang="hi" class="ik-deva">औ</span>
+            </div>
+            <div class="ik-evo-varna">
+              <span lang="hi" class="ik-deva">क</span><span lang="hi" class="ik-deva">ख</span><span lang="hi" class="ik-deva">ग</span><span lang="hi" class="ik-deva">घ</span><span lang="hi" class="ik-deva">ङ</span>
+              <span lang="hi" class="ik-deva">च</span><span lang="hi" class="ik-deva">छ</span><span lang="hi" class="ik-deva">ज</span><span lang="hi" class="ik-deva">झ</span><span lang="hi" class="ik-deva">ञ</span>
+              <span lang="hi" class="ik-deva">ट</span><span lang="hi" class="ik-deva">ठ</span><span lang="hi" class="ik-deva">ड</span><span lang="hi" class="ik-deva">ढ</span><span lang="hi" class="ik-deva">ण</span>
+              <span lang="hi" class="ik-deva">त</span><span lang="hi" class="ik-deva">थ</span><span lang="hi" class="ik-deva">द</span><span lang="hi" class="ik-deva">ध</span><span lang="hi" class="ik-deva">न</span>
+              <span lang="hi" class="ik-deva">प</span><span lang="hi" class="ik-deva">फ</span><span lang="hi" class="ik-deva">ब</span><span lang="hi" class="ik-deva">भ</span><span lang="hi" class="ik-deva">म</span>
+            </div>
+            </div>
+          </div>
+          <figcaption class="pr-cap ik-evo-cap">Varnamala order · vowels and consonants</figcaption>
+          </figure>
+        </article>
+      </div>
+
+      <span class="ik-evo-label">How Indic keyboards evolved</span>
+      <div class="pr-steps ik-evo-eras">
+        <article class="pr-step ik-evo-era">
+          <span class="pr-step-num">1968</span>
+          <span class="ik-evo-pill"><span class="ik-evo-dot ik-evo-dot--freq" aria-hidden="true"></span>Frequency</span>
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/evolution-01-typewriter.png" alt="A grey Godrej typewriter" loading="lazy" />
+            <span class="pr-ph-label">Godrej typewriter</span>
+          </div>
+          <h3 class="ik-evo-era-t">Godrej Typewriter</h3>
+          <ul class="ik-evo-list">
+            <li>Letters placed by how frequently they're used</li>
+            <li>Over 50 characters squeezed onto keys designed for 26</li>
+            <li>Two characters per key; matras used a dead key (one that types without moving forward)</li>
+          </ul>
+        </article>
+        <article class="pr-step ik-evo-era">
+          <span class="pr-step-num">1988</span>
+          <span class="ik-evo-pill"><span class="ik-evo-dots" aria-hidden="true"><span class="ik-evo-dot ik-evo-dot--freq"></span><span class="ik-evo-dot ik-evo-dot--phon"></span></span>Hybrid</span>
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/evolution-02-inscript.png" alt="A keyboard with Devanagari characters beside the English letters" loading="lazy" />
+            <span class="pr-ph-label">InScript keyboard</span>
+          </div>
+          <h3 class="ik-evo-era-t">InScript Keyboard</h3>
+          <ul class="ik-evo-list">
+            <li>Key positions set by how frequently each letter is used</li>
+            <li>Two characters per key, to fit the QWERTY layout</li>
+            <li>Vowels on the left, consonants on the right, making it a hybrid layout</li>
+          </ul>
+        </article>
+        <article class="pr-step ik-evo-era">
+          <span class="pr-step-num">Early 2000s</span>
+          <span class="ik-evo-pill"><span class="ik-evo-dots" aria-hidden="true"><span class="ik-evo-dot ik-evo-dot--freq"></span><span class="ik-evo-dot ik-evo-dot--phon"></span></span>Hybrid</span>
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/evolution-03-point-click.png" alt="Google Input Tools with an on-screen Devanagari keyboard" loading="lazy" />
+            <span class="pr-ph-label">Google Input Tools</span>
+          </div>
+          <h3 class="ik-evo-era-t">Point &amp; Click</h3>
+          <ul class="ik-evo-list">
+            <li>On-screen keyboards, one click per character, so typing is slow</li>
+            <li>Layouts ranged from InScript to plain alphabetical order</li>
+            <li>e.g. Google Input Tools, Avro Keyboard</li>
+          </ul>
+        </article>
+        <article class="pr-step ik-evo-era">
+          <span class="pr-step-num">2010 – present</span>
+          <span class="ik-evo-pill"><span class="ik-evo-dots" aria-hidden="true"><span class="ik-evo-dot ik-evo-dot--freq"></span><span class="ik-evo-dot ik-evo-dot--phon"></span></span>Mostly phonetic</span>
+          <div class="pr-ph">
+            <img src="../images/projects/indic-keyboard/evolution-04-smartphone.png" alt="Gboard's Hindi keyboard, mostly in varnamala order" loading="lazy" />
+            <span class="pr-ph-label">Gboard Hindi keyboard</span>
+          </div>
+          <h3 class="ik-evo-era-t">Smartphones</h3>
+          <ul class="ik-evo-list">
+            <li>Relies heavily on shift screens (highlighted in yellow) to fit the large character set</li>
+            <li>Rearranged to fit as many characters as possible on a small screen</li>
+            <li>Prediction, handwriting and voice typing are built-in features</li>
+          </ul>
+        </article>
+      </div>
+
+      <p class="pr-lead ik-evo-close">Every keyboard layout was <strong class="cs-key">a product of its time</strong>. For smartphones, the first step was to <strong class="cs-key">test the status quo</strong>: Gboard and SwiftKey.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ THE STATUS QUO ══════════ -->
+  <section class="pr-sec" id="ik-status">
+    <div class="pr-band">
+      <span class="pr-band-title">The Status Quo</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead">Most people type on <strong class="cs-key">Gboard (Google)</strong> or <strong class="cs-key">SwiftKey (Microsoft)</strong>, while <strong class="cs-key">Swarachakra</strong>, from IIT Bombay, takes a phonetic approach.</p>
+
+      <ol class="ik-sq-list">
+        <li class="ik-sq-item ik-sq-item--odd">
+          <figure class="ik-sq-shot">
+            <div class="ik-sq-frame"><img src="../images/projects/indic-keyboard/status-01-gboard-shift.png" alt="Gboard in Hindi, Gujarati and Bengali, with the shift-screen keys highlighted" loading="lazy" /></div>
+            <span class="ik-sq-pin" style="--ax: 15.6%; --ay: 68.2%" aria-hidden="true"></span>
+            <span class="ik-sq-pin" style="--ax: 3.9%; --ay: 83.0%" aria-hidden="true"></span>
+          </figure>
+          <div class="ik-sq-card">
+            <span class="ik-sq-num">01</span>
+            <h3 class="ik-sq-title">Shift screens</h3>
+            <p class="ik-sq-text">Hindi spreads its letters across four screens, Gujarati two and Bengali none, though each has 34–39 consonants. For multilingual users, every switch means learning a new layout.</p>
+            <ul class="ik-sq-tags" aria-label="Keyboards"><li class="ik-sq-tag">Gboard</li></ul>
+          </div>
+        </li>
+
+        <li class="ik-sq-item ik-sq-item--even">
+          <figure class="ik-sq-shot">
+            <div class="ik-sq-frame"><img src="../images/projects/indic-keyboard/status-02-dynamic-vowels.png" alt="The vowel row updating with the selected consonant in Gboard and SwiftKey" loading="lazy" /></div>
+            <span class="ik-sq-pin" style="--ax: 49.7%; --ay: 10.0%" aria-hidden="true"></span>
+            <span class="ik-sq-pin" style="--ax: 93.7%; --ay: 38.2%" aria-hidden="true"></span>
+          </figure>
+          <div class="ik-sq-card">
+            <span class="ik-sq-num">02</span>
+            <h3 class="ik-sq-title">Dynamic vowels</h3>
+            <p class="ik-sq-text">Tap a consonant and the vowel keys update with each matra attached, enhancing typing efficiency.</p>
+            <ul class="ik-sq-tags" aria-label="Keyboards"><li class="ik-sq-tag">Gboard</li><li class="ik-sq-tag">SwiftKey</li></ul>
+          </div>
+        </li>
+
+        <li class="ik-sq-item ik-sq-item--odd">
+          <figure class="ik-sq-shot">
+            <div class="ik-sq-frame"><img src="../images/projects/indic-keyboard/status-03-typing.png" alt="Handwriting input in Gboard and swipe typing in SwiftKey" loading="lazy" /></div>
+            <span class="ik-sq-pin" style="--ax: 4.1%; --ay: 44.9%" aria-hidden="true"></span>
+            <span class="ik-sq-pin" style="--ax: 37.0%; --ay: 87.0%" aria-hidden="true"></span>
+          </figure>
+          <div class="ik-sq-card">
+            <span class="ik-sq-num">03</span>
+            <h3 class="ik-sq-title">Typing mechanisms</h3>
+            <p class="ik-sq-text">Gboard adds handwriting, and both offer swipe typing. Nice to have, but neither makes typing noticeably faster.</p>
+            <ul class="ik-sq-tags" aria-label="Keyboards"><li class="ik-sq-tag">Gboard</li><li class="ik-sq-tag">SwiftKey</li></ul>
+          </div>
+        </li>
+
+        <li class="ik-sq-item ik-sq-item--even">
+          <figure class="ik-sq-shot">
+            <div class="ik-sq-frame"><img src="../images/projects/indic-keyboard/status-04-swarachakra.png" alt="The Swarachakra keyboard's phonetic grid" loading="lazy" /></div>
+            <span class="ik-sq-pin" style="--ax: 49.5%; --ay: 2.4%" aria-hidden="true"></span>
+          </figure>
+          <div class="ik-sq-card">
+            <span class="ik-sq-num">04</span>
+            <h3 class="ik-sq-title">Phonetic grid</h3>
+            <p class="ik-sq-text">Developed by the Industrial Design Centre, IIT Bombay, this keyboard uses a phonetic layout for easy alphabet discovery, but at the cost of screen space.</p>
+            <ul class="ik-sq-tags" aria-label="Keyboards"><li class="ik-sq-tag">Swarachakra</li></ul>
+          </div>
+        </li>
+
+        <li class="ik-sq-item ik-sq-item--odd">
+          <figure class="ik-sq-shot">
+            <div class="ik-sq-frame"><img src="../images/projects/indic-keyboard/status-05-chakra.png" alt="The chakra popup wheel covering nearby keys" loading="lazy" /></div>
+            <span class="ik-sq-pin" style="--ax: 33.5%; --ay: 97.7%" aria-hidden="true"></span>
+          </figure>
+          <div class="ik-sq-card">
+            <span class="ik-sq-num">05</span>
+            <h3 class="ik-sq-title">The chakra</h3>
+            <p class="ik-sq-text">Tapping a consonant opens a wheel of its vowel combinations, often covering the keys around it. To keep the wheel on screen, no consonants sit at the edges.</p>
+            <ul class="ik-sq-tags" aria-label="Keyboards"><li class="ik-sq-tag">Swarachakra</li></ul>
+          </div>
+        </li>
+      </ol>
+
+      <p class="pr-lead ik-sq-close">Each keyboard solved part of the problem. The next step was to <strong class="cs-key">combine what worked</strong> in a new layout.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ LAYOUT EXPLORATIONS ══════════ -->
+  <section class="pr-sec" id="ik-explore">
+    <div class="pr-band">
+      <span class="pr-band-title">Layout Explorations</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead">Each exploration looked for <strong class="cs-key">an intuitive way to arrange the keys</strong>, one that stays <strong class="cs-key">consistent across languages</strong> so the learning curve isn't too steep.</p>
+
+      <div class="ik-ex-grid">
+        <figure class="ik-ex-fig">
+          <div class="pr-ph ik-ex-ph">
+            <img src="../images/projects/indic-keyboard/explore-01-partly-phonetic.png" alt="Prototype keyboard with a partly phonetic layout" loading="lazy" />
+            <span class="pr-ph-label">Partly phonetic layout</span>
+          </div>
+          <figcaption class="pr-cap ik-ex-cap">A partly phonetic layout, with frequently used consonants on the first screen.</figcaption>
+        </figure>
+
+        <figure class="ik-ex-fig">
+          <div class="pr-ph ik-ex-ph">
+            <img src="../images/projects/indic-keyboard/explore-02-long-press.png" alt="Prototype keyboard with small dots between keys that reveal similar-sounding characters" loading="lazy" />
+            <span class="pr-ph-label">Long-press layout</span>
+          </div>
+          <figcaption class="pr-cap ik-ex-cap">An alternate layout with long-press interactions: pressing the small dots between keys reveals phonetically similar characters.</figcaption>
+        </figure>
+
+        <figure class="ik-ex-fig">
+          <div class="pr-ph ik-ex-ph">
+            <img src="../images/projects/indic-keyboard/explore-03-half-wheel.png" alt="Prototype keyboard with a half-wheel menu of consonant and vowel combinations" loading="lazy" />
+            <span class="pr-ph-label">Half-wheel menu</span>
+          </div>
+          <figcaption class="pr-cap ik-ex-cap">Exploring different ways to type consonant and vowel combinations efficiently.</figcaption>
+        </figure>
+
+        <figure class="ik-ex-fig">
+          <div class="pr-ph ik-ex-ph">
+            <img src="../images/projects/indic-keyboard/explore-04-full-wheel.png" alt="Prototype keyboard with a full-wheel menu of similar-sounding combinations" loading="lazy" />
+            <span class="pr-ph-label">Full-wheel menu</span>
+          </div>
+          <figcaption class="pr-cap ik-ex-cap">Vowel combinations with similar sounds (<span lang="hi" class="ik-deva">कि / की</span>) placed next to each other.</figcaption>
+        </figure>
+      </div>
+
+      <p class="pr-lead ik-ex-close">The radial wheel ran into the chakra's problem: <strong class="cs-key">keys near the edge pushed it off screen</strong>, and working around that made the keyboard taller.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ THE FINAL LAYOUT ══════════ -->
+  <section class="pr-sec" id="ik-principles">
+    <div class="pr-band">
+      <span class="pr-band-title">The Final Layout</span>
+    </div>
+
+    <div class="pr-body">
+      <div class="ik-pr-layout">
+        <div class="ik-pr-col">
+        <p class="pr-lead">The final layout was shaped by four principles, balancing <strong class="cs-key">the natural order of the script</strong> with <strong class="cs-key">the frequency of each character</strong>.</p>
+        <span class="ik-evo-label ik-pr-eyebrow">The design principles</span>
+        <ol class="ik-pr-list">
+          <li>
+            <span class="ik-pr-num">01</span>
+            <h3 class="ik-pr-title">Logical structuring</h3>
+            <p class="ik-pr-text">Keys follow the alphabetical order of Indic scripts, the order people learn in school, so letters are easy to find.</p>
+          </li>
+          <li>
+            <span class="ik-pr-num">02</span>
+            <h3 class="ik-pr-title">Frequency of use</h3>
+            <p class="ik-pr-text">Frequently used characters sit on the first screen. Less common ones wait on alternate screens or in long-press popups.</p>
+          </li>
+          <li>
+            <span class="ik-pr-num">03</span>
+            <h3 class="ik-pr-title">Categorical integrity</h3>
+            <p class="ik-pr-text">Vowels, consonants, symbols and numbers each keep their own group, which cuts down on hunting.</p>
+          </li>
+          <li>
+            <span class="ik-pr-num">04</span>
+            <h3 class="ik-pr-title">Aesthetics and symmetry</h3>
+            <p class="ik-pr-text">Consistent spacing makes the layout feel familiar. Colour-coded vowels and a separator between vowels and consonants keep it balanced and easy to scan.</p>
+          </li>
+        </ol>
+        </div>
+
+        <figure class="ik-pr-fig">
+          <div class="ik-pr-stage">
+            <img class="ik-pr-at ik-pr-kb" style="--x: 281; --y: 107; --w: 515" src="../images/projects/indic-keyboard/principles-keyboard.png" alt="The final keyboard layout: vowels in green on the left, numbers below them, consonants in alphabetical order on the right, separated by a dotted column" loading="lazy" width="1200" height="996" />
+            <img class="ik-pr-at ik-pr-pop" style="--x: 880; --y: 196; --w: 113" src="../images/projects/indic-keyboard/principles-popup.png" alt="Popup panel of related consonants shown on long press" loading="lazy" width="272" height="614" />
+            <span class="ik-pr-at ik-pr-sep" style="--x: 521; --y: 178; --w: 35; --h: 288" aria-hidden="true"></span>
+
+            <svg class="ik-pr-lines" viewBox="0 0 1100 660" aria-hidden="true" focusable="false">
+              <path d="M456 31 H631 V121" />
+              <path d="M456 69 H585 V121" />
+              <path d="M850 31 H677 V121" />
+              <path d="M850 69 H723 V121" />
+              <path d="M850 138 H786" />
+              <path d="M880 323 H556" />
+              <path d="M217 574 H329 V515" />
+              <path d="M217 637 H390 V515" />
+              <path d="M538 611 V515" />
+              <path d="M862 574 H747 V515" />
+              <path d="M862 637 H687 V515" />
+            </svg>
+
+            <span class="ik-pr-at ik-pr-dot" style="--x: 631; --y: 121" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 585; --y: 121" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 677; --y: 121" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 723; --y: 121" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 786; --y: 138" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 556; --y: 323" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 329; --y: 515" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 390; --y: 515" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 538; --y: 515" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 747; --y: 515" aria-hidden="true"></span>
+            <span class="ik-pr-at ik-pr-dot" style="--x: 687; --y: 515" aria-hidden="true"></span>
+
+            <span class="ik-pr-at ik-pr-label ik-pr-label--end" style="--x: 440; --y: 31">Language change</span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--end" style="--x: 440; --y: 69">Keyboard settings</span>
+            <span class="ik-pr-at ik-pr-label" style="--x: 870; --y: 31">Transliteration <span class="ik-pr-future">(future feature)</span></span>
+            <span class="ik-pr-at ik-pr-label" style="--x: 870; --y: 69">Emoji</span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--wrap" style="--x: 870; --y: 138">Voice input <span class="ik-pr-future">(future feature)</span></span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--wrap" style="--x: 880; --y: 470">Popup characters on long press</span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--end" style="--x: 200; --y: 574">Delete / Backspace</span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--end" style="--x: 200; --y: 637">Shift</span>
+            <span class="ik-pr-at ik-pr-label ik-pr-label--mid" style="--x: 538; --y: 640">Spacebar</span>
+            <span class="ik-pr-at ik-pr-label" style="--x: 880; --y: 574">Enter</span>
+            <span class="ik-pr-at ik-pr-label" style="--x: 880; --y: 637">Punctuation</span>
+          </div>
+
+          <ul class="ik-pr-features">
+            <li>Language change</li>
+            <li>Keyboard settings</li>
+            <li>Transliteration <span class="ik-pr-future">(future feature)</span></li>
+            <li>Emoji</li>
+            <li>Voice input <span class="ik-pr-future">(future feature)</span></li>
+            <li>Popup characters on long press</li>
+            <li>Delete / Backspace</li>
+            <li>Shift</li>
+            <li>Spacebar</li>
+            <li>Enter</li>
+            <li>Punctuation</li>
+          </ul>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ THE KEYBOARD IN USE ══════════ -->
+  <section class="pr-sec" id="ik-use">
+    <div class="pr-band">
+      <span class="pr-band-title">The Keyboard in Use</span>
+    </div>
+
+    <div class="pr-body">
+      <p class="pr-lead">Built as a working Android app, the keyboard puts the principles into practice in <strong class="cs-key">everyday typing</strong>, with <strong class="cs-key">one layout logic across languages</strong>.</p>
+
+      <ul class="ik-use-grid">
+        <li class="ik-use-item">
+          <div class="ik-use-phone">
+            <span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-sensor" aria-hidden="true"></span><span class="ik-use-grille" aria-hidden="true"></span><span class="ik-use-vol" aria-hidden="true"></span>
+            <div class="ik-use-screen">
+              <video muted loop playsinline preload="none" poster="../images/projects/indic-keyboard/videos/use-01-shift-popups-poster.jpg" aria-label="Screen recording of the keyboard's shift screen and long-press popups">
+                <source src="../images/projects/indic-keyboard/videos/use-01-shift-popups.webm" type="video/webm">
+                <source src="../images/projects/indic-keyboard/videos/use-01-shift-popups.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+          <p class="ik-use-text">Vowels, consonants and numbers up front. Rarer characters are just a tap or a long press away.</p>
+        </li>
+
+        <li class="ik-use-item">
+          <div class="ik-use-phone">
+            <span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-sensor" aria-hidden="true"></span><span class="ik-use-grille" aria-hidden="true"></span><span class="ik-use-vol" aria-hidden="true"></span>
+            <div class="ik-use-screen">
+              <video muted loop playsinline preload="none" poster="../images/projects/indic-keyboard/videos/use-02-dynamic-vowels-poster.jpg" aria-label="Screen recording of the vowel keys updating after a consonant is tapped">
+                <source src="../images/projects/indic-keyboard/videos/use-02-dynamic-vowels.webm" type="video/webm">
+                <source src="../images/projects/indic-keyboard/videos/use-02-dynamic-vowels.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+          <p class="ik-use-text">Pick a consonant and the vowels rearrange around it, putting every syllable one tap away for faster typing.</p>
+        </li>
+
+        <li class="ik-use-item">
+          <div class="ik-use-phone">
+            <span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-sensor" aria-hidden="true"></span><span class="ik-use-grille" aria-hidden="true"></span><span class="ik-use-vol" aria-hidden="true"></span>
+            <div class="ik-use-screen">
+              <video muted loop playsinline preload="none" poster="../images/projects/indic-keyboard/videos/use-03-language-switch-poster.jpg" aria-label="Screen recording of the keyboard switching between Hindi, English and Bengali">
+                <source src="../images/projects/indic-keyboard/videos/use-03-language-switch.webm" type="video/webm">
+                <source src="../images/projects/indic-keyboard/videos/use-03-language-switch.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+          <p class="ik-use-text">One keyboard for every language you write in, with the same logic in each.</p>
+        </li>
+
+        <li class="ik-use-item">
+          <div class="ik-use-phone">
+            <span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-cam" aria-hidden="true"></span><span class="ik-use-sensor" aria-hidden="true"></span><span class="ik-use-grille" aria-hidden="true"></span><span class="ik-use-vol" aria-hidden="true"></span>
+            <div class="ik-use-screen">
+              <video muted loop playsinline preload="none" poster="../images/projects/indic-keyboard/videos/use-04-emoji-poster.jpg" aria-label="Screen recording of the emoji panel">
+                <source src="../images/projects/indic-keyboard/videos/use-04-emoji.webm" type="video/webm">
+                <source src="../images/projects/indic-keyboard/videos/use-04-emoji.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+          <p class="ik-use-text">Bring your conversations to life with a full range of emoji.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════ NEXT PROJECT ══════════ -->
+  <section class="pr-sec pr-sec--close" id="ik-impact">
+    <div class="pr-band">
+      <span class="pr-band-title">Impact &amp; Outcomes</span>
+    </div>
+
+    <div class="pr-body">
+     <div class="pr-split ik-imp-split">
+      <div class="pr-col-l ik-imp-l">
+        <div class="ik-imp-screen">
+          <video muted loop playsinline preload="none"
+                 poster="../images/projects/indic-keyboard/videos/impact-litrit-app-poster.jpg"
+                 aria-label="Screen recording: setting Litrit as the default keyboard, then typing a Hindi search in Google">
+            <source src="../images/projects/indic-keyboard/videos/impact-litrit-app.webm" type="video/webm">
+            <source src="../images/projects/indic-keyboard/videos/impact-litrit-app.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <div class="pr-col-r pr-stack">
+        <span class="pr-eyebrow">In people's hands</span>
+        <p class="pr-lead">People found the keyboard <strong class="cs-key">easier to navigate</strong> and <strong class="cs-key">faster to type on</strong> than keyboards like Gboard and SwiftKey.</p>
+
+        <div class="pr-ops">
+          <article class="pr-op">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg></span>
+              <h3 class="pr-op-t">92% found the layout intuitive</h3>
+            </div>
+            <p class="pr-op-p">Colour-coded vowels and the alphabetical grouping let people spot letters at a glance, without hunting across screens.</p>
+          </article>
+
+          <article class="pr-op">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2" ry="2"/><path d="M6 8h.001"/><path d="M10 8h.001"/><path d="M14 8h.001"/><path d="M18 8h.001"/><path d="M8 12h.001"/><path d="M12 12h.001"/><path d="M16 12h.001"/><path d="M7 16h10"/></svg></span>
+              <h3 class="pr-op-t">30% felt faster to type on</h3>
+            </div>
+            <p class="pr-op-p">Self-reported after three days of everyday use, compared with how fast they typed on Gboard and SwiftKey.</p>
+          </article>
+
+          <article class="pr-op">
+            <div class="pr-op-h">
+              <span class="pr-op-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></span>
+              <h3 class="pr-op-t">78% praised the language switch</h3>
+            </div>
+            <p class="pr-op-p">Mostly from people fluent in several languages, for whom moving between Hindi, Bengali and English is part of everyday typing.</p>
+          </article>
+        </div>
+
+        <p class="pr-cap ik-imp-link">Try it yourself: <a href="https://drive.google.com/drive/folders/1o5yQhdi90VPgKCnABj39OMlCLBsNTmbe" target="_blank" rel="noopener">Download the Android app (Google Drive) ↗</a></p>
+      </div>
+     </div>
+
+      <nav class="pr-next ik-pn" aria-label="More projects">
+        <a href="everyday-allies.html" class="pr-next-link ik-pn-prev">
+          <span class="pr-next-v">← Everyday Allies</span>
+        </a>
+        <a href="crafting-conviviality.html" class="pr-next-link ik-pn-next">
+          <span class="pr-next-v">Crafting Conviviality →</span>
+        </a>
+      </nav>
     </div>
   </section>
 
   </main>
+
+  <!-- floating section nav: shows from Context until the project links -->
+  <nav class="pr-fnav" id="prFnav" aria-label="Jump to section">
+    <ul class="pr-fnav-list" id="prFnavList" hidden>
+      <li><a href="#ik-context">Context</a></li>
+      <li><a href="#ik-process">My Process</a></li>
+      <li><a href="#ik-script">The Script</a></li>
+      <li><a href="#ik-evolution">Evolution of Indic Keyboards</a></li>
+      <li><a href="#ik-status">The Status Quo</a></li>
+      <li><a href="#ik-explore">Layout Explorations</a></li>
+      <li><a href="#ik-principles">The Final Layout</a></li>
+      <li><a href="#ik-use">The Keyboard in Use</a></li>
+      <li><a href="#ik-impact">Impact &amp; Outcomes</a></li>
+    </ul>
+    <button class="pr-fnav-btn" type="button" aria-expanded="false" aria-controls="prFnavList">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>Sections</span>
+    </button>
+  </nav>
+
 
   <script>
     'use strict';
@@ -131,5 +2668,187 @@
     });
   </script>
   <script src="../case-study.js"></script>
+  <script>
+    'use strict';
+
+    /* ── Context chart: bars grow from zero once, on first view ── */
+    (() => {
+      const chart = document.getElementById('ikChart');
+      if (!chart || !('IntersectionObserver' in window)) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      chart.classList.add('is-pending');
+      const io = new IntersectionObserver(entries => {
+        if (!entries.some(e => e.isIntersecting)) return;
+        io.disconnect();
+        requestAnimationFrame(() => {
+          chart.classList.add('is-in');
+          chart.classList.remove('is-pending');
+        });
+      }, { threshold: 0.35 });
+      io.observe(chart);
+    })();
+
+    /* ── Small text matches the main text (same as Everyday Allies):
+          the paragraphs under a lead wrap no wider than its longest line ── */
+    (() => {
+      const matchLeads = () => {
+        document.querySelectorAll('.pr-lead').forEach(lead => {
+          const small = [];
+          for (let el = lead.nextElementSibling; el && !el.classList.contains('pr-lead'); el = el.nextElementSibling) {
+            if (el.matches('.pr-p, .pr-ref')) small.push(el);
+          }
+          if (!small.length) return;
+          small.forEach(el => { el.style.maxWidth = ''; });
+          const range = document.createRange();
+          range.selectNodeContents(lead);
+          const left = lead.getBoundingClientRect().left;
+          let right = 0;
+          Array.from(range.getClientRects()).forEach(r => { right = Math.max(right, r.right); });
+          if (right > left) small.forEach(el => { el.style.maxWidth = Math.ceil(right - left) + 'px'; });
+        });
+      };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(matchLeads);
+      window.addEventListener('load', matchLeads);
+      window.addEventListener('resize', matchLeads);
+    })();
+  </script>
+
+  <script>
+    /* ── The Keyboard in Use and Impact: play only the videos on screen ──
+       Each video plays while at least 40% of it is visible and pauses
+       when it leaves. Clicking the screen (or its button) pauses or
+       resumes it, and a paused clip stays paused. With reduced motion,
+       nothing autoplays and the button is always shown. */
+    (function () {
+      const videos = Array.from(document.querySelectorAll('#ik-use video, #ik-impact video'));
+      if (!videos.length) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const PLAY  = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>';
+      const PAUSE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg>';
+      const visible = new Set();
+      const userPaused = new Set();   // clips the reader paused stay paused
+
+      const play = v => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+
+      function sync(v) {
+        const screen = v.parentElement;
+        const btn = screen.querySelector('.ik-use-toggle');
+        const playing = !v.paused;
+        screen.classList.toggle('is-paused', !playing);
+        if (!btn) return;
+        btn.innerHTML = playing ? PAUSE : PLAY;
+        btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+      }
+
+      const timers = new Map();
+      function flash(v, playing) {
+        const f = v.parentElement.querySelector('.ik-use-flash');
+        if (!f) return;
+        clearTimeout(timers.get(v));
+        f.innerHTML = playing ? PAUSE.replace('aria-hidden="true"', 'aria-hidden="true"') : PLAY;
+        f.classList.add('is-on');
+        // resuming: show the pause icon briefly, then fade out.
+        // pausing: the play icon stays until the clip plays again.
+        if (playing) timers.set(v, setTimeout(() => f.classList.remove('is-on'), 600));
+      }
+
+      function toggle(v) {
+        if (v.paused) { userPaused.delete(v); play(v); flash(v, true); }
+        else { userPaused.add(v); v.pause(); flash(v, false); }
+      }
+
+      videos.forEach(v => {
+        const screen = v.parentElement;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ik-use-toggle';
+        btn.addEventListener('click', e => { e.stopPropagation(); toggle(v); });
+        screen.appendChild(btn);
+        const f = document.createElement('span');
+        f.className = 'ik-use-flash';
+        f.setAttribute('aria-hidden', 'true');
+        screen.appendChild(f);
+        // clicking anywhere on the screen pauses or resumes the clip
+        screen.addEventListener('click', () => toggle(v));
+        v.addEventListener('play', () => sync(v));
+        v.addEventListener('pause', () => sync(v));
+        sync(v);
+      });
+
+      function applyMode() {
+        if (reduce.matches) {
+          videos.forEach(v => v.pause());
+        } else {
+          visible.forEach(v => { if (!userPaused.has(v)) play(v); });
+        }
+      }
+
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            const v = e.target;
+            if (e.isIntersecting && e.intersectionRatio >= 0.4) {
+              visible.add(v);
+              if (!reduce.matches && !userPaused.has(v)) play(v);
+            } else {
+              visible.delete(v);
+              v.pause();
+            }
+          });
+        }, { threshold: [0, 0.4] });
+        videos.forEach(v => io.observe(v));
+      }
+
+      applyMode();
+      if (reduce.addEventListener) reduce.addEventListener('change', applyMode);
+    })();
+  </script>
+  <script>
+    'use strict';
+    /* ── Floating section nav (same as Everyday Allies): visible from
+          Context until the project links; the button opens a list of
+          every section ── */
+    (() => {
+    const fnav = document.getElementById('prFnav');
+
+    if (fnav) {
+      const btn   = fnav.querySelector('.pr-fnav-btn');
+      const list  = document.getElementById('prFnavList');
+      const links = Array.from(list.querySelectorAll('a'));
+      const first = document.getElementById('ik-context');
+      const next  = document.querySelector('.pr-next');
+
+      const setOpen = open => {
+        list.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+      };
+
+      btn.addEventListener('click', () => setOpen(list.hidden));
+      links.forEach(a => a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('click', e => { if (!fnav.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !list.hidden) { setOpen(false); btn.focus(); } });
+
+      const update = () => {
+        const vh = window.innerHeight;
+        const on = first.getBoundingClientRect().top < vh * 0.5 && (!next || next.getBoundingClientRect().top > vh - 24);
+        fnav.classList.toggle('is-on', on);
+        if (!on) setOpen(false);
+        // mark the section currently under the middle of the screen
+        let cur = null;
+        links.forEach(a => {
+          const t = document.querySelector(a.getAttribute('href'));
+          if (t && t.getBoundingClientRect().top < vh * 0.5) cur = a;
+        });
+        links.forEach(a => a.toggleAttribute('aria-current', a === cur));
+        if (cur) cur.setAttribute('aria-current', 'true');
+      };
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
+    })();
+  </script>
 </body>
 </html>

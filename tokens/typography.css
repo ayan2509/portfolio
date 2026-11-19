@@ -43,7 +43,7 @@
   --type-button: 14px;  /* 600 */
   --leading-body: 1.6;
 
-  /* Mono — captions and metadata */
+  /* Mono — short uppercase labels and metadata (captions are sans, see --cs-ref) */
   --type-caption: 11px;
   --tracking-caption: 0.12em;
 
@@ -90,7 +90,7 @@
   --cs-card-title: 1.125rem;                           /* 18, 16 on mobile */
   --cs-body:       0.9375rem;                          /* 15 */
   --cs-body-s:     0.875rem;                           /* 14 */
-  --cs-ref:        0.75rem;                            /* 12 */
+  --cs-ref:        0.75rem;                            /* 12 — captions, sources, credits (sans) */
   --cs-index:      0.75rem;                            /* 12 */
   --cs-label:      0.6875rem;                          /* 11 — the floor */
 

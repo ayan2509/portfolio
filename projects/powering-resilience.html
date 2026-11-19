@@ -306,12 +306,7 @@
       color: var(--pr-dim);
     }
 
-    .pr-ref {
-      margin-top: 10px;
-      font-size: var(--cs-ref);
-      line-height: 1.6;
-      color: var(--pr-dim);
-    }
+    .pr-ref { margin-top: 10px; }
 
     /* ── 03 Process ────────────────────────────────── */
     .pr-proc-intro { margin-bottom: 26px; }
@@ -1422,10 +1417,6 @@
     .pr-map.is-in .pr-map-fan { opacity: 1; transition-delay: 0.9s; }
     .pr-map.is-in .pr-map-node { opacity: 1; transition: opacity 0.5s ease 0.3s; }
 
-    /* the intro's small text starts level with the main line, not the label */
-
-    .pr-intro-r { padding-top: calc(0.6875rem * 1.5 + 16px); }
-
     /* ── The co-development tool ───────────────────── */
     /* text on the left, the iPad on the right without a divider */
     .pr-tool { grid-template-columns: 30% 70%; align-items: start; }
@@ -1942,15 +1933,6 @@
 
     .pr-plan-more { margin: calc(clamp(48px, 6vw, 72px) * -0.5) 0 clamp(36px, 5vw, 56px); }
 
-    .pr-plan-more a {
-      color: var(--accent-text);
-      font-weight: 600;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .pr-plan-more a:hover { opacity: 0.75; }
-
     /* arrival: line draws, then each year pops in, fills and shows its text */
     .pr-plan.is-in .pr-plan-line::after   { transform: scaleX(1); }
     .pr-plan.is-in .pr-plan-node          { opacity: 1; transform: none; }
@@ -1983,37 +1965,10 @@
     /* text column stays compact so the render can lead */
     .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
 
-    /* the whole section, band to next-project link, fits one screen */
-    #pr-impact .pr-body { padding-top: clamp(24px, 4svh, 48px); padding-bottom: clamp(20px, 3svh, 40px); }
-    .pr-impact-frame { min-height: 0; height: clamp(320px, calc(100svh - 290px), 640px); flex: none; }
+    /* the render fills the left column (see .pr-sec--close in case-study.css) */
+    .pr-impact-fig { display: flex; flex-direction: column; }
+    .pr-impact-frame { min-height: 0; height: 100%; flex: 1; }
 
-    /* short laptop screens: tighten the text column so it still fits */
-    @media (min-width: 901px) and (max-height: 820px) {
-      #pr-impact .pr-stack { gap: 6px; }
-      .pr-impact-ams { padding-top: 4px; }
-      .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
-      .pr-impact { gap: 6px; margin-top: 0; }
-      .pr-impact .pr-op { gap: 4px; padding: 8px 14px; }
-      .pr-impact .pr-op-ico { width: 30px; height: 30px; }
-      .pr-impact .pr-op-ico svg { width: 15px; height: 15px; }
-      #pr-impact .pr-split { margin-bottom: 14px; }
-      .pr-impact-split { grid-template-columns: 54% 46%; }
-      .pr-impact-split .pr-lead { font-size: var(--cs-lead); }
-      #pr-impact .pr-body { padding-top: 18px; padding-bottom: 14px; }
-      .pr-impact-split .pr-op-p { font-size: var(--cs-body-s); line-height: 1.5; }
-      #pr-impact .pr-next { padding-top: 14px; }
-    }
-
-    .pr-impact { gap: 12px; margin-top: 6px; }
-    .pr-impact .pr-op { gap: 6px; padding: 12px 16px; }
-    .pr-impact .pr-op-t { font-size: var(--cs-card-title); }
-    .pr-impact-split .pr-op-p { font-size: var(--cs-body-s); line-height: 1.6; }
-
-    /* the section fills the screen, so the plan above never peeks in at the bottom */
-    #pr-impact { min-height: 100svh; display: flex; flex-direction: column; }
-    #pr-impact .pr-body { flex: 1; display: flex; flex-direction: column; }
-    #pr-impact .pr-next { margin-top: auto; }
-    #pr-impact .pr-split { margin-bottom: clamp(20px, 3svh, 36px); }
 
     .pr-impact-i {
       opacity: 0;
@@ -2635,7 +2590,7 @@
               </div>
             </div>
 
-            <p class="pr-ref">Reference: Casey, J. A., Fukurai, M., Hernández, D., Balsari, S., &amp; Kiang, M. V. (2020). Power Outages and Community Health: a Narrative Review. <em>Current Environmental Health Reports, 7</em>(4), 371–383. <a href="https://doi.org/10.1007/s40572-020-00295-0" target="_blank" rel="noopener">https://doi.org/10.1007/s40572-020-00295-0</a></p>
+            <p class="pr-ref">Reference: <a href="https://doi.org/10.1007/s40572-020-00295-0" target="_blank" rel="noopener">Casey et al. (2020), Power Outages and Community Health ↗</a></p>
           </div>
         </div>
       </div>
@@ -2648,12 +2603,11 @@
        ══════════════════════════════════════════════════════════ -->
   <section class="pr-sec pr-sec--raise" id="pr-04">
     <div class="pr-band">
-      <span class="pr-band-title">The Battery</span>
+      <span class="pr-band-title">What Is a Community Battery?</span>
     </div>
 
     <div class="pr-body pr-split pr-split--hug">
         <div class="pr-col-l pr-stack pr-reveal">
-          <span class="pr-eyebrow">What is a community battery?</span>
           <p class="pr-lead">A neighbourhood-scale battery that <strong>stores excess solar energy during the day and gives it back to the neighbourhood at peak demand</strong>, through the grid.</p>
           <p class="pr-p">On normal days, it eases grid congestion. During an outage, it provides backup power that keeps the community going.</p>
           <p class="pr-p">It works as a virtual energy store, and can be shared between the community, the local government and the grid provider.</p>
@@ -2831,7 +2785,7 @@
           </div>
         </div>
 
-        <p class="pr-ref pr-how-ref">Reference: Mohanty, A., Ramasamy, A., Verayiah, R., &amp; Mohanty, S. (2024). Neighborhood and community battery projects: A systematic analysis of their current state and future prospects. <em>Journal of Energy Storage, 95</em>, 112525. <a href="https://doi.org/10.1016/j.est.2024.112525" target="_blank" rel="noopener">https://doi.org/10.1016/j.est.2024.112525</a></p>
+        <p class="pr-ref pr-how-ref">Reference: <a href="https://doi.org/10.1016/j.est.2024.112525" target="_blank" rel="noopener">Mohanty et al. (2024), Neighborhood and community battery projects ↗</a></p>
       </div>
   </div>
 
@@ -2987,7 +2941,6 @@
       </div>
 
       <div class="pr-col-r pr-stack pr-reveal">
-        <span class="pr-eyebrow">Batteries as a strategic asset</span>
         <p class="pr-lead">A crisis-only battery is an <strong>expensive fire extinguisher</strong>: essential when needed, but idle most of the time. A community battery <strong class="cs-key">works every day, while staying ready for when crisis hits</strong>.</p>
         <p class="pr-p pr-ops-lead">This brings us to the two modes the battery operates in.</p>
 
@@ -3324,7 +3277,6 @@
     <div class="pr-body" style="padding-bottom: 0;">
       <!-- cost line, then what the numbers assume, in one column of the same width -->
       <div class="pr-stack pr-units-intro">
-          <span class="pr-eyebrow">Putting numbers to the idea</span>
           <p class="pr-lead pr-units-lead">Community batteries cost <strong>≈ €430 per kWh</strong> of storage today. As the technology evolves, costs could fall to €182–253 per kWh, <strong class="cs-key">a 40–60% reduction</strong>.</p>
           <p class="pr-p pr-units-basis">Costs exclude installation. The hours shown under each battery depicts how long it could power critical infrastructure such as 50 fridges, 200 lights and 10 home ventilators.</p>
           <p class="pr-ref pr-units-ref">References: <a href="https://chargeblock.nl/en/battery-containers" target="_blank" rel="noopener">ChargeBlock, battery containers ↗</a> · <a href="https://battiq.nl/outdoor/" target="_blank" rel="noopener">BattiQ, outdoor batteries ↗</a> · <a href="https://www.energy-innovation.nl/documents/143/CE_Delft_210361_Omslagpunt_grootschalige_batterijopslag_Achtergrondrapport_Def.pdf" target="_blank" rel="noopener">CE Delft (2021), Omslagpunt grootschalige batterijopslag ↗</a> · <a href="https://english.nctv.nl/topics/c/critical-infrastructure-protection" target="_blank" rel="noopener">NCTV, critical infrastructure ↗</a></p>
@@ -3512,10 +3464,9 @@
     <div class="pr-body">
       <div class="pr-split pr-reveal">
         <div class="pr-col-l pr-stack">
-          <span class="pr-eyebrow">Co-development methodology</span>
           <p class="pr-lead">A project of this scale requires <strong>close coordination and knowledge exchange</strong> between stakeholders to align on how the community battery will be used.</p>
         </div>
-        <div class="pr-col-r pr-stack pr-intro-r">
+        <div class="pr-col-r pr-stack">
           <p class="pr-p">Beyond the technology, a community battery depends on a social agreement between people on how its power is used.</p>
           <p class="pr-p">Values agreed in advance decide who gets power in a blackout, avoiding chaos in the moment.</p>
           <p class="pr-p">Clear coordination and a shared understanding between stakeholders turn these agreements into action.</p>
@@ -3706,12 +3657,11 @@
        ══════════════════════════════════════════════════════════ -->
   <section class="pr-sec" id="pr-09">
     <div class="pr-band">
-      <span class="pr-band-title">Implementation Plan</span>
+      <span class="pr-band-title">5-Year Implementation Plan</span>
     </div>
 
     <div class="pr-body">
       <div class="pr-stack pr-plan-intro pr-reveal">
-        <span class="pr-eyebrow">Five year plan</span>
         <p class="pr-lead">Re-imagining the urban fabric of the Netherlands, with <strong class="cs-key">community batteries as standard urban infrastructure</strong>.</p>
         <p class="pr-p">It starts with pilots in Amsterdam neighbourhoods and grows, step by step, into a roll-out across the country, making the Netherlands more resilient.</p>
       </div>
@@ -3766,7 +3716,7 @@
           </div>
       </div>
 
-      <p class="pr-p pr-plan-more">To see the detailed implementation plan, <a href="https://drive.google.com/file/d/16ElEexxzYFJDgBfLqF-vC5nHCYswJd1s/view?usp=sharing" target="_blank" rel="noopener">click here ↗</a>.</p>
+      <p class="pr-cap pr-plan-more">To see the detailed implementation plan, <a href="https://drive.google.com/file/d/16ElEexxzYFJDgBfLqF-vC5nHCYswJd1s/view?usp=sharing" target="_blank" rel="noopener">click here ↗</a>.</p>
 
     </div>
   </section>
@@ -3774,7 +3724,7 @@
   <!-- ══════════════════════════════════════════════════════════
        IMPACT & OUTCOMES
        ══════════════════════════════════════════════════════════ -->
-  <section class="pr-sec" id="pr-impact">
+  <section class="pr-sec pr-sec--close" id="pr-impact">
     <div class="pr-band">
       <span class="pr-band-title">Impact &amp; Outcomes</span>
     </div>
@@ -3835,10 +3785,11 @@
       </div>
      </div>
 
-      <a href="practising-parity.html" class="pr-next pr-next-link">
-        <span class="pr-next-k">Next project</span>
-        <span class="pr-next-v">Practising Parity →</span>
-      </a>
+      <nav class="pr-next" aria-label="More projects">
+        <a href="practising-parity.html" class="pr-next-link">
+          <span class="pr-next-v">Practising Parity →</span>
+        </a>
+      </nav>
     </div>
   </section>
 
@@ -3850,11 +3801,11 @@
       <li><a href="#pr-context">Context</a></li>
       <li><a href="#pr-03">Our Process</a></li>
       <li><a href="#pr-02">The 72 Hours</a></li>
-      <li><a href="#pr-04">The Battery</a></li>
+      <li><a href="#pr-04">What Is a Community Battery?</a></li>
       <li><a href="#pr-06">A Tale of Two Contexts</a></li>
       <li><a href="#pr-08">Grounded in Reality</a></li>
       <li><a href="#pr-stake">Stakeholder Dynamics</a></li>
-      <li><a href="#pr-09">Implementation Plan</a></li>
+      <li><a href="#pr-09">5-Year Implementation Plan</a></li>
       <li><a href="#pr-impact">Impact &amp; Outcomes</a></li>
     </ul>
     <button class="pr-fnav-btn" type="button" aria-expanded="false" aria-controls="prFnavList">
