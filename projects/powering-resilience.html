@@ -546,24 +546,9 @@
     }
 
     /* ── Why not home batteries ────────────────────── */
-    /* two cards, community and home, each listing the same five attributes;
-       a shared subgrid keeps each attribute level across both cards */
-    .pr-vs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(6, auto);
-      column-gap: 16px;
-    }
-
-    .pr-vs-card {
-      grid-row: 1 / span 6;
-      display: grid;
-      grid-template-rows: subgrid;
-      row-gap: clamp(16px, 1.8vw, 22px);
-      padding: clamp(20px, 2.2vw, 28px);
-      background: var(--surface);
-      border: 1px solid transparent;
-    }
+    /* two cards, community and home, each listing the same five attributes
+       (.pr-vs is shared, in case-study.css): a title plus five rows */
+    .pr-vs { --vs-rows: 6; }
 
     .pr-vs-card--community {
       background: color-mix(in srgb, var(--accent) 4%, var(--surface));
@@ -2162,10 +2147,6 @@
         padding: 16px 0;
         border-left: 0;
       }
-
-      /* the cards stack, each keeping its own rhythm */
-      .pr-vs { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 14px; }
-      .pr-vs-card { grid-row: auto; display: flex; flex-direction: column; }
 
       .pr-steps { grid-template-columns: 1fr; }
 

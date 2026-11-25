@@ -461,25 +461,8 @@
     .fv-who .pr-cap a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
     .fv-who .pr-cap a:hover { color: var(--accent-text); }
 
-    /* two cards, actual worker and assumed user, each listing the same four topics;
-       a shared subgrid keeps each attribute level across both cards */
-    .pr-vs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(5, auto);
-      column-gap: 16px;
-    }
-
-    .pr-vs-card {
-      grid-row: 1 / span 5;
-      display: grid;
-      grid-template-rows: subgrid;
-      row-gap: clamp(16px, 1.8vw, 22px);
-      padding: clamp(20px, 2.2vw, 28px);
-      background: var(--surface);
-      border: 1px solid transparent;
-    }
-
+    /* two cards, actual worker and assumed user, each listing the same four topics
+       (.pr-vs and its motion are shared, in case-study.css) */
     .pr-vs-card--hl {
       background: color-mix(in srgb, var(--accent) 4%, var(--surface));
       border-color: color-mix(in srgb, var(--accent) 30%, transparent);
@@ -491,10 +474,6 @@
 
     /* the highlighted card's icons pick up the accent */
     .pr-vs-card--hl .pr-vs-ico { color: var(--accent); }
-
-    /* ── Motion: the cards rise in turn ── */
-    .fv-anim .pr-vs-card       { opacity: 0; translate: 0 14px; transition: opacity 0.6s ease, translate 0.7s var(--spring); transition-delay: calc(var(--i) * 0.2s); }
-    .fv-anim.is-in .pr-vs-card { opacity: 1; translate: 0 0; }
 
     /* ── The COM-B model ───────────────────────────── */
     /* subsection rules run the full width of the page, like the section
@@ -3106,67 +3085,8 @@
 
     /* ── what sets it apart: the lead, then the design principles as
        boxes after Powering Resilience's operating modes (.pr-op) ── */
-    .flf-principles { display: flex; flex-direction: column; gap: clamp(24px, 3vw, 32px); }
-
     .flf-apart { max-width: var(--pr-measure); }
     .flf-apart .pr-lead { text-wrap: pretty; }
-
-    .flf-pr-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      list-style: none;
-    }
-
-    .flf-pr {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 20px 20px 22px;
-      background: var(--surface);
-      border: 1px solid var(--pr-line);
-    }
-
-    .flf-pr-h { display: flex; align-items: center; gap: 14px; }
-
-    .flf-pr-ico {
-      flex: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--pr-head);
-      background: color-mix(in srgb, var(--text) 6%, transparent);
-      border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
-    }
-
-    .flf-pr-ico svg { width: 17px; height: 17px; }
-
-    .flf-pr-k {
-      display: block;
-      margin-bottom: 6px;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      font-size: var(--cs-index);
-      letter-spacing: var(--cs-tracking-index);
-      color: var(--accent-text);
-    }
-
-    .flf-pr-t {
-      font-family: var(--font-h);
-      font-size: var(--cs-card-title);
-      font-weight: 700;
-      line-height: 1.2;
-      color: var(--pr-head);
-    }
-
-    .flf-pr p { font-size: var(--cs-body); line-height: 1.65; color: var(--text); text-wrap: pretty; }
-
-    @media (min-width: 1024px) {
-      .flf-pr-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    }
 
     /* ── desktop: the pinned block ── */
     @media (min-width: 1024px) {
@@ -3280,10 +3200,6 @@
       .flf-body,
       .flf-step.is-on .flf-body { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: none; }
       .flf-body-c { padding: 0; gap: 14px; }
-    }
-
-    @media (max-width: 639px) {
-      .flf-pr-grid { grid-template-columns: minmax(0, 1fr); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3445,8 +3361,6 @@
 
     @media (max-width: 900px) {
       .fv-who .pr-split { grid-template-columns: 1fr; }
-      .pr-vs { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 14px; }
-      .pr-vs-card { grid-row: auto; display: flex; flex-direction: column; }
       /* stacked: the equation reads top to bottom */
       .fv-comb { grid-template-columns: 1fr; gap: 10px; }
       .fv-comb > * { grid-column: 1; grid-row: auto; }
@@ -4749,49 +4663,49 @@
 
       <hr class="pr-hr fv-sub-rule" />
 
-      <div class="flf-principles">
+      <div class="pr-principles">
         <div class="pr-stack flf-apart">
           <span class="pr-eyebrow">What sets it apart</span>
           <p class="pr-lead">BZK’s annual engagement survey takes a snapshot. This loop keeps going, shifting the process from <strong class="cs-key">reactive to proactive</strong>.</p>
           <p class="pr-p">It is <b>continuous</b> rather than periodic, <b>embedded in the workplace</b> rather than digital-first, and it <b>closes the loop visibly</b> instead of leaving outcomes unreported.</p>
         </div>
-        <ol class="flf-pr-grid" aria-label="Design principles">
-          <li class="flf-pr">
-            <div class="flf-pr-h">
-              <span class="flf-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span>
+        <ol class="pr-pr-grid" aria-label="Design principles">
+          <li class="pr-pr">
+            <div class="pr-pr-h">
+              <span class="pr-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span>
               <div>
-                <span class="flf-pr-k">Desirability</span>
-                <h3 class="flf-pr-t">Desirability over digital</h3>
+                <span class="pr-pr-k">Desirability</span>
+                <h3 class="pr-pr-t">Desirability over digital</h3>
               </div>
             </div>
             <p>Presence matters more than convenience. Digital tools support the conversation; they don’t replace it.</p>
           </li>
-          <li class="flf-pr">
-            <div class="flf-pr-h">
-              <span class="flf-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/></svg></span>
+          <li class="pr-pr">
+            <div class="pr-pr-h">
+              <span class="pr-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/></svg></span>
               <div>
-                <span class="flf-pr-k">Feasibility</span>
-                <h3 class="flf-pr-t">Realism over idealism</h3>
+                <span class="pr-pr-k">Feasibility</span>
+                <h3 class="pr-pr-t">Realism over idealism</h3>
               </div>
             </div>
             <p>Every touchpoint fits existing shift routines. No one has to build a new habit.</p>
           </li>
-          <li class="flf-pr">
-            <div class="flf-pr-h">
-              <span class="flf-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg></span>
+          <li class="pr-pr">
+            <div class="pr-pr-h">
+              <span class="pr-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg></span>
               <div>
-                <span class="flf-pr-k">Viability</span>
-                <h3 class="flf-pr-t">Sustainability of participation</h3>
+                <span class="pr-pr-k">Viability</span>
+                <h3 class="pr-pr-t">Sustainability of participation</h3>
               </div>
             </div>
             <p>It runs every quarter, not only when negotiations are close.</p>
           </li>
-          <li class="flf-pr">
-            <div class="flf-pr-h">
-              <span class="flf-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></span>
+          <li class="pr-pr">
+            <div class="pr-pr-h">
+              <span class="pr-pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></span>
               <div>
-                <span class="flf-pr-k">Trust</span>
-                <h3 class="flf-pr-t">Accountability without surveillance</h3>
+                <span class="pr-pr-k">Trust</span>
+                <h3 class="pr-pr-t">Accountability without surveillance</h3>
               </div>
             </div>
             <p>Notes are the only record of individual input, and votes are only ever counted, never traced.</p>
@@ -5407,25 +5321,7 @@
       wide.addEventListener('change', arm);
     })();
 
-    /* ═══════════════════════════════════════════════════════════
-       REVEALS · CONTEXT ICEBERG, PROCESS DIAMOND
-       Each .fv-anim figure plays once when it comes into view.
-       Without motion (or an observer) the finished state shows
-       straight away.
-       ═══════════════════════════════════════════════════════════ */
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.querySelectorAll('.fv-anim').forEach(el => {
-      if (still || !('IntersectionObserver' in window)) {
-        el.classList.remove('fv-anim');
-        return;
-      }
-      new IntersectionObserver((entries, obs) => {
-        if (entries.some(e => e.isIntersecting)) {
-          el.classList.add('is-in');
-          obs.disconnect();
-        }
-      }, { threshold: 0.25 }).observe(el);
-    });
+    /* REVEALS · each .fv-anim figure plays once in view: shared, in case-study.js */
 
     /* ═══════════════════════════════════════════════════════════
        FLOATING SECTION NAV
